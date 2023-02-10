@@ -2,9 +2,8 @@
 </script>
 
 <template>
-    <div class="app">
-        <!--App组件作为页面容器-->
-        <router-view />
+    <div class="root">
+        首页
     </div>
 </template>
 
