@@ -1,5 +1,4 @@
 <script setup lang='ts'>
-import { defineProps, toRefs } from 'vue'
 import { labelSelect } from '@/methods';
 
 const props = defineProps({
