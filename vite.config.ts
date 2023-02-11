@@ -9,5 +9,9 @@ export default defineConfig({
     alias: {
       '@': path.resolve('./src') // @代替src
     }
+  },
+  server: {
+    host: '0.0.0.0',
+    port: 5173
   }
 })
