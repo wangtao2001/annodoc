@@ -3,9 +3,10 @@ import Label from '@/components/label.vue'
 import { ref, Ref } from 'vue'
 import { LabelInfo } from '@/methods/interface'
 import { labelSelect } from '@/methods'
+import data from '../../data/task1.json' // 模拟数据
 
 // 不能用string类型，不然不会重新渲染
-const text: Ref<string> = ref('冠状病毒是一个大型病毒家族，冠状病毒已知可引起感冒、中东呼吸综合征（MERS）和严重急性呼吸综合征（SARS）等较严重疾病。新型冠状病毒是以前从未在人体中发现的冠状病毒新毒株。\n人感染了冠状病毒后的常见体征有呼吸道症状、发热、咳嗽、气促和呼吸困难等。在较严重病例中，感染可导致肺炎、严重急性呼吸综合征、肾衰竭，甚至死亡。')
+const text: Ref<string> = ref(data.text)
 
 // 此值应当是用户选择后从后端读取的
 const labels: Array<LabelInfo> = [{
@@ -27,7 +28,7 @@ document.onkeydown = (e) => {
 </script>
 
 <template>
-    <t-card bordered header-bordered>
+    <t-card header-bordered>
         <div class="anno-area" v-html="text">
         </div>
         <template #actions>

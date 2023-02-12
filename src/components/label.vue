@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { labelSelect } from '@/methods';
+import { labelSelect } from '@/methods'
 
 const props = defineProps({
     name: {
@@ -37,6 +37,7 @@ const props = defineProps({
     padding: 5px 10px;
     border-radius: 20px;
     margin: 0 8px;
+    transition: 0.4s;
 
     .key {
         margin-left: 6px;
@@ -49,5 +50,10 @@ const props = defineProps({
         justify-content: center;
         align-items: center;
     }
+}
+
+.name:hover {
+    opacity: 0.8; // 纠结了一个小时结果一行代码解决
+    transition: 0.4s;
 }
 </style>
