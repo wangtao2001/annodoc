@@ -30,7 +30,7 @@ const cancel = () => {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: auto;
 }
 
 .bottom {
@@ -41,5 +41,9 @@ const cancel = () => {
     .t-button {
         margin: 0 8px;
     }
+}
+
+button {
+    user-select: none; // 除了选区部分其他都不能选，可能会出现问题
 }
 </style>

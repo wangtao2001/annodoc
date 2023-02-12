@@ -15,6 +15,8 @@ const labels: Array<LabelInfo> = [{
     name: "症状", keyword: "P", color: "#f9756d"
 }, {
     name: "部位", keyword: "G", color: "#28a745"
+}, {
+    name: "人名", keyword: "F", color: "#ffd664"
 }]
 
 // 监听键盘事件
