@@ -23,9 +23,9 @@ const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，�
                 <t-menu-item value="item3"> 菜单内容二 </t-menu-item>
                 <t-menu-item value="item4" :disabled="true"> 菜单内容三 </t-menu-item>
                 <template #operations>
-                    <a href="javascript:;"><t-icon class="t-menu__operations-icon" name="search" /></a>
-                    <a href="javascript:;"><t-icon class="t-menu__operations-icon" name="notification-filled" /></a>
-                    <a href="javascript:;"><t-icon class="t-menu__operations-icon" name="home" /></a>
+                    <a><t-icon class="t-menu__operations-icon" name="search" /></a>
+                    <a><t-icon class="t-menu__operations-icon" name="notification-filled" /></a>
+                    <a><t-icon class="t-menu__operations-icon" name="home" /></a>
                 </template>
             </t-head-menu>
         </t-header>

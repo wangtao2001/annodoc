@@ -1,6 +1,10 @@
 <script setup lang='ts'>
 import AnnoCard from '@/components/anno-card.vue'
+import { annoResult2Json } from '@/methods'
 import { useRouter } from 'vue-router'
+import { useStore } from '@/store'
+
+const store = useStore()
 const router = useRouter()
 
 const cancel = () => {
@@ -16,6 +20,9 @@ const returnList = () => {
 }
 
 const finish = () => {
+    const results = annoResult2Json(document.querySelector('.anno-area') as HTMLDivElement)
+    console.log(results) // 这个值需要在组件间传递，需要存到pinia中
+    //其实包括anno - card中的labels也要存，这个后面在处理
     router.push('/anno/result')
 }
 
