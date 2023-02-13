@@ -1,10 +1,5 @@
-<script setup lang='ts'>
-</script>
-
 <template>
-    首页
+    <t-layout>
+        首页
+    </t-layout>
 </template>
-
-<style scoped lang='less'>
-
-</style>

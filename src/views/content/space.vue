@@ -1,10 +1,5 @@
-<script setup lang='ts'>
-</script>
-
 <template>
-    个人中心
+    <t-layout>
+        个人中心
+    </t-layout>
 </template>
-
-<style scoped lang='less'>
-
-</style>

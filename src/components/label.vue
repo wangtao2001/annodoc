@@ -42,7 +42,7 @@ const props = defineProps({
     .key {
         margin-left: 6px;
         background-color: white;
-        color: black;
+        color: #666666;
         height: 20px;
         width: 20px;
         border-radius: 20px;

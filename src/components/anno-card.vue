@@ -44,6 +44,7 @@ document.onkeydown = (e) => {
     font-size: 16px;
     letter-spacing: 2px; // 字体间距
     width: 50vw;
+    color: #191919;
     //font-weight: lighter;
     line-height: 200%; // 行间距
     //font-family: 'Courier New', Courier, monospace;
