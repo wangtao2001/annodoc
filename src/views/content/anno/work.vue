@@ -23,6 +23,7 @@ const finish = () => {
     const results = annoResult2Json(document.querySelector('.anno-area') as HTMLDivElement)
     console.log(results) // 这个值需要在组件间传递，需要存到pinia中
     //其实包括anno - card中的labels也要存，这个后面在处理
+    store.results = results
     router.push('/anno/result')
 }
 
