@@ -1,6 +1,9 @@
 <script setup lang='ts'>
 import { useStore } from '@/store'
+import { useRouter } from 'vue-router'
 import { ref, Ref } from 'vue'
+
+const router = useRouter()
 
 const store = useStore()
 const columns = [
@@ -36,8 +39,9 @@ const localPriview = () => {
             <t-pagination class="page" :total="store.results.length" showPageNumber :showPageSize="false" :pageSize="6"
                 showPreviousAndNextBtn totalContent @current-change="change" />
             <div class="option">
-                <t-button @click="localPriview">本地预览</t-button>
-                <t-button>提交</t-button>
+                <t-button @click="router.back()">返回</t-button>
+                <t-button :disabled="store.results.length != 0 ? false : true" @click="localPriview">本地预览</t-button>
+                <t-button :disabled="store.results.length != 0 ? false : true">提交</t-button>
             </div>
         </div>
     </div>
@@ -49,6 +53,7 @@ const localPriview = () => {
     align-items: center;
     flex-direction: column;
     justify-content: center;
+    user-select: none;
 }
 
 .table {

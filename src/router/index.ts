@@ -15,7 +15,7 @@ const routes: Array<RouteRecordRaw> = [{
             path: '/anno',
             component: () => import('@/views/content/anno.vue'),
             name: 'anno',
-            redirect: '/anno/work',
+            redirect: '/anno/list',
             children: [
                 {
                     path: '/anno/work',

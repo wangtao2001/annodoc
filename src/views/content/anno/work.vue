@@ -1,11 +1,26 @@
 <script setup lang='ts'>
 import AnnoCard from '@/components/anno-card.vue'
 import { annoResult2Json } from '@/methods'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useStore } from '@/store'
+import task from '../../../../data/task.json'
 
 const store = useStore()
+const route = useRoute()
 const router = useRouter()
+
+var text: string = ""
+// 获取id参数确定唯一的任务
+const taskId: string = route.query.id as string
+// 这里应当是从后端获取文本，暂时就模拟查找了
+task.forEach((obj) => {
+    console.log(obj.id)
+    if (obj.id == taskId) {
+        text = obj.text
+        return
+    }
+})
+
 
 const cancel = () => {
     window.getSelection()!.empty()
@@ -32,7 +47,7 @@ const finish = () => {
 <template>
     <div class="root">
         <!--标注区域的卡片-->
-        <AnnoCard></AnnoCard>
+        <AnnoCard :text="text"></AnnoCard>
         <t-card style="margin-top: 20px;">
             <div class="option">
                 <t-button @click="returnList">返回</t-button>

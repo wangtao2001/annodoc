@@ -13,3 +13,10 @@ export interface Result {
     labelKeyword: string,
     labelName: string
 }
+
+// 标注任务的简描述信息
+export interface taskInfo {
+    id: string,
+    title: string,
+    status: number // 状态位
+}

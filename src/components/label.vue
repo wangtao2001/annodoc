@@ -22,7 +22,7 @@ const props = defineProps({
         name, keyword, color
     })">
         {{ name }}
-        <div class="key">{{ keyword }}</div>
+        <div class="key" :style="{ 'color': color }">{{ keyword }}</div>
     </div>
 </template>
 
@@ -34,7 +34,7 @@ const props = defineProps({
     flex-direction: row;
     // 背景颜色只能借助样式绑定
     color: white;
-    padding: 5px 10px;
+    padding: 3px 10px;
     border-radius: 20px;
     margin: 0 8px;
     transition: 0.4s;
@@ -42,7 +42,6 @@ const props = defineProps({
     .key {
         margin-left: 6px;
         background-color: white;
-        color: #666666;
         height: 20px;
         width: 20px;
         border-radius: 20px;

@@ -3,10 +3,17 @@ import Label from '@/components/label.vue'
 import { ref, Ref } from 'vue'
 import { LabelInfo } from '@/methods/interface'
 import { labelSelect } from '@/methods'
-import data from '../../data/task1.json' // 模拟数据
+
+
+const props = defineProps({
+    text: {
+        type: String,
+        required: true
+    }
+})
 
 // 不能用string类型，不然不会重新渲染
-const text: Ref<string> = ref(data.text)
+const text: Ref<string> = ref(props.text)
 
 // 此值应当是用户选择后从后端读取的
 const labels: Array<LabelInfo> = [{
@@ -27,6 +34,8 @@ document.onkeydown = (e) => {
         }
     })
 }
+
+// 在考虑要不要根据results存储的结果来实现从resulte页返回时标记结果仍在
 </script>
 
 <template>
