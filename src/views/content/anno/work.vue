@@ -14,7 +14,6 @@ var text: string = ""
 const taskId: string = route.query.id as string
 // 这里应当是从后端获取文本，暂时就模拟查找了
 task.forEach((obj) => {
-    console.log(obj.id)
     if (obj.id == taskId) {
         text = obj.text
         return

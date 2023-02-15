@@ -1,10 +1,10 @@
-import { LabelInfo, Result } from "@/methods/interface";
+import { LabelInfo, Result } from "@/methods/interface"
 
 export function labelSelect(label: LabelInfo) {
     const s = window.getSelection()!
     if (s.rangeCount) {
         const rang = s.getRangeAt(0)
-        if (rang.collapsed) { // 不太熟悉Range对象，这一行是为了避免有时会选中一个空选区
+        if (rang.collapsed) { // 表示Range的起始位置和结束位置重合，为了避免有时会选中一个空选区
             return
         }
         const span: HTMLSpanElement = document.createElement("span")
@@ -17,6 +17,12 @@ export function labelSelect(label: LabelInfo) {
             currentSpan.replaceWith(currentSpan.innerText) // 用文字替换span标签
         }
         rang.surroundContents(span) // 用一个span标签包裹取值范围
+        // 嵌套选择的话就把内层取消
+        // 这里还有一种更简单的方式，就是禁止后面的选择，但是暂时实现不了
+        const innerSpans = span.querySelectorAll('.onselect')
+        for (var innerSpan of innerSpans) {
+            innerSpan.replaceWith(innerSpan.innerHTML)
+        }
         window.getSelection()!.empty()
     }
 }
