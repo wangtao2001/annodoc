@@ -94,6 +94,7 @@ export function labelSelect(label: LabelInfo) {
         for (var result of store.results) {
             if (result.span.innerText.length == 0) {
                 result.span.click()
+                break
             }
         }
     }

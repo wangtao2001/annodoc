@@ -1,9 +1,11 @@
 <script setup lang='ts'>
 import Label from '@/components/label.vue'
-import { ref, Ref } from 'vue'
+import { ref, Ref, nextTick } from 'vue'
 import { LabelInfo } from '@/methods/interface'
 import { labelSelect } from '@/methods'
+import { useStore } from '@/store'
 
+const store = useStore()
 
 const props = defineProps({
     text: {
@@ -35,17 +37,30 @@ document.onkeydown = (e) => {
     })
 }
 
-// 在考虑要不要根据results存储的结果来实现从resulte页返回时标记结果仍在
+// 返回时刚刚标注的状态保持住
+var rawText = ref(true)
+
+if (typeof store.resultsContainer != 'undefined') {
+    rawText.value = false
+    nextTick(() => {
+        document.querySelector('.container')?.appendChild(store.resultsContainer)
+    })
+    console.log("确认执行了")
+}
+
 </script>
 
 <template>
     <t-card header-bordered>
-        <div class="anno-area" v-html="text">
+        <div class="container">
+            <div v-if="rawText" class="anno-area">
+                {{ text }}
+            </div>
         </div>
         <template #actions>
             <Label v-for="label in labels" :name="label.name" :keyword="label.keyword" :color="label.color"></Label>
         </template>
-</t-card>
+    </t-card>
 </template>
 
 <style scoped lang='less'>

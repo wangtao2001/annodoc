@@ -31,10 +31,13 @@ const cancel = () => {
 }
 
 const returnList = () => {
+    store.results.length = 0
+    store.resultsContainer = undefined
     router.push('/anno/list')
 }
 
 const finish = () => {
+    store.resultsContainer = document.querySelector('.anno-area')
     router.push('/anno/result')
 }
 
