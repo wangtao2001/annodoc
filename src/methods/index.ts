@@ -88,6 +88,13 @@ export function labelSelect(label: LabelInfo) {
             }
         }
         window.getSelection()!.empty()
-        // 所有标记过的元素要用状态管理管理起来
+        // 补一个补丁： 删除所有空选区
+        // 当选区划过文字停在一个label一般上时，会产生一个空选区
+        // 这其实是extractContents方法造成的，他在提取range中包含的内容时会把label完整的提取出来
+        for (var result of store.results) {
+            if (result.span.innerText.length == 0) {
+                result.span.click()
+            }
+        }
     }
 }
