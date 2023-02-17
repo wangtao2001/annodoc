@@ -45,7 +45,7 @@ document.onkeydown = (e) => {
         <template #actions>
             <Label v-for="label in labels" :name="label.name" :keyword="label.keyword" :color="label.color"></Label>
         </template>
-    </t-card>
+</t-card>
 </template>
 
 <style scoped lang='less'>

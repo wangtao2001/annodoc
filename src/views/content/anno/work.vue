@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import AnnoCard from '@/components/anno-card.vue'
-import { annoResult2Json } from '@/methods'
+import RelaCard from '@/components/rela-card.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from '@/store'
 import task from '../../../../data/task.json'
@@ -13,12 +13,12 @@ var text: string = ""
 // 获取id参数确定唯一的任务
 const taskId: string = route.query.id as string
 // 这里应当是从后端获取文本，暂时就模拟查找了
-task.forEach((obj) => {
+for (var obj of task) {
     if (obj.id == taskId) {
         text = obj.text
-        return
+        break
     }
-})
+}
 
 
 const cancel = () => {
@@ -27,6 +27,7 @@ const cancel = () => {
     for (var span of allSpan) { // 全部取消
         span.replaceWith(span.innerHTML)
     }
+    store.results.length = 0 // 清空store
 }
 
 const returnList = () => {
@@ -34,10 +35,6 @@ const returnList = () => {
 }
 
 const finish = () => {
-    const results = annoResult2Json(document.querySelector('.anno-area') as HTMLDivElement)
-    console.log(results) // 这个值需要在组件间传递，需要存到pinia中
-    //其实包括anno - card中的labels也要存，这个后面在处理
-    store.results = results
     router.push('/anno/result')
 }
 
@@ -46,11 +43,14 @@ const finish = () => {
 <template>
     <div class="root">
         <!--标注区域的卡片-->
-        <AnnoCard :text="text"></AnnoCard>
-        <t-card style="margin-top: 20px;">
+        <div class="card">
+            <AnnoCard :text="text"></AnnoCard>
+            <RelaCard></RelaCard>
+        </div>
+        <t-card class="bottom-card" style="margin-top: 20px;">
             <div class="option">
                 <t-button @click="returnList">返回</t-button>
-                <div class="bottom">
+                <div class="next">
                     <t-button @click="cancel">全部取消</t-button>
                     <t-button @click="finish">完成</t-button>
                 </div>
@@ -66,18 +66,27 @@ const finish = () => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
 
-
-.option {
-    display: flex;
-    width: 50vw;
-    justify-content: space-between;
-
-    .bottom button {
-        margin-left: 8px;
+    .card {
+        display: flex;
+        flex-direction: row;
+        width: 70vw;
+        justify-content: space-between;
     }
 
+    .bottom-card {
+        width: 70vw;
+
+        .option {
+            display: flex;
+            justify-content: space-between;
+
+            .next button {
+                margin-left: 8px;
+            }
+
+        }
+    }
 }
 
 button {

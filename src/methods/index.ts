@@ -1,4 +1,7 @@
 import { LabelInfo, Result } from "@/methods/interface"
+import { useStore } from '@/store'
+
+const store = useStore()
 
 export function labelSelect(label: LabelInfo) {
     const s = window.getSelection()!
@@ -14,36 +17,77 @@ export function labelSelect(label: LabelInfo) {
         span.setAttribute("labelName", label.name) // 尽量在HTML层面信息传递多一点
         span.onclick = (e) => { // 删除包裹
             const currentSpan = e.target as HTMLElement
+            // 对sotre也要更改
+            var index = 0
+            for (var result of store.results) {
+                index+=1
+                if (result.span == currentSpan) {
+                    // 删除
+                    store.results.splice(index-1, 1)
+                    break
+                }
+            }
             currentSpan.replaceWith(currentSpan.innerText) // 用文字替换span标签
         }
-        rang.surroundContents(span) // 用一个span标签包裹取值范围
+        // rang.surroundContents(span) // 用一个span标签包裹取值范围
+        span.appendChild(rang.extractContents())
+        rang.insertNode(span)// 用这种方法  x图标就不用伪元素放上去了
         // 嵌套选择的话就把内层取消
         // 这里还有一种更简单的方式，就是禁止后面的选择，但是暂时实现不了
         const innerSpans = span.querySelectorAll('.onselect')
         for (var innerSpan of innerSpans) {
             innerSpan.replaceWith(innerSpan.innerHTML)
+            // 对store也要更改
+            var index = 0
+            for (var result of store.results) {
+                index += 1
+                if (result.span == innerSpan) {
+                    // 删除
+                    store.results.splice(index-1, 1)
+                    break
+                }
+            }
+        }
+        // 每次标记就应该把状态同步到pinia中，而不是最后统一扫描
+        const div = document.querySelector('.anno-area') as HTMLDivElement
+        var offset = 0
+        var insert: Boolean = false // 由于没有类似py的for-else结构
+        for (var ele of div.childNodes) {
+            // 查找当前span在所有文字中的偏移
+            if (ele == span) { // 查到了当前的偏移，就可以添加一条记录
+                // 要求results能够排序，那就不能简单的push，而是插入排序
+                // 还有一种方法就是push完了sort
+                const currentResult: Result = {
+                    start: offset,
+                    end: offset + span.innerText.length,
+                    content: span.innerText,
+                    labelKeyword: label.keyword,
+                    labelName: label.name,
+                    span: span
+                }
+                if (store.results.length == 0) {
+                    store.results.push(currentResult)
+                    insert = true
+                } else {
+                    var index = 0
+                    for (var result of store.results) { // 不再使用forEach循环
+                        index += 1
+                        if (result.start >= offset) {
+                            store.results.splice(index-1, 0, currentResult)
+                            insert = true
+                            break
+                        }
+                    }
+                }
+                if (!insert) {
+                    store.results.push(currentResult)
+                }
+                break
+            } else { // 偏移向前进
+                offset += ele.textContent!.length // 如果后面我们要加标签的话这里还要-1
+            }
         }
         window.getSelection()!.empty()
+        // 所有标记过的元素要用状态管理管理起来
     }
-}
-
-export function annoResult2Json(div: HTMLDivElement) {
-    const results: Array<Result> = []
-    var offset: number = 0
-    div.childNodes.forEach((ele: Node) => {
-        if (ele.nodeType == Node.TEXT_NODE) { // node是text类型
-            offset += ele.textContent!.length // chatgpt比google管用
-        } else if (ele.nodeType == Node.ELEMENT_NODE) {
-            const span = ele as HTMLSpanElement // 强制类型转换
-            results.push({
-                start: offset,
-                end: offset + span.innerText.length,
-                content: span.innerText,
-                labelKeyword: span.getAttribute('labelKeyword')!,
-                labelName: span.getAttribute('labelName')!
-            })
-            offset += span.innerText.length
-        }
-    })
-    return results
 }

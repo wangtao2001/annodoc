@@ -7,5 +7,4 @@ import { createPinia } from 'pinia'
 // 考虑到产物大小可以按需引入或者通过插件引入
 
 //document.documentElement.setAttribute('theme-mode', 'dark');
-const store = createPinia()
-createApp(App).use(router).use(store).use(TDesign).mount("#app")
+createApp(App).use(router).use(createPinia()).use(TDesign).mount("#app")
