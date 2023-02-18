@@ -10,28 +10,7 @@ export function labelSelect(label: LabelInfo) {
         if (rang.collapsed) { // 表示Range的起始位置和结束位置重合，为了避免有时会选中一个空选区
             return
         }
-        const span: HTMLSpanElement = document.createElement("span")
-        span.className = "onselect"
-        span.style.backgroundColor = label.color // 选区的背景颜色
-        span.setAttribute("labelKeyword", label.keyword)
-        span.setAttribute("labelName", label.name) // 尽量在HTML层面信息传递多一点
-        span.onclick = (e) => { // 删除包裹
-            const currentSpan = e.target as HTMLElement
-            // 对sotre也要更改
-            var index = 0
-            for (var result of store.results) {
-                index+=1
-                if (result.span == currentSpan) {
-                    // 删除
-                    store.results.splice(index-1, 1)
-                    break
-                }
-            }
-            currentSpan.replaceWith(currentSpan.innerText) // 用文字替换span标签
-        }
-        // rang.surroundContents(span) // 用一个span标签包裹取值范围
-        span.appendChild(rang.extractContents())
-        rang.insertNode(span)// 用这种方法  x图标就不用伪元素放上去了
+        const span = createSpanAndInsert(rang, label)
         // 嵌套选择的话就把内层取消
         // 这里还有一种更简单的方式，就是禁止后面的选择，但是暂时实现不了
         const innerSpans = span.querySelectorAll('.onselect')
@@ -66,16 +45,18 @@ export function labelSelect(label: LabelInfo) {
                     labelName: label.name,
                     span: span
                 }
+                // 1首端插入
                 if (store.results.length == 0) {
                     currentResult.number = 0 // 第一个
                     store.results.push(currentResult)
                     insert = true
-                } else {
+                } else { // 2中间插入
                     var index = 0
                     for (var result of store.results) { // 不再使用forEach循环
                         index += 1
                         if (result.start >= offset) {
                             currentResult.number = index - 1
+                            // 中间插入的话就把它后面的序号全都+1
                             for (var r of store.results) {
                                 if (r.number >= currentResult.number) {
                                     r.number += 1
@@ -87,6 +68,7 @@ export function labelSelect(label: LabelInfo) {
                         }
                     }
                 }
+                // 3尾端插入
                 if (!insert) {
                     currentResult.number = store.results.length
                     store.results.push(currentResult)
@@ -107,4 +89,30 @@ export function labelSelect(label: LabelInfo) {
             }
         }
     }
+}
+
+function createSpanAndInsert(rang: Range, label: LabelInfo): HTMLSpanElement {
+    const span: HTMLSpanElement = document.createElement("span")
+    span.className = "onselect"
+    span.style.backgroundColor = label.color // 选区的背景颜色
+    span.setAttribute("labelKeyword", label.keyword)
+    span.setAttribute("labelName", label.name) // 尽量在HTML层面信息传递多一点
+    span.onclick = (e) => { // 删除包裹
+        const currentSpan = e.target as HTMLElement
+        // 对sotre也要更改
+        var index = 0
+        for (var result of store.results) {
+            index+=1
+            if (result.span == currentSpan) {
+                // 删除
+                store.results.splice(index-1, 1)
+                break
+            }
+        }
+        currentSpan.replaceWith(currentSpan.innerText) // 用文字替换span标签
+    }
+    // rang.surroundContents(span) // 用一个span标签包裹取值范围
+    span.appendChild(rang.extractContents())
+    rang.insertNode(span)// 用这种方法  x图标就不用伪元素放上去了
+    return span
 }
