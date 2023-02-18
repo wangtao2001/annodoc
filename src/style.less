@@ -39,6 +39,15 @@
     border-radius: 20px;
     position: relative;
     pointer-events: none; // 禁止点击事件
+
+    i {
+        font-style: normal;
+        font-weight: 100;
+        display: inline-block;
+        // 这里暂时没想到办法让宽等于高
+        padding-right: 5px;
+        text-align: center;
+    }
 }
 
 // 由于surroundContents会清空span的子元素，故只能用伪元素来设置图标

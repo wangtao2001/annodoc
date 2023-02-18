@@ -25,7 +25,7 @@ const cancel = () => {
     window.getSelection()!.empty()
     const allSpan = document.querySelectorAll('.onselect')
     for (var span of allSpan) { // 全部取消
-        span.replaceWith(span.innerHTML)
+        span.replaceWith(span.childNodes[1])
     }
     store.results.length = 0 // 清空store
 }

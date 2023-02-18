@@ -7,10 +7,11 @@ const router = useRouter()
 
 const store = useStore()
 const columns = [
-    { colKey: 'start', title: '起始', width: '100' },
-    { colKey: 'end', title: '终止', width: '100' },
-    { colKey: 'content', title: '内容', width: '100' },
-    { colKey: 'labelName', title: '标签类型', width: '100' },
+    { colKey: 'number', title: '编号', width: '50' },
+    { colKey: 'start', title: '起始', width: '50' },
+    { colKey: 'end', title: '终止', width: '50' },
+    { colKey: 'content', title: '内容', width: '150' },
+    { colKey: 'labelName', title: '标签类型', width: '50' },
 ]
 const data: Ref<Array<Object>> = ref(store.results.slice(0, 6)) // 默认首页是第一页 6个
 const change = (current: number) => {
