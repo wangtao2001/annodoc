@@ -58,6 +58,7 @@ export function labelSelect(label: LabelInfo) {
                 // 要求results能够排序，那就不能简单的push，而是插入排序
                 // 还有一种方法就是push完了sort
                 const currentResult: Result = {
+                    number: 0,
                     start: offset,
                     end: offset + span.innerText.length,
                     content: span.innerText,
@@ -66,6 +67,7 @@ export function labelSelect(label: LabelInfo) {
                     span: span
                 }
                 if (store.results.length == 0) {
+                    currentResult.number = 0 // 第一个
                     store.results.push(currentResult)
                     insert = true
                 } else {
@@ -73,6 +75,12 @@ export function labelSelect(label: LabelInfo) {
                     for (var result of store.results) { // 不再使用forEach循环
                         index += 1
                         if (result.start >= offset) {
+                            currentResult.number = index - 1
+                            for (var r of store.results) {
+                                if (r.number >= currentResult.number) {
+                                    r.number += 1
+                                }
+                            }
                             store.results.splice(index-1, 0, currentResult)
                             insert = true
                             break
@@ -80,6 +88,7 @@ export function labelSelect(label: LabelInfo) {
                     }
                 }
                 if (!insert) {
+                    currentResult.number = store.results.length
                     store.results.push(currentResult)
                 }
                 break

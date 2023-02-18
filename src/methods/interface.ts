@@ -7,6 +7,7 @@ export interface LabelInfo {
 
 // 标记结果
 export interface Result {
+    number: number, // 序号
     start: number,
     end: number,
     content: string,
