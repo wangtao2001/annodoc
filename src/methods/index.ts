@@ -1,5 +1,6 @@
-import { LabelInfo, Result } from "@/methods/interface"
+import { LabelInfo, Result } from "@/interface"
 import { useStore } from '@/store'
+import { MessagePlugin } from 'tdesign-vue-next'
 
 const store = useStore()
 
@@ -83,8 +84,8 @@ export function labelSelect(label: LabelInfo) {
         // 当选区划过文字停在一个label一般上时，会产生一个空选区
         // 这其实是extractContents方法造成的，他在提取range中包含的内容时会把label完整的提取出来
         for (var result of store.results) {
-            if (result.span.innerText.length == 0) {
-                result.span.click()
+            if (result.span!.innerText.length == 0) {
+                result.span!.click()
                 break
             }
         }
@@ -101,7 +102,6 @@ function createSpanAndInsert(rang: Range, label: LabelInfo): HTMLSpanElement {
     span.onclick = (e) => { // 删除包裹
         const currentSpan = e.target as HTMLElement
         deleteALabel(currentSpan)
-        
     }
     // rang.surroundContents(span) // 用一个span标签包裹取值范围
     span.appendChild(rang.extractContents())
@@ -109,7 +109,7 @@ function createSpanAndInsert(rang: Range, label: LabelInfo): HTMLSpanElement {
     return span
 }
 
-// 删除一个标签：完成以下三件事
+// 删除一个标签：完成以下四件事
 function deleteALabel(currentSpan: Element) {
     // 1对sotre也要更改
     var index = 0
@@ -118,6 +118,13 @@ function deleteALabel(currentSpan: Element) {
         index+=1
         if (result.span == currentSpan) {
             tmp = result.number
+            // 1.1 判断当前有没有关系存在，有的话就不予删除
+            for (var s of store.relaResults) {
+                if (s.startNumber == tmp || s.endNumber == tmp) {
+                    MessagePlugin.error('请先删除相关关系')
+                    return
+                }
+            }
             // 删除
             store.results.splice(index-1, 1)
             break
@@ -136,6 +143,6 @@ function deleteALabel(currentSpan: Element) {
 
 // 将pinia中的序号同步到标签上
 function piniaSyncLabelNumber(r: Result) {
-    const tmp = r.span.firstChild as HTMLPreElement
+    const tmp = r.span!.firstChild as HTMLPreElement
     tmp.innerText = r.number.toString()
 }

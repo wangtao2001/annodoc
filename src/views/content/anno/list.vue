@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { taskInfo } from '@/methods/interface'
+import { taskInfo } from '@/interface/index.js'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 

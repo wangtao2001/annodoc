@@ -4,6 +4,7 @@ import RelaCard from '@/components/rela-card.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from '@/store'
 import task from '../../../../data/task.json'
+import pubsub from 'pubsub-js'
 
 const store = useStore()
 const route = useRoute()
@@ -28,10 +29,14 @@ const cancel = () => {
         span.replaceWith(span.childNodes[1])
     }
     store.results.length = 0 // 清空store
+    store.relaResults.length = 0
+    // 清空relaView，组件通信，使用消息订阅发布
+    pubsub.publish("cleanAll")
 }
 
 const returnList = () => {
     store.results.length = 0
+    store.relaResults.length = 0
     store.resultsContainer = undefined
     router.push('/anno/list')
 }
@@ -47,10 +52,10 @@ const finish = () => {
     <div class="root">
         <!--标注区域的卡片-->
         <div class="card">
-            <AnnoCard :text="text"></AnnoCard>
-            <RelaCard></RelaCard>
+            <AnnoCard :text="text" style="margin-right: 20px;"></AnnoCard>
+            <RelaCard style="flex-grow: 1;"></RelaCard>
         </div>
-        <t-card class="bottom-card" style="margin-top: 20px;">
+        <t-card class="bottom-card">
             <div class="option">
                 <t-button @click="returnList">返回</t-button>
                 <div class="next">
@@ -73,12 +78,12 @@ const finish = () => {
     .card {
         display: flex;
         flex-direction: row;
-        width: 70vw;
-        justify-content: space-between;
+        width: 75vw;
     }
 
     .bottom-card {
-        width: 70vw;
+        width: 75vw;
+        margin-top: 20px;
 
         .option {
             display: flex;
