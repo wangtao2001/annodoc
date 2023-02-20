@@ -1,0 +1,64 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+// css暂时没有使用变量来设置数字值
+
+// 修改组件样式
+.t-card {
+    border-radius: 0px !important; // 卡片没有圆角
+}
+
+.t-card__actions {
+    display: flex;
+}
+
+.t-menu__logo {
+    margin:0 20px;
+}
+
+.t-layout__footer {
+    padding: 20px !important;
+}
+
+.t-pagination__total {
+    margin-right: 20px;
+}
+
+.t-tag {
+    margin-left: 10px !important;
+}
+
+// 选区样式
+.onselect {
+    color: white;
+    user-select: none;
+    padding: 4px 10px;
+    border-radius: 20px;
+    position: relative;
+    pointer-events: none; // 禁止点击事件
+
+    i {
+        font-weight: 100;
+        display: inline-block;
+        // 这里暂时没想到办法让宽等于高
+        padding-right: 5px;
+        text-align: center;
+    }
+}
+
+// 由于surroundContents会清空span的子元素，故只能用伪元素来设置图标
+.onselect::after {
+    content: '';
+    display: inline-block;
+    background-image: url('./assets/close.svg');
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    height: 20px;
+    width: 20px;
+    position: relative;
+    top: 5px;
+    pointer-events: auto; // 实现只在伪元素上才有的单击效果
+}
