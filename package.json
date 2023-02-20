@@ -9,10 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/pubsub-js": "^1.8.3",
+    "@types/uuid": "^9.0.0",
     "pinia": "^2.0.30",
-    "pubsub-js": "^1.9.4",
     "tdesign-vue-next": "^1.0.6",
-    "uuid": "^9.0.0",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },
