@@ -10,7 +10,11 @@ export interface RelaInfo {
     name: string,
     id: number,
     start: string,
-    end: string
+    end: string,
+    // 关系可以是单向的也可以是双向的，这里给一个标识符
+    // 如果是双向关系，无论是选择的是A->B还是B->A后端都要判对
+    // 如果是单向关系，前端用户无论怎么选择都可以，在提交后端时自动调整，以期标注减少难度
+    bothway: boolean
 }
 
 // 标记结果

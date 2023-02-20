@@ -13,7 +13,7 @@ export const labels: Array<LabelInfo> = [{
 
 // 关系类别
 export const relas: Array<RelaInfo> = [{
-    name: "并发症", id: 0, start: "A", end: "A", // 疾病与疾病之间
+    name: "并发症", id: 0, start: "A", end: "A", bothway: false // 疾病与疾病之间
 }, {
-    name: "发病部位", id: 1, start: "G", end: "A" // 部位与疾病之间
+    name: "发病部位", id: 1, start: "G", end: "A", bothway: false // 部位与疾病之间
 }]

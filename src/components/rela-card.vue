@@ -31,9 +31,12 @@ pubsub.subscribe('cleanAll', (msgName: string) => {
     relaView.length = 0
 })
 
+
+var isreverse = false // 是否存在选择的关系方向于规定不同
 const dialogConfim = () => { // 点击确定对话框关闭
     // 往store中存
     if (rela1ID.value != -1 && rela2ID.value != -1 && relaID.value != -1) {
+        // 如果是单向关系这里就要调整顺序了
         const data = {
             startNumber: rela1ID.value,
             startContent: resultNumberToContent(rela1ID.value),
@@ -42,6 +45,12 @@ const dialogConfim = () => { // 点击确定对话框关闭
             relaId: relaID.value,
             relaContent: relaIDToContent(relaID.value),
             id: uuidv4()
+        }
+        if (isreverse) {
+            data.startNumber = rela2ID.value
+            data.endNumber = rela1ID.value
+            data.startContent = resultNumberToContent(rela2ID.value)
+            data.endContent = resultNumberToContent(rela1ID.value)
         }
         if (data.startNumber == data.endNumber) { // 起点终点不能是一个
             MessagePlugin.error('关系起点与终点重复')
@@ -57,8 +66,8 @@ const dialogConfim = () => { // 点击确定对话框关闭
         visibleModal.value = false
         // 展示内容
         relaView.push({
-            start: rela1ID.value,
-            end: rela2ID.value,
+            start: data.startNumber,
+            end: data.endNumber,
             rela: data.relaContent,
             id: data.id
         })
@@ -66,7 +75,7 @@ const dialogConfim = () => { // 点击确定对话框关闭
 }
 
 const rela1Options: Array<relaOption> = [] // 关系起点的选择的内容
-const rela2Options = rela1Options // 关系终点选择的内容，是否需要去点第一个中选择的?
+const rela2Options = rela1Options // 关系终点选择的内容
 
 
 const addRela = () => { // 打开对话框
@@ -78,6 +87,7 @@ const addRela = () => { // 打开对话框
     rela2Title.value = '选择关系终点'
     allRelaTitle.value = '选择关系'
     relaID.value = -1
+    isreverse = false
     for (var r of store.results) { // 重新装载
         rela1Options.push({
             content: r.number.toString() + ' ' + r.content,
@@ -114,7 +124,10 @@ watch(ids, () => {
         const keyword2 = resultNumberTokeyword(rela2ID.value)
         allRelaOptions.length = 0
         for (var r of relas) {
-            if (r.start == keyword1 && r.end == keyword2) {
+            if ((r.start == keyword1 && r.end == keyword2) || (r.start == keyword2 && r.end == keyword1)) {
+                if (!r.bothway && r.start == keyword2) { // 反向了
+                    isreverse = true
+                }
                 allRelaOptions.push({
                     content: r.name,
                     id: r.id
