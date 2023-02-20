@@ -27,8 +27,20 @@ if (store.relaResults.length != 0) {
     }
 }
 
-pubsub.subscribe('cleanAll', (msgName: string) => {
+pubsub.subscribe('cleanAll', () => {
     relaView.length = 0
+})
+
+pubsub.subscribe('piniaToRelaView', () => {
+    relaView.length = 0
+    for (var r of store.relaResults) {
+        relaView.push({
+            start: r.startNumber,
+            end: r.endNumber,
+            rela: r.relaContent,
+            id: r.id
+        })
+    }
 })
 
 

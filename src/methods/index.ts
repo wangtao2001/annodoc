@@ -1,6 +1,7 @@
 import { LabelInfo, Result } from "@/interface"
 import { useStore } from '@/store'
 import { MessagePlugin } from 'tdesign-vue-next'
+import pubsub from 'pubsub-js'
 
 const store = useStore()
 
@@ -54,10 +55,21 @@ export function labelSelect(label: LabelInfo) {
                             // 中间插入的话就把它后面的序号全都+1
                             for (var r of store.results) {
                                 if (r.number >= currentResult.number) {
-                                    r.number += 1
-                                    piniaSyncLabelNumber(r)
+                                    r.number += 1 // (1)改动pinia中的
+                                    piniaSyncLabelNumber(r) // (2)改动标签上的
                                 }
                             }
+                            // (3)改动关系pinia中的
+                            for (var re of store.relaResults) {
+                                if (re.startNumber >= currentResult.number) {
+                                    re.startNumber += 1
+                                }
+                                if (re.endNumber >= currentResult.number) {
+                                    re.endNumber +=1
+                                }
+                            }
+                            // (4)改动展示的关系数据
+                            pubsub.publish("piniaToRelaView")
                             store.results.splice(index-1, 0, currentResult)
                             insert = true
                             break
@@ -119,6 +131,7 @@ function deleteALabel(currentSpan: Element) {
         if (result.span == currentSpan) {
             tmp = result.number
             // 1.1 判断当前有没有关系存在，有的话就不予删除
+            // 删除可以强制，但是增加一个标签一定要改标号
             for (var s of store.relaResults) {
                 if (s.startNumber == tmp || s.endNumber == tmp) {
                     MessagePlugin.error('请先删除相关关系')
