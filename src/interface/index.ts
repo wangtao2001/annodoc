@@ -40,13 +40,6 @@ export interface RelaResult {
     id: string // 这个不需要排序，为了避免新增删除时候number的难以操作，我就用uuid
 }
 
-// 标注任务的简描述信息
-export interface taskInfo {
-    id: string,
-    title: string,
-    status: number // 状态位
-}
-
 // 下拉选择关系的配置项
 export interface relaOption {
     content: string,

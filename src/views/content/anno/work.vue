@@ -3,23 +3,12 @@ import AnnoCard from '@/components/anno-card.vue'
 import RelaCard from '@/components/rela-card.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from '@/store'
-import task from '../../../../data/task.json'
 import pubsub from 'pubsub-js'
 
 const store = useStore()
-const route = useRoute()
 const router = useRouter()
 
-var text: string = ""
-// 获取id参数确定唯一的任务
-const taskId: string = route.query.id as string
-// 这里应当是从后端获取文本，暂时就模拟查找了
-for (var obj of task) {
-    if (obj.id == taskId) {
-        text = obj.text
-        break
-    }
-}
+var text: string = "冠状病毒是一个大型病毒家族，冠状病毒已知可引起感冒、中东呼吸综合征（MERS）和严重急性呼吸综合征（SARS）等较严重疾病。新型冠状病毒是以前从未在人体中发现的冠状病毒新毒株。\n人感染了冠状病毒后的常见体征有呼吸道症状、发热、咳嗽、气促和呼吸困难等。在较严重病例中，感染可导致肺炎、严重急性呼吸综合征、肾衰竭，甚至死亡。"
 
 
 const cancel = () => {

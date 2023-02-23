@@ -130,14 +130,20 @@ function deleteALabel(currentSpan: Element) {
         index+=1
         if (result.span == currentSpan) {
             tmp = result.number
-            // 1.1 判断当前有没有关系存在，有的话就不予删除
-            // 删除可以强制，但是增加一个标签一定要改标号
+            // 1.1 判断当前有没有关系存在，有的话就不予删除，然后把比当前关系大的标号更改
             for (var s of store.relaResults) {
                 if (s.startNumber == tmp || s.endNumber == tmp) {
                     MessagePlugin.error('请先删除相关关系')
                     return
                 }
+                if (s.startNumber >= tmp) {
+                    s.startNumber -= 1
+                }
+                if (s.endNumber >= tmp) {
+                    s.endNumber -=1
+                }
             }
+            pubsub.publish("piniaToRelaView")
             // 删除
             store.results.splice(index-1, 1)
             break
