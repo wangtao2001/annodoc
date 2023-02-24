@@ -1,18 +1,41 @@
-# Vue 3 + TypeScript + Vite
+### 功能设计
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+- 登录（与统一身份认证系统对接）
 
-## Recommended IDE Setup
+设置路由守卫，并且使用pinia存储
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+- 标注（医学文本、电子病历）
 
-## Type Support For `.vue` Imports in TS
+实体标注、关系标注，标注信息展示、导出
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+标识空实体（关系）文本
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+标注数量计数，实时保存
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+根据后端提供的已有标注信息渲染标注页
+
+嵌套标注
+
+- 首页
+
+查看实时分数、标注数量、任务情况 
+
+> 例如有1000份电子病历，1000份医学文本，归为两个任务，已经设置好了标签信息，由于判别机制的存在，不可能给每个人固定标注数量，只能边标边分配
+
+- 标注任务提交
+
+文件上传、实体设置（名称、快捷键、颜色）、关系设置（起点、终点、是否单双向、名称）
+
+> 上传者只需要创建一个任务，任务分配由后端自动完成
+
+- 学生管理
+
+整体查看学生信息（姓名、学号、任务情况、实时分数）
+
+- 人工判别
+
+涉及到判别机制的设计
+
+- 任务管理
+
+任务完成情况、对空文本的操作（留存或删除）、任务结果整体导出
