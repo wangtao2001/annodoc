@@ -15,8 +15,7 @@ const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，�
         <t-header>
             <t-head-menu value="item1" height="120px">
                 <template #logo>
-                    <img style="user-select: none;" @click="toHome" width="180" class="logo" src="/title5.png"
-                        alt="logo" />
+                    <img style="user-select: none;" @click="toHome" width="180" class="logo" src="/title5.png" alt="logo" />
                 </template>
                 <t-menu-item value="item1"> 已选内容 </t-menu-item>
                 <t-menu-item value="item2"> 菜单内容一 </t-menu-item>
@@ -45,11 +44,11 @@ const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，�
                         </template>
                         标注
                     </t-menu-item>
-                    <t-menu-item :disabled="true" value="upload">
+                    <t-menu-item value="task" to="/task">
                         <template #icon>
                             <t-icon name="server" />
                         </template>
-                        上传标注内容
+                        任务管理
                     </t-menu-item>
                     <t-menu-item value="space" to="/space">
                         <template #icon>
@@ -64,7 +63,7 @@ const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，�
 
                 <t-footer style="user-select: none; display: flex; justify-content: center;">Copyright @ 2023-{{
                     new
-                Date().getFullYear()
+                        Date().getFullYear()
                 }}
                     China Pharmaceutical University. All Rights
                     Reserved</t-footer>

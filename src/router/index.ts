@@ -48,6 +48,11 @@ const routes: Array<RouteRecordRaw> = [{
             component: () => import('@/views/content/space.vue'),
             name: 'space',
         },
+        {
+            path: '/task',
+            component: () => import('@/views/content/task.vue'),
+            name: 'task',
+        },
     ]
 }]
 
