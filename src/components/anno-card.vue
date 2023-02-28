@@ -29,13 +29,12 @@ document.onkeydown = (e) => {
 
 // 返回时刚刚标注的状态保持住
 var rawText = ref(true)
-
+// 本来想用keepalive的结果没有用
 if (typeof store.resultsContainer != 'undefined') {
     rawText.value = false
     nextTick(() => {
         document.querySelector('.container')?.appendChild(store.resultsContainer)
     })
-    console.log("确认执行了")
 }
 
 </script>

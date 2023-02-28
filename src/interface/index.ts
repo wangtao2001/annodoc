@@ -45,3 +45,11 @@ export interface relaOption {
     content: string,
     id: number
 }
+
+// 等待上传的信息
+export interface uploadInfo {
+    index: number
+    name: String,
+    size: String,
+    status: number // 2未上传 0已上传 1上传失败
+}

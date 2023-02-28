@@ -11,7 +11,7 @@ const route = useRoute()
 
 console.log(route.query)
 
-var text: string = "冠状病毒是一个大型病毒家族，冠状病毒已知可引起感冒、中东呼吸综合征（MERS）和严重急性呼吸综合征（SARS）等较严重疾病。新型冠状病毒是以前从未在人体中发现的冠状病毒新毒株。\n人感染了冠状病毒后的常见体征有呼吸道症状、发热、咳嗽、气促和呼吸困难等。在较严重病例中，感染可导致肺炎、严重急性呼吸综合征、肾衰竭，甚至死亡。"
+var text: string = "消化性溃疡，又称胃及十二指肠溃疡。这是指胃、小肠前段（十二指肠）或幽门，有时也包含了食道下端的黏膜损伤（溃疡）。在胃发生的溃疡称作胃溃疡，在小肠的开头部分所发生的溃疡则是十二指肠溃疡。最常见的症状是会因为吃东西而改善的上腹痛，或者晚上因肚子痛而醒来。胃溃疡的疼痛大多被用“烧灼感”或“闷痛”描述，其他常见的症状还包括打嗝、呕吐、不明原因的体重减轻、或是胃口不佳，但年纪较大的患者中约有三分之一完全没有症状 。胃溃疡若不处理，可能会演变成出血、穿孔、或是胃出口阻塞，出血的发生率约为15%。"
 
 
 const cancel = () => {
@@ -26,11 +26,11 @@ const cancel = () => {
     pubsub.publish("cleanAll")
 }
 
-const returnList = () => {
+const returnType = () => {
     store.results.length = 0
     store.relaResults.length = 0
     store.resultsContainer = undefined
-    router.push('/anno/list')
+    router.push('/anno/type')
 }
 
 const finish = () => {
@@ -49,7 +49,7 @@ const finish = () => {
         </div>
         <t-card class="bottom-card">
             <div class="option">
-                <t-button @click="returnList">返回</t-button>
+                <t-button @click="returnType">返回</t-button>
                 <div class="next">
                     <t-button @click="cancel">全部取消</t-button>
                     <t-button @click="finish">完成</t-button>

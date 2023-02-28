@@ -15,7 +15,7 @@ const routes: Array<RouteRecordRaw> = [{
             path: '/anno',
             component: () => import('@/views/content/anno.vue'),
             name: 'anno',
-            redirect: '/anno/list',
+            redirect: '/anno/type',
             children: [
                 {
                     path: '/anno/work',
@@ -26,9 +26,9 @@ const routes: Array<RouteRecordRaw> = [{
                     }
                 },
                 {
-                    path: '/anno/list',
-                    component: ()=> import('@/views/content/anno/list.vue'),
-                    name: 'list',
+                    path: '/anno/type',
+                    component: ()=> import('@/views/content/anno/type.vue'),
+                    name: 'type',
                     meta: {
                         breadcrumbLevel: 1
                     }
@@ -52,6 +52,25 @@ const routes: Array<RouteRecordRaw> = [{
             path: '/task',
             component: () => import('@/views/content/task.vue'),
             name: 'task',
+            redirect: '/task/list',
+            children: [
+                {
+                    path: '/task/list',
+                    component: ()=> import('@/views/content/task/list.vue'),
+                    name: 'list',
+                    meta: {
+                        breadcrumbLevel: 1
+                    }
+                },
+                {
+                    path: '/task/new',
+                    component: ()=> import('@/views/content/task/new.vue'),
+                    name: 'new',
+                    meta: {
+                        breadcrumbLevel: 2
+                    }
+                },
+            ]
         },
     ]
 }]
