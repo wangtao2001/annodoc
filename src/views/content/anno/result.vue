@@ -18,7 +18,7 @@ const realcColumns = [
     { colKey: 'startContent', title: '起始实体内容', width: '50' },
     { colKey: 'endNumber', title: '结束实体编号', width: '50' },
     { colKey: 'endContent', title: '结束实体内容', width: '50' },
-    { colKey: 'relaContent', title: '关系', width: '50' },
+    { colKey: 'relaName', title: '关系', width: '50' },
 ]
 const data: Ref<Array<Object>> = ref(store.results.slice(0, 6)) // 默认首页是第一页 6个
 const relaData: Ref<Array<Object>> = ref(store.relaResults.slice(0, 6))

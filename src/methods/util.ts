@@ -2,7 +2,7 @@ import { useStore } from '@/store'
 import { relas } from '@/options'
 const store = useStore()
 
-export function resultNumberToContent(number: number): string {
+export function resultIDToContent(number: number): string {
     for (var r of store.results) {
         if (number == r.number) {
             return r.content
@@ -11,7 +11,7 @@ export function resultNumberToContent(number: number): string {
     return ""
 }
 
-export function relaIDToContent(number: number): string {
+export function relaIDToContent(number: string): string {
     for (var r of relas) {
         if (number == r.id) {
             return r.name
@@ -20,10 +20,10 @@ export function relaIDToContent(number: number): string {
     return ""
 }
 
-export function resultNumberTokeyword(number: number): string {
+export function resultNumberToLabelId(number: number): string {
     for (var r of store.results) {
         if (number == r.number) {
-            return r.labelKeyword
+            return r.labelId
         }
     }
     return ""

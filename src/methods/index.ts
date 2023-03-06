@@ -2,6 +2,7 @@ import { LabelInfo, Result } from "@/interface"
 import { useStore } from '@/store'
 import { MessagePlugin } from 'tdesign-vue-next'
 import pubsub from 'pubsub-js'
+import { v4 as uuidv4 } from 'uuid'
 
 const store = useStore()
 
@@ -33,11 +34,12 @@ export function labelSelect(label: LabelInfo) {
                 // 要求results能够排序，那就不能简单的push，而是插入排序
                 // 还有一种方法就是push完了sort
                 const currentResult: Result = { // 待插入的信息
+                    id: uuidv4(),
                     number: 0,
                     start: offset,
                     end: offset + span.innerText.length,
                     content: span.innerText,
-                    labelKeyword: label.keyword,
+                    labelId: label.id,
                     labelName: label.name,
                     span: span
                 }

@@ -1,8 +1,14 @@
 <script setup lang='ts'>
 import { useRouter } from 'vue-router'
-import { ref, Ref } from 'vue'
+import { ref, Ref, reactive, watch, nextTick } from 'vue'
 import upload from '@/components/upload.vue'
+import { LabelInfo } from '@/interface'
+import { MessagePlugin } from 'tdesign-vue-next'
+import Label from '@/components/label.vue'
+import { v4 as uuidv4 } from 'uuid'
 const router = useRouter()
+
+const step: Ref<number> = ref(0)
 
 const cancel = () => {
     router.push('/task/list')
@@ -13,13 +19,67 @@ const pre = () => {
 }
 
 const next = () => {
-    const max = 1
+    const max = 2
     if (step.value < max) {
         step.value += 1
     }
 }
 
-const step: Ref<number> = ref(0)
+// page 0
+
+// page 1
+
+// page 2
+const labelAddVisible = ref(false) // 添加实体
+const relaAddVisible = ref(false) // 添加关系
+// 打开添加页面
+const labelAddVisibleOpen = () => {
+    if (allLabels.length == 26) {
+        MessagePlugin.error('不能再添加更多关系')
+        return
+    }
+    labelAddVisible.value = true
+}
+
+const labelAddConfim = () => {
+    if (addLabelFrom.name == '' || addLabelFrom.keyword == '' || addLabelFrom.color == '') {
+        MessagePlugin.error('请填写完整')
+        return
+    }
+    allLabels.push({
+        name: addLabelFrom.name,
+        keyword: addLabelFrom.keyword,
+        color: addLabelFrom.color,
+        id: uuidv4()
+    })
+    for (var i = 0; i < keywords.length; i++) {
+        if (keywords[i] == addLabelFrom.keyword) {
+            keywords.splice(i, 1)
+            break
+        }
+    }
+    addLabelFrom.name = ''
+    addLabelFrom.keyword = ''
+    addLabelFrom.color = ''
+    labelAddVisible.value = false
+}
+const relaAddConfim = () => {
+
+}
+
+const keywords: Array<string> = reactive([]) // 快捷键容器即A-Z
+for (var i = 65; i <= 90; i++) {
+    keywords.push(String.fromCharCode(i))
+}
+// 输入的表单
+const addLabelFrom = reactive({
+    name: '',
+    keyword: '',
+    color: ''
+})
+// 所有添加过的标签
+const allLabels: Array<LabelInfo> = reactive([])
+
 </script>
 
 <template>
@@ -28,21 +88,21 @@ const step: Ref<number> = ref(0)
             <t-form v-if="step == 0" label-align="left">
                 <t-form-item label="项目类型" name="type">
                     <t-select>
-                        <t-option key="text" label="医学文本" value="text" />
-                        <t-option key="record" label="电子病历" value="record" />
+                        <t-option label="医学文本" value="text" />
+                        <t-option label="电子病历" value="record" />
                     </t-select>
                 </t-form-item>
-                <t-form-item label="项目名称" name="name">
-                    <t-input />
+                <t-form-item label="项目名称">
+                    <t-input :maxlength="20" show-limit-number clearable />
                 </t-form-item>
-                <t-form-item label="项目描述" name="desc">
+                <t-form-item label="项目描述">
                     <t-textarea placeholder="简单描述项目，长度限制为100" :maxcharacter="100" :autosize="{ minRows: 5, maxRows: 10 }"
                         clearable />
                 </t-form-item>
             </t-form>
             <t-form v-if="step == 1" label-align="left">
                 <!--先把样式写出来，文件控制以后再说-->
-                <t-form-item label="上传数据文件" name="type">
+                <t-form-item label="上传数据文件">
                     <div class="file">
                         <!--这个上传功能自己写-->
                         <upload :multiple="true" />
@@ -53,6 +113,32 @@ const step: Ref<number> = ref(0)
                     </div>
                 </t-form-item>
             </t-form>
+            <t-form v-if="step == 2" label-align="left">
+                <t-form-item label="实体配置">
+                    <div class="label s">
+                        <div class="con">
+                            <p v-if="allLabels.length == 0">配置的实体标签将显示在这里</p>
+                            <Label v-for="l in allLabels" :name="l.name" :keyword="l.keyword" :color="l.color"
+                                :disabled="true" :id="l.id"></Label>
+                        </div>
+                        <div class="add" @click="labelAddVisibleOpen">
+                            <t-icon name="add" />
+                            添加实体
+                        </div>
+                    </div>
+                </t-form-item>
+                <t-form-item label="关系配置">
+                    <div class="rela s">
+                        <div class="con">
+                            配置的关系标签将显示在这里
+                        </div>
+                        <div class="add" @click="relaAddVisible = true">
+                            <t-icon name="add" />
+                            添加关系
+                        </div>
+                    </div>
+                </t-form-item>
+            </t-form>
             <div class="op">
                 <t-button @click="next">下一步</t-button>
                 <t-button @click="pre" v-if="step > 0" theme="default" variant="outline">上一步</t-button>
@@ -60,6 +146,28 @@ const step: Ref<number> = ref(0)
             </div>
         </div>
     </div>
+    <!--对话框-->
+    <t-dialog v-model:visible="labelAddVisible" mode="modal" draggable :on-confirm="labelAddConfim">
+        <div>
+            <t-form label-align="left">
+                <t-form-item label="实体名称">
+                    <t-input v-model="addLabelFrom.name" :maxlength="10" show-limit-number clearable />
+                </t-form-item>
+                <t-form-item name="labelKeyword" label="标注快捷键">
+                    <t-select v-model="addLabelFrom.keyword">
+                        <t-option v-for="k in keywords" :value="k" />
+                    </t-select>
+                </t-form-item>
+                <t-form-item label="标签配色">
+                    <t-color-picker v-model="addLabelFrom.color" :swatchColors="null" :format="['RGB']"
+                        :colorModes="['monochrome']" :show-primary-color-preview="false" />
+                </t-form-item>
+            </t-form>
+        </div>
+    </t-dialog>
+    <t-dialog v-model:visible="relaAddVisible" mode="modal" draggable :on-confirm="relaAddConfim">
+        <p>This is a dialog2</p>
+    </t-dialog>
 </template>
 
 <style scoped lang='less'>
@@ -77,6 +185,31 @@ const step: Ref<number> = ref(0)
         }
     }
 
+    .s {
+        width: 100%;
+
+        .con {
+            border: 1px dashed #ddd;
+            min-height: 100px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ddd;
+            font-size: 10px;
+        }
+
+        .add {
+            border: 1px dashed #ddd;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #595959;
+            font-size: 13px;
+        }
+    }
+
     .op {
         margin-top: 20px;
         display: flex;
@@ -85,5 +218,10 @@ const step: Ref<number> = ref(0)
             margin-right: 10px;
         }
     }
+}
+
+.t-dialog {
+    user-select: none;
+    width: 10px !important;
 }
 </style>

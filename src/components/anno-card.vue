@@ -47,7 +47,8 @@ if (typeof store.resultsContainer != 'undefined') {
             </div>
         </div>
         <template #actions>
-            <Label v-for="label in labels" :name="label.name" :keyword="label.keyword" :color="label.color"></Label>
+            <Label :disabled="false" v-for="label in labels" :name="label.name" :keyword="label.keyword"
+                :color="label.color" :id="label.id"></Label>
         </template>
     </t-card>
 </template>

@@ -13,14 +13,31 @@ const props = defineProps({
     color: {
         type: String,
         required: true
+    },
+    disabled: {
+        type: Boolean, // 做展示用，不能按下
+        required: true
+    },
+    id: {
+        type: String,
+        required: true // 添加配置的时候不需要
     }
 })
+
+const click = () => {
+    if (!props.disabled) {
+        labelSelect({
+            name: props.name,
+            keyword: props.keyword,
+            color: props.color,
+            id: props.id
+        })
+    }
+}
 </script>
 
 <template>
-    <div class="name" :style="{ 'background-color': color }" @click="labelSelect({
-        name, keyword, color
-    })">
+    <div class="name" :style="{ 'background-color': color }" @click="click">
         {{ name }}
         <div class="key" :style="{ 'color': color }">{{ keyword }}</div>
     </div>
