@@ -50,13 +50,13 @@ const dialogConfim = () => { // 点击确定对话框关闭
     if (rela1Number.value != -1 && rela1Number.value != -1 && relaID.value != "") {
         // 如果是单向关系这里就要调整顺序了
         const data = {
+            id: uuidv4(),
             startNumber: rela1Number.value,
             startContent: resultIDToContent(rela1Number.value),
             endNumber: rela2Number.value,
             endContent: resultIDToContent(rela2Number.value),
             relaId: relaID.value,
-            relaName: relaIDToContent(relaID.value),
-            id: uuidv4()
+            relaName: relaIDToContent(relaID.value)
         }
         if (isreverse) {
             data.startNumber = rela2Number.value
@@ -137,8 +137,8 @@ watch(ids, () => {
         allRelaOptions.length = 0
 
         for (var r of relas) {
-            if ((r.start == keyword1 && r.end == keyword2) || (r.start == keyword2 && r.end == keyword1)) {
-                if (!r.bothway && r.start == keyword2) { // 反向了
+            if ((r.startId == keyword1 && r.endId == keyword2) || (r.startId == keyword2 && r.endId == keyword1)) {
+                if (!r.bothway && r.startId == keyword2) { // 反向了
                     isreverse = true
                 }
                 allRelaOptions.push({

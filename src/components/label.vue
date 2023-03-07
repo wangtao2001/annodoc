@@ -15,12 +15,12 @@ const props = defineProps({
         required: true
     },
     disabled: {
-        type: Boolean, // 做展示用，不能按下
+        type: Boolean, // 做展示用
         required: true
     },
     id: {
         type: String,
-        required: true // 添加配置的时候不需要
+        required: true
     }
 })
 

@@ -56,4 +56,14 @@ function filesize(size: number): string {//把字节转换成正常文件大小
     if (size < Math.pow(num, 4))
         return (size / Math.pow(num, 3)).toFixed(2) + "G"
     return (size / Math.pow(num, 4)).toFixed(2) + "T"
-  }
+}
+  
+export function downloadLocal(data: string, name: string) {
+    const blob = new Blob([data], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = name
+    document.body.appendChild(link)
+    link.click()
+}

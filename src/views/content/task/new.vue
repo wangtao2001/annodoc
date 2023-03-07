@@ -2,10 +2,12 @@
 import { useRouter } from 'vue-router'
 import { ref, Ref, reactive, watch, nextTick } from 'vue'
 import upload from '@/components/upload.vue'
-import { LabelInfo } from '@/interface'
+import { LabelInfo, RelaInfo, taskInfo } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import Label from '@/components/label.vue'
+import Rela from '@/components/real.vue'
 import { v4 as uuidv4 } from 'uuid'
+import { downloadLocal } from '@/methods/util'
 const router = useRouter()
 
 const step: Ref<number> = ref(0)
@@ -18,16 +20,48 @@ const pre = () => {
     step.value -= 1 // 这里可能要用到keepalive
 }
 
+const nextText = ref('下一步')
+
 const next = () => {
     const max = 2
+    if (step.value == max) {
+        //  生成配置文件
+        const newTask: taskInfo = {
+            id: taskId,
+            type: basicInfo.type,
+            name: basicInfo.name,
+            desc: basicInfo.desc,
+            createTime: new Date().toLocaleString(),
+            modifyTime: new Date().toLocaleString(),
+            labels: allLabels,
+            relas: allRelas
+
+        }
+        // 下载到本地预览一下
+        const jsonString = JSON.stringify(newTask, null, '\t')
+        downloadLocal(jsonString, 'data.json')
+    }
     if (step.value < max) {
         step.value += 1
+    }
+    if (step.value == max) {
+        nextText.value = '本地预览'
+    }
+    if (step.value == 1) { // 创建了文件名称之后就要分配id
+        taskId = uuidv4()
     }
 }
 
 // page 0
+// 表单
+const basicInfo = reactive({
+    name: '',
+    type: '',
+    desc: ''
+})
 
 // page 1
+var taskId = ''
 
 // page 2
 const labelAddVisible = ref(false) // 添加实体
@@ -40,17 +74,17 @@ const labelAddVisibleOpen = () => {
     }
     labelAddVisible.value = true
 }
-
+// 表单输入确定
 const labelAddConfim = () => {
     if (addLabelFrom.name == '' || addLabelFrom.keyword == '' || addLabelFrom.color == '') {
         MessagePlugin.error('请填写完整')
         return
     }
     allLabels.push({
+        id: uuidv4(),
         name: addLabelFrom.name,
         keyword: addLabelFrom.keyword,
-        color: addLabelFrom.color,
-        id: uuidv4()
+        color: addLabelFrom.color
     })
     for (var i = 0; i < keywords.length; i++) {
         if (keywords[i] == addLabelFrom.keyword) {
@@ -64,7 +98,21 @@ const labelAddConfim = () => {
     labelAddVisible.value = false
 }
 const relaAddConfim = () => {
-
+    if (addRelaFrom.name == '' || addRelaFrom.strat == '' || addRelaFrom.end == '') {
+        MessagePlugin.error('请填写完整')
+        return
+    }
+    allRelas.push({
+        id: uuidv4(),
+        name: addRelaFrom.name,
+        startId: addRelaFrom.strat,
+        endId: addRelaFrom.end,
+        bothway: addRelaFrom.bothway
+    })
+    addRelaFrom.name = ''
+    addRelaFrom.strat = ''
+    addRelaFrom.end = ''
+    relaAddVisible.value = false
 }
 
 const keywords: Array<string> = reactive([]) // 快捷键容器即A-Z
@@ -77,9 +125,25 @@ const addLabelFrom = reactive({
     keyword: '',
     color: ''
 })
-// 所有添加过的标签
+const addRelaFrom = reactive({
+    strat: '',
+    end: '',
+    name: '',
+    bothway: false
+})
+// 所有添加过的标签、关系
 const allLabels: Array<LabelInfo> = reactive([])
+const allRelas: Array<RelaInfo> = reactive([])
 
+// 工具函数
+const labelIdToName = (id: string): string => {
+    for (var l of allLabels) {
+        if (l.id == id) {
+            return l.name
+        }
+    }
+    return ""
+}
 </script>
 
 <template>
@@ -87,17 +151,17 @@ const allLabels: Array<LabelInfo> = reactive([])
         <div class="container">
             <t-form v-if="step == 0" label-align="left">
                 <t-form-item label="项目类型" name="type">
-                    <t-select>
-                        <t-option label="医学文本" value="text" />
-                        <t-option label="电子病历" value="record" />
+                    <t-select v-model="basicInfo.type">
+                        <t-option label="医学文本" value="医学文本" />
+                        <t-option label="电子病历" value="电子病历" />
                     </t-select>
                 </t-form-item>
                 <t-form-item label="项目名称">
-                    <t-input :maxlength="20" show-limit-number clearable />
+                    <t-input v-model="basicInfo.name" :maxlength="20" show-limit-number clearable />
                 </t-form-item>
                 <t-form-item label="项目描述">
-                    <t-textarea placeholder="简单描述项目，长度限制为100" :maxcharacter="100" :autosize="{ minRows: 5, maxRows: 10 }"
-                        clearable />
+                    <t-textarea v-model="basicInfo.desc" placeholder="简单描述项目，长度限制为100" :maxcharacter="100"
+                        :autosize="{ minRows: 5, maxRows: 10 }" clearable />
                 </t-form-item>
             </t-form>
             <t-form v-if="step == 1" label-align="left">
@@ -130,7 +194,10 @@ const allLabels: Array<LabelInfo> = reactive([])
                 <t-form-item label="关系配置">
                     <div class="rela s">
                         <div class="con">
-                            配置的关系标签将显示在这里
+                            <p v-if="allRelas.length == 0">配置的实体标签将显示在这里</p>
+                            <Rela v-for="r in allRelas" :name="r.name" :start-name="labelIdToName(r.startId)"
+                                :end-name="labelIdToName(r.endId)" :bothway="r.bothway">
+                            </Rela>
                         </div>
                         <div class="add" @click="relaAddVisible = true">
                             <t-icon name="add" />
@@ -140,7 +207,7 @@ const allLabels: Array<LabelInfo> = reactive([])
                 </t-form-item>
             </t-form>
             <div class="op">
-                <t-button @click="next">下一步</t-button>
+                <t-button @click="next">{{ nextText }}</t-button>
                 <t-button @click="pre" v-if="step > 0" theme="default" variant="outline">上一步</t-button>
                 <t-button @click="cancel" theme="default" variant="outline">取消</t-button>
             </div>
@@ -153,7 +220,7 @@ const allLabels: Array<LabelInfo> = reactive([])
                 <t-form-item label="实体名称">
                     <t-input v-model="addLabelFrom.name" :maxlength="10" show-limit-number clearable />
                 </t-form-item>
-                <t-form-item name="labelKeyword" label="标注快捷键">
+                <t-form-item label="标注快捷键">
                     <t-select v-model="addLabelFrom.keyword">
                         <t-option v-for="k in keywords" :value="k" />
                     </t-select>
@@ -166,7 +233,26 @@ const allLabels: Array<LabelInfo> = reactive([])
         </div>
     </t-dialog>
     <t-dialog v-model:visible="relaAddVisible" mode="modal" draggable :on-confirm="relaAddConfim">
-        <p>This is a dialog2</p>
+        <div>
+            <t-form label-align="left">
+                <t-form-item label="关系名称">
+                    <t-input v-model="addRelaFrom.name" :maxlength="10" show-limit-number clearable />
+                </t-form-item>
+                <t-form-item label="起点实体类型">
+                    <t-select v-model="addRelaFrom.strat">
+                        <t-option v-for="l in allLabels" :label="l.name" :value="l.id" />
+                    </t-select>
+                </t-form-item>
+                <t-form-item label="终点实体类型">
+                    <t-select v-model="addRelaFrom.end">
+                        <t-option v-for="l in allLabels" :label="l.name" :value="l.id" />
+                    </t-select>
+                </t-form-item>
+                <t-form-item label="双向关系">
+                    <t-switch v-model="addRelaFrom.bothway" />
+                </t-form-item>
+            </t-form>
+        </div>
     </t-dialog>
 </template>
 

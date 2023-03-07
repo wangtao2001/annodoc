@@ -2,6 +2,7 @@
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { ref, Ref, computed } from 'vue'
+import { downloadLocal } from '@/methods/util'
 
 const router = useRouter()
 
@@ -36,16 +37,11 @@ const localPriview = () => {
         delete l.span
     }
     const jsonString = JSON.stringify({
-        'label': labels, // 这里最好把span字段排除掉
+        'id': '567886',
+        'node': labels, // 这里最好把span字段排除掉
         'relation': store.relaResults
     }, null, '\t')
-    const blob = new Blob([jsonString], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'data.json'
-    document.body.appendChild(link)
-    link.click()
+    downloadLocal(jsonString, 'data.json')
 }
 
 const showLabel = ref(true)
