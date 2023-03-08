@@ -11,7 +11,7 @@ const columns = [
     { colKey: 'number', title: '编号', width: '50' },
     { colKey: 'start', title: '起始', width: '50' },
     { colKey: 'end', title: '终止', width: '50' },
-    { colKey: 'content', title: '内容', width: '150' },
+    { colKey: 'content', title: '内容', width: '120' },
     { colKey: 'labelName', title: '标签类型', width: '50' },
 ]
 const realcColumns = [
@@ -93,18 +93,18 @@ const tabChange = () => {
 
 .tab {
     align-self: flex-end;
-    margin: 0 12vw 20px 0;
+    margin: 0 15% 20px 0;
 }
 
 .table {
-    width: 50vw;
+    width: 70%;
 }
 
 .bottom {
     display: flex;
-    width: 50vw;
+    width: 70%;
     justify-content: space-between;
-    margin-top: 20px;
+    margin: 20px 0;
 
     .page {
         width: auto;

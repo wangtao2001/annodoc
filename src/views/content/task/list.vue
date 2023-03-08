@@ -31,7 +31,7 @@ const createTask = () => {
                     <t-base-table class="table" stripe bordered row-key="index" :columns="columns"></t-base-table>
                 </t-tab-panel>
             </t-tabs>
-            <t-button @click="createTask">创建任务</t-button>
+            <t-button class="new" @click="createTask">创建任务</t-button>
         </div>
     </div>
 </template>
@@ -44,11 +44,15 @@ const createTask = () => {
     user-select: none;
 
     .container {
-        width: 70vw;
+        width: 80%;
         margin-left: 40px;
 
         .table {
             margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .new {
             margin-bottom: 20px;
         }
     }

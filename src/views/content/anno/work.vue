@@ -67,12 +67,12 @@ const finish = () => {
     .card {
         display: flex;
         flex-direction: row;
-        width: 75vw;
+        width: 90%;
     }
 
     .bottom-card {
-        width: 75vw;
-        margin-top: 20px;
+        width: 90%;
+        margin: 20px 0;
 
         .option {
             display: flex;

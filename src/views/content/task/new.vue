@@ -16,15 +16,25 @@ const cancel = () => {
     router.push('/task/list')
 }
 
+
+const maxPage = 2
 const pre = () => {
-    step.value -= 1 // 这里可能要用到keepalive
+    step.value -= 1
+    if (step.value < maxPage) {
+        nextText.value = '下一步'
+    }
 }
 
 const nextText = ref('下一步')
 
 const next = () => {
-    const max = 2
-    if (step.value == max) {
+    if (step.value == 0) {
+        if (basicInfo.name == '' || basicInfo.type == '') {
+            MessagePlugin.error('请填写项目名称或类型')
+            return
+        }
+    }
+    if (step.value == maxPage) {
         //  生成配置文件
         const newTask: taskInfo = {
             id: taskId,
@@ -41,14 +51,14 @@ const next = () => {
         const jsonString = JSON.stringify(newTask, null, '\t')
         downloadLocal(jsonString, 'data.json')
     }
-    if (step.value < max) {
+    if (step.value < maxPage) {
         step.value += 1
-    }
-    if (step.value == max) {
-        nextText.value = '本地预览'
     }
     if (step.value == 1) { // 创建了文件名称之后就要分配id
         taskId = uuidv4()
+    }
+    if (step.value == maxPage) {
+        nextText.value = '本地预览'
     }
 }
 
@@ -214,7 +224,8 @@ const labelIdToName = (id: string): string => {
         </div>
     </div>
     <!--对话框-->
-    <t-dialog v-model:visible="labelAddVisible" mode="modal" draggable :on-confirm="labelAddConfim">
+    <t-dialog style="user-select: none" v-model:visible="labelAddVisible" mode="modal" draggable
+        :on-confirm="labelAddConfim">
         <div>
             <t-form label-align="left">
                 <t-form-item label="实体名称">
@@ -232,7 +243,7 @@ const labelIdToName = (id: string): string => {
             </t-form>
         </div>
     </t-dialog>
-    <t-dialog v-model:visible="relaAddVisible" mode="modal" draggable :on-confirm="relaAddConfim">
+    <t-dialog style="user-select: none" v-model:visible="relaAddVisible" mode="modal" draggable :on-confirm="relaAddConfim">
         <div>
             <t-form label-align="left">
                 <t-form-item label="关系名称">
@@ -283,6 +294,7 @@ const labelIdToName = (id: string): string => {
             align-items: center;
             color: #ddd;
             font-size: 10px;
+            flex-wrap: wrap;
         }
 
         .add {
@@ -297,7 +309,7 @@ const labelIdToName = (id: string): string => {
     }
 
     .op {
-        margin-top: 20px;
+        margin: 20px 0;
         display: flex;
 
         button {

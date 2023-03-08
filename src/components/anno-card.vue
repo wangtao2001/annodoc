@@ -57,7 +57,6 @@ if (typeof store.resultsContainer != 'undefined') {
 .anno-area {
     font-size: 16px;
     letter-spacing: 2px; // 字体间距
-    width: 53vw;
     color: #191919;
     //font-weight: lighter;
     line-height: 200%; // 行间距

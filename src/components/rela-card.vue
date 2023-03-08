@@ -185,7 +185,7 @@ const deleteRela = (id: string) => {
                 </div>
                 <t-link theme="danger" @click="deleteRela(r.id)" hover="color"> 删除 </t-link>
             </div>
-            <t-button @click="addRela" theme="primary">
+            <t-button class="add-rela" @click="addRela" theme="primary">
                 <template #icon><t-icon name="add" /></template>
                 新增关系
             </t-button>
@@ -224,8 +224,9 @@ const deleteRela = (id: string) => {
 
 <style scoped lang="less">
 .rela-area {
-    button {
+    .add-rela {
         width: 100%;
+        padding: 0 40px;
     }
 }
 

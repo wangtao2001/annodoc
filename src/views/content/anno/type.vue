@@ -10,13 +10,13 @@ const tasks = [
         id: 0,
         title: '医学文本',
         img: textIcon,
-        content: '对医学领域文本内容进行分析，将自然语言表达的医学文本转化为可检索、可分析、可计算的结构化数据。',
+        content: '',
         link: '/anno/work?type=text'
     }, {
         id: 1,
         title: '电子病历',
         img: recordIcon, // require是webpack的做法
-        content: '基于电子病历文本的字与词特征, 开展临床命名实体识别实证研究。',
+        content: '',
         link: '/anno/work?type=record'
     }
 ]
@@ -65,14 +65,11 @@ const tasks = [
             .card {
                 padding: 15px;
                 border: 1px solid #ddd;
-                height: 160px;
-                width: 220px;
                 margin: 0 5px;
 
                 .top {
                     display: flex;
                     flex-direction: row;
-                    margin-bottom: 5px;
 
                     img {
                         height: 22px;
