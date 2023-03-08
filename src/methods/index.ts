@@ -111,8 +111,8 @@ function createSpanAndInsert(rang: Range, label: LabelInfo): HTMLSpanElement {
     const span: HTMLSpanElement = document.createElement("span")
     span.className = "onselect"
     span.style.backgroundColor = label.color // 选区的背景颜色
-    span.setAttribute("labelKeyword", label.keyword)
-    span.setAttribute("labelName", label.name) // 尽量在HTML层面信息传递多一点
+    // span.setAttribute("labelKeyword", label.keyword)
+    // span.setAttribute("labelName", label.name) // 尽量在HTML层面信息传递多一点
     span.onclick = (e) => { // 删除包裹
         const currentSpan = e.target as HTMLElement
         deleteALabel(currentSpan)
@@ -166,4 +166,18 @@ function deleteALabel(currentSpan: Element) {
 function piniaSyncLabelNumber(r: Result) {
     const tmp = r.span!.firstChild as HTMLPreElement
     tmp.innerText = r.number.toString()
+}
+
+// 从store.results产生一个标注过的div
+export function resultsToLabeledDiv(): HTMLDivElement {
+    const text = store.text
+    const div = document.createElement('div')
+    var offest = 0
+    for (var r of store.results) {
+        div.appendChild(document.createTextNode(text.substring(offest, r.start)))
+        div.appendChild(r.span!)
+        offest = r.end
+    }
+    div.appendChild(document.createTextNode(text.substring(offest-1, text.length)))
+    return div
 }

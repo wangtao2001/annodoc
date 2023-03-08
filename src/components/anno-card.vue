@@ -1,21 +1,11 @@
 <script setup lang='ts'>
 import Label from '@/components/label.vue'
 import { ref, Ref, nextTick } from 'vue'
-import { labelSelect } from '@/methods'
+import { labelSelect, resultsToLabeledDiv } from '@/methods'
 import { useStore } from '@/store'
 import { labels } from '@/options'
 
 const store = useStore()
-
-const props = defineProps({
-    text: {
-        type: String,
-        required: true
-    }
-})
-
-// 不能用string类型，不然不会重新渲染
-const text: Ref<string> = ref(props.text)
 
 
 // 监听键盘事件
@@ -27,13 +17,11 @@ document.onkeydown = (e) => {
     })
 }
 
-// 返回时刚刚标注的状态保持住
-var rawText = ref(true)
-// 本来想用keepalive的结果没有用
-if (typeof store.resultsContainer != 'undefined') {
-    rawText.value = false
+// 返回时刚刚标注的状态保持住，从store的状态来同步这个结果
+if (store.results.length != 0) {
+    const labeledDiv = resultsToLabeledDiv()
     nextTick(() => {
-        document.querySelector('.container')?.appendChild(store.resultsContainer)
+        document.querySelector('.anno-area')?.firstChild?.replaceWith(labeledDiv)
     })
 }
 
@@ -42,8 +30,8 @@ if (typeof store.resultsContainer != 'undefined') {
 <template>
     <t-card header-bordered>
         <div class="container">
-            <div v-if="rawText" class="anno-area">
-                {{ text }}
+            <div class="anno-area">
+                {{ store.text }}
             </div>
         </div>
         <template #actions>

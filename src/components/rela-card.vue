@@ -16,6 +16,10 @@ const visibleModal = ref(false) // 控制对话框
 
 const relaView: Array<{ start: number, end: number, rela: string, id: string }> = reactive([])
 // 这个应该需要能够根据store内容来填充
+// 这个就保证了根据store的结果还能展示出来
+// anno-card也需要有这个功能
+// 缓存组件是一种方法，但是不能用
+// 更进一步，从标注结果返回标注状态，第一步就是把标注结果往store中存
 if (store.relaResults.length != 0) {
     for (var r of store.relaResults) {
         relaView.push({
