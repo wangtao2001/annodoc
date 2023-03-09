@@ -40,6 +40,7 @@ const props = defineProps({
     flex-direction: column;
     text-align: center;
     margin: 0 8px;
+    transition: 0.4s;
 
     .rela-name {
         background-color: #e6e7eb;
@@ -53,5 +54,10 @@ const props = defineProps({
         justify-content: center;
         align-items: center;
     }
+}
+
+.name:hover {
+    opacity: 0.8;
+    transition: 0.4s;
 }
 </style>

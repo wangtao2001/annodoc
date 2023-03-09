@@ -145,6 +145,26 @@ const addRelaFrom = reactive({
 const allLabels: Array<LabelInfo> = reactive([])
 const allRelas: Array<RelaInfo> = reactive([])
 
+const deletaLabel = (id: string) => {
+    var i = 0
+    for (var l of allLabels) {
+        if (l.id == id) {
+            allLabels.splice(i, 1)
+        }
+        i += 1
+    }
+}
+
+const deletaRela = (id: string) => {
+    var i = 0
+    for (var r of allRelas) {
+        if (r.id == id) {
+            allRelas.splice(i, 1)
+        }
+        i += 1
+    }
+}
+
 // 工具函数
 const labelIdToName = (id: string): string => {
     for (var l of allLabels) {
@@ -154,6 +174,7 @@ const labelIdToName = (id: string): string => {
     }
     return ""
 }
+
 </script>
 
 <template>
@@ -192,8 +213,11 @@ const labelIdToName = (id: string): string => {
                     <div class="label s">
                         <div class="con">
                             <p v-if="allLabels.length == 0">配置的实体标签将显示在这里</p>
-                            <Label v-for="l in allLabels" :name="l.name" :keyword="l.keyword" :color="l.color"
-                                :disabled="true" :id="l.id"></Label>
+                            <t-popconfirm @confirm="deletaLabel(l.id)" v-for="l in allLabels" content="确认删除吗"
+                                theme="danger">
+                                <Label :name="l.name" :keyword="l.keyword" :color="l.color" :disabled="true"
+                                    :id="l.id"></Label>
+                            </t-popconfirm>
                         </div>
                         <div class="add" @click="labelAddVisibleOpen">
                             <t-icon name="add" />
@@ -205,9 +229,11 @@ const labelIdToName = (id: string): string => {
                     <div class="rela s">
                         <div class="con">
                             <p v-if="allRelas.length == 0">配置的实体标签将显示在这里</p>
-                            <Rela v-for="r in allRelas" :name="r.name" :start-name="labelIdToName(r.startId)"
-                                :end-name="labelIdToName(r.endId)" :bothway="r.bothway">
-                            </Rela>
+                            <t-popconfirm v-for="r in allRelas" @confirm="deletaRela(r.id)" content="确认删除吗">
+                                <Rela :name="r.name" :start-name="labelIdToName(r.startId)"
+                                    :end-name="labelIdToName(r.endId)" :bothway="r.bothway">
+                                </Rela>
+                            </t-popconfirm>
                         </div>
                         <div class="add" @click="relaAddVisible = true">
                             <t-icon name="add" />
