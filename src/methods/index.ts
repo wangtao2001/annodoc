@@ -40,7 +40,7 @@ export function labelSelect(label: LabelInfo) {
                     end: offset + span.innerText.length,
                     content: span.innerText,
                     labelId: label.id,
-                    labelName: label.name,
+                    labelName: label.type,
                     span: span
                 }
                 // 1.1首端插入

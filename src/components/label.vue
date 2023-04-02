@@ -27,8 +27,8 @@ const props = defineProps({
 const click = () => {
     if (!props.disabled) {
         labelSelect({
-            name: props.name,
-            keyword: props.keyword,
+            type: props.name,
+            shortcut: props.keyword,
             color: props.color,
             id: props.id
         })

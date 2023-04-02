@@ -29,6 +29,15 @@ export function resultNumberToLabelId(number: number): string {
     return ""
 }
 
+export function resultNumberToId(number: number): string {
+    for (var r of store.results) {
+        if (number == r.number) {
+            return r.id
+        }
+    }
+    return ""
+}
+
 export function fileListToArray(fileList: FileList): Array<File> {
     const arr: Array<File> = []
     for (var i = 0; i < fileList.length; i++) {

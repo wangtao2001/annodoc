@@ -3,10 +3,10 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const columns = [
-    { colKey: 'type', title: '任务类型', width: '50' },
-    { colKey: 'id', title: '任务ID', width: '50' },
-    { colKey: 'name', title: '任务名称', width: '50' },
-    { colKey: 'desc', title: '任务描述', width: '100' },
+    { colKey: 'type', title: '类型', width: '50' },
+    { colKey: 'id', title: 'ID', width: '50' },
+    { colKey: 'name', title: '名称', width: '50' },
+    { colKey: 'desc', title: '描述', width: '100' },
     { colKey: 'cTime', title: '创建时间', width: '100' },
     { colKey: 'mTime', title: '修改时间', width: '100' },
     { colKey: 'op', title: '操作', width: '100' },

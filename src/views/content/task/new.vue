@@ -39,12 +39,12 @@ const next = () => {
         const newTask: taskInfo = {
             id: taskId,
             type: basicInfo.type,
-            name: basicInfo.name,
-            desc: basicInfo.desc,
+            taskName: basicInfo.name,
+            description: basicInfo.desc,
             createTime: new Date().toLocaleString(),
             modifyTime: new Date().toLocaleString(),
-            labels: allLabels,
-            relas: allRelas
+            entitys: allLabels,
+            relations: allRelas
 
         }
         // 下载到本地预览一下
@@ -92,8 +92,8 @@ const labelAddConfim = () => {
     }
     allLabels.push({
         id: uuidv4(),
-        name: addLabelFrom.name,
-        keyword: addLabelFrom.keyword,
+        type: addLabelFrom.name,
+        shortcut: addLabelFrom.keyword,
         color: addLabelFrom.color
     })
     for (var i = 0; i < keywords.length; i++) {
@@ -114,9 +114,9 @@ const relaAddConfim = () => {
     }
     allRelas.push({
         id: uuidv4(),
-        name: addRelaFrom.name,
-        startId: addRelaFrom.strat,
-        endId: addRelaFrom.end,
+        type: addRelaFrom.name,
+        entity1: addRelaFrom.strat,
+        entity2: addRelaFrom.end,
         bothway: addRelaFrom.bothway
     })
     addRelaFrom.name = ''
@@ -169,7 +169,7 @@ const deletaRela = (id: string) => {
 const labelIdToName = (id: string): string => {
     for (var l of allLabels) {
         if (l.id == id) {
-            return l.name
+            return l.type
         }
     }
     return ""
@@ -215,7 +215,7 @@ const labelIdToName = (id: string): string => {
                             <p v-if="allLabels.length == 0">配置的实体标签将显示在这里</p>
                             <t-popconfirm @confirm="deletaLabel(l.id)" v-for="l in allLabels" content="确认删除吗"
                                 theme="danger">
-                                <Label :name="l.name" :keyword="l.keyword" :color="l.color" :disabled="true"
+                                <Label :name="l.type" :keyword="l.shortcut" :color="l.color" :disabled="true"
                                     :id="l.id"></Label>
                             </t-popconfirm>
                         </div>
@@ -230,8 +230,8 @@ const labelIdToName = (id: string): string => {
                         <div class="con">
                             <p v-if="allRelas.length == 0">配置的实体标签将显示在这里</p>
                             <t-popconfirm v-for="r in allRelas" @confirm="deletaRela(r.id)" content="确认删除吗">
-                                <Rela :name="r.name" :start-name="labelIdToName(r.startId)"
-                                    :end-name="labelIdToName(r.endId)" :bothway="r.bothway">
+                                <Rela :name="r.type" :start-name="labelIdToName(r.entity1)"
+                                    :end-name="labelIdToName(r.entity2)" :bothway="r.bothway">
                                 </Rela>
                             </t-popconfirm>
                         </div>
@@ -277,12 +277,12 @@ const labelIdToName = (id: string): string => {
                 </t-form-item>
                 <t-form-item label="起点实体类型">
                     <t-select v-model="addRelaFrom.strat">
-                        <t-option v-for="l in allLabels" :label="l.name" :value="l.id" />
+                        <t-option v-for="l in allLabels" :label="l.type" :value="l.id" />
                     </t-select>
                 </t-form-item>
                 <t-form-item label="终点实体类型">
                     <t-select v-model="addRelaFrom.end">
-                        <t-option v-for="l in allLabels" :label="l.name" :value="l.id" />
+                        <t-option v-for="l in allLabels" :label="l.type" :value="l.id" />
                     </t-select>
                 </t-form-item>
                 <t-form-item label="双向关系">

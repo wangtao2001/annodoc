@@ -1,8 +1,11 @@
 <script setup lang='ts'>
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router'
-import { ref, Ref, computed } from 'vue'
+import { ref, Ref } from 'vue'
 import { downloadLocal } from '@/methods/util'
+import { v4 as uuidv4 } from 'uuid'
+import { Result, RelaResult } from '@/interface'
+import { resultNumberToId} from '@/methods/util'
 
 const router = useRouter()
 
@@ -33,13 +36,27 @@ const localPriview = () => {
     // 下载到本地
 
     const labels = store.results // 这一步是为了去除无效的span字段
-    for (var l of labels) {
-        delete l.span
-    }
+    const new_labels = labels.map((item: Result) => {
+        return {
+            id: item.id,
+            start: item.start,
+            end: item.end,
+            type: item.labelId,
+        }
+    })
+    const new_rela = store.relaResults.map((item: RelaResult) => {
+        return {
+            id: item.id,
+            entityResult1: resultNumberToId(item.startNumber),
+            entityResult2: resultNumberToId(item.startNumber), // 最终结果给的是id而不是number，但是不能改RelaResult的类型
+            type: item.relaId,
+        }
+    })
     const jsonString = JSON.stringify({
-        'id': '567886',
-        'node': labels, // 这里最好把span字段排除掉
-        'relation': store.relaResults
+        'studentNumber': '2020192462',
+        'textId': '000000000',
+        'entity': new_labels,
+        'relation': new_rela,
     }, null, '\t')
     downloadLocal(jsonString, 'data.json')
 }
@@ -77,6 +94,7 @@ const tabChange = () => {
                 <t-button @click="router.back()">返回</t-button>
                 <t-button :disabled="store.results.length != 0 ? false : true" @click="localPriview">本地预览</t-button>
                 <t-button :disabled="store.results.length != 0 ? false : true">提交</t-button>
+                <t-button >下一份</t-button>
             </div>
         </div>
     </div>
