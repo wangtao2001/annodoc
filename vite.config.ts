@@ -13,6 +13,14 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 5173
+    port: 5173,
+    // 前端配置跨域，当然这个只是开发环境下的配置
+    // 生产环境不存在跨域问题，因为前端和后端是部署在同一个服务器上的
+    proxy:{
+      '/api': {
+        target: 'http://43.142.68.89',
+        changeOrigin: true
+      }
+    }
   }
 })

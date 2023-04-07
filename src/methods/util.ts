@@ -14,7 +14,7 @@ export function resultIDToContent(number: number): string {
 export function relaIDToContent(number: string): string {
     for (var r of relas) {
         if (number == r.id) {
-            return r.name
+            return r.type
         }
     }
     return ""

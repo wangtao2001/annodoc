@@ -3,6 +3,7 @@ import { onMounted, ref, Ref, watch, reactive } from 'vue'
 import { fileListToArray, fileSizeSum } from '@/methods/util'
 import { ErrorCircleFilledIcon, CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next'
 import { uploadInfo } from '@/interface'
+import { MessagePlugin } from 'tdesign-vue-next'
 
 onMounted(() => {
     const upArea = document.querySelector('.up-area') as HTMLDivElement
@@ -29,7 +30,14 @@ onMounted(() => {
 
         // 获取拖拽进来的文件
         if (e.dataTransfer != null) {
-            beforeUploadFiles.push(fileListToArray(e.dataTransfer.files))
+            const files = e.dataTransfer.files
+            for (var i=0; i< files.length; i++) {
+                if (files[i].type != 'text/plain') {
+                    MessagePlugin.error("请检查文件类型")
+                    return
+                }
+            }
+            beforeUploadFiles.push(fileListToArray(files))
             updataFileData()
         }
     })
@@ -86,7 +94,7 @@ watch(beforeUploadFiles, () => {
 const statusNameListMap = [
     { label: '上传成功', theme: 'success', icon: <CheckCircleFilledIcon /> },
     { label: '上传失败', theme: 'danger', icon: <CloseCircleFilledIcon /> },
-    { label: '未上传', theme: 'warning', icon: <ErrorCircleFilledIcon /> },
+    { label: '等待上传', theme: 'warning', icon: <ErrorCircleFilledIcon /> },
 ]
 const columns = [
     { colKey: 'name', title: '文件名', width: '200' },
@@ -120,7 +128,7 @@ const data: Array<uploadInfo> = reactive([])
 </script>
 
 <template>
-    <input type="file" style="display: none;" id="file-input" :multiple="props.multiple" />
+    <input type="file" style="display: none;" id="file-input" accept=".txt" :multiple="props.multiple" />
     <t-button class="up-button" variant="outline" @click="openInput">
         <template #icon><t-icon name="arrow-up" /></template>
         {{ beforeUploadFiles.length == 0 ? '选择文件' : '继续选择' }}

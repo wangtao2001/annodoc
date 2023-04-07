@@ -44,9 +44,9 @@ const finish = () => {
         </div>
         <t-card class="bottom-card">
             <div class="option">
-                <t-button @click="returnType">返回</t-button>
+                <t-button variant="outline" @click="returnType">返回</t-button>
                 <div class="next">
-                    <t-button @click="cancel">全部取消</t-button>
+                    <t-button variant="outline" @click="cancel">全部取消</t-button>
                     <t-button @click="finish">完成</t-button>
                 </div>
             </div>

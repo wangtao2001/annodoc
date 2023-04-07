@@ -3,9 +3,10 @@ import { useStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { ref, Ref } from 'vue'
 import { downloadLocal } from '@/methods/util'
-import { v4 as uuidv4 } from 'uuid'
+import axios from 'axios'
 import { Result, RelaResult } from '@/interface'
 import { resultNumberToId} from '@/methods/util'
+import { MessagePlugin } from 'tdesign-vue-next';
 
 const router = useRouter()
 
@@ -32,9 +33,20 @@ const change = (current: number) => {
     relaData.value = store.relaResults.slice((current - 1) * 6, current * 6)
 }
 
-const localPriview = () => {
-    // 下载到本地
+const showLabel = ref(true)
 
+const dataLength = ref(store.results.length) // 初始值
+const tabChange = () => {
+    showLabel.value = !showLabel.value
+    if (showLabel.value) {
+        dataLength.value = store.results.length
+    } else {
+        console.log('修改')
+        dataLength.value = store.relaResults.length
+    }
+}
+
+const resultFormat = () => {
     const labels = store.results // 这一步是为了去除无效的span字段
     const new_labels = labels.map((item: Result) => {
         return {
@@ -52,26 +64,34 @@ const localPriview = () => {
             type: item.relaId,
         }
     })
-    const jsonString = JSON.stringify({
+    return {
         'studentNumber': '2020192462',
         'textId': '000000000',
-        'entity': new_labels,
-        'relation': new_rela,
-    }, null, '\t')
+        'entitys': new_labels,
+        'relations': new_rela,
+    }
+}
+
+const localPriview = () => {
+    // 下载到本地
+    const jsonString = JSON.stringify(resultFormat() , null, '\t')
     downloadLocal(jsonString, 'data.json')
 }
 
-const showLabel = ref(true)
-
-const dataLength = ref(store.results.length) // 初始值
-const tabChange = () => {
-    showLabel.value = !showLabel.value
-    if (showLabel.value) {
-        dataLength.value = store.results.length
-    } else {
-        console.log('修改')
-        dataLength.value = store.relaResults.length
-    }
+// 上传后端
+const uploadResult = () => {
+    axios.post('/api/resultAccepts/annotationResults', resultFormat())
+        .then((res) => {
+            if(res.status == 200) {
+                MessagePlugin.success('提交成功')
+            // TODO...
+            } else {
+                MessagePlugin.error('提交失败')
+            }
+        })
+        .catch((err) => {
+            console.log(err)
+        })
 }
 
 </script>
@@ -91,9 +111,9 @@ const tabChange = () => {
             <t-pagination class="page" :total="dataLength" showPageNumber :showPageSize="false" :pageSize="6"
                 showPreviousAndNextBtn totalContent @current-change="change" />
             <div class="option">
-                <t-button @click="router.back()">返回</t-button>
+                <t-button variant="outline" @click="router.back()">返回</t-button>
                 <t-button :disabled="store.results.length != 0 ? false : true" @click="localPriview">本地预览</t-button>
-                <t-button :disabled="store.results.length != 0 ? false : true">提交</t-button>
+                <t-button :disabled="store.results.length != 0 ? false : true" @click="uploadResult">提交</t-button>
                 <t-button >下一份</t-button>
             </div>
         </div>

@@ -11,6 +11,7 @@
   "dependencies": {
     "@types/pubsub-js": "^1.8.3",
     "@types/uuid": "^9.0.0",
+    "axios": "^1.3.5",
     "pinia": "^2.0.30",
     "pubsub-js": "^1.9.4",
     "tdesign-vue-next": "^1.0.6",

@@ -8,6 +8,7 @@ import Label from '@/components/label.vue'
 import Rela from '@/components/real.vue'
 import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal } from '@/methods/util'
+import axios from 'axios'
 const router = useRouter()
 
 const step: Ref<number> = ref(0)
@@ -27,16 +28,13 @@ const pre = () => {
 
 const nextText = ref('下一步')
 
-const next = () => {
-    if (step.value == 0) {
-        if (basicInfo.name == '' || basicInfo.type == '') {
-            MessagePlugin.error('请填写项目名称或类型')
-            return
-        }
+// 生成设置的配置文件
+const newTask = ()=>{
+    if (allLabels.length == 0) {
+        MessagePlugin.error('请添加实体')
+        return null
     }
-    if (step.value == maxPage) {
-        //  生成配置文件
-        const newTask: taskInfo = {
+    return {
             id: taskId,
             type: basicInfo.type,
             taskName: basicInfo.name,
@@ -45,10 +43,23 @@ const next = () => {
             modifyTime: new Date().toLocaleString(),
             entitys: allLabels,
             relations: allRelas
+    }
+}
 
+const next = () => {
+    if (step.value == 0) {
+        if (basicInfo.name == '' || basicInfo.type == '') {
+            MessagePlugin.error('请填写项目名称或类型')
+            return
         }
+    }
+    if (step.value == maxPage) {
         // 下载到本地预览一下
-        const jsonString = JSON.stringify(newTask, null, '\t')
+        const task = newTask()
+        if (task == null) {
+            return
+        }
+        const jsonString = JSON.stringify(task, null, '\t')
         downloadLocal(jsonString, 'data.json')
     }
     if (step.value < maxPage) {
@@ -165,6 +176,26 @@ const deletaRela = (id: string) => {
     }
 }
 
+// 上传标注数据
+const uploadData = () => {
+    const task = newTask()
+    if (task == null) {
+        return
+    }
+    axios.post('/api/resultAccepts/taskResults', task)
+        .then((res) => {
+            if(res.status == 200) {
+                MessagePlugin.success('提交成功')
+            // TODO...
+            } else {
+                MessagePlugin.error('提交失败')
+            }
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+}
+
 // 工具函数
 const labelIdToName = (id: string): string => {
     for (var l of allLabels) {
@@ -202,7 +233,7 @@ const labelIdToName = (id: string): string => {
                         <!--这个上传功能自己写-->
                         <upload :multiple="true" />
                         <p style="color: #999;">
-                            支持多选，扩展名 .txt .doc .docx<br />
+                            支持多选，扩展名 .txt<br />
                             单个文件大小不超过20M，仅支持UTF-8编码方式
                         </p>
                     </div>
@@ -244,8 +275,9 @@ const labelIdToName = (id: string): string => {
             </t-form>
             <div class="op">
                 <t-button @click="next">{{ nextText }}</t-button>
-                <t-button @click="pre" v-if="step > 0" theme="default" variant="outline">上一步</t-button>
-                <t-button @click="cancel" theme="default" variant="outline">取消</t-button>
+                <t-button @click="uploadData" v-if="step == maxPage" >提交</t-button>
+                <t-button @click="pre" v-if="step > 0" variant="outline">上一步</t-button>
+                <t-button @click="cancel" variant="outline">取消</t-button>
             </div>
         </div>
     </div>

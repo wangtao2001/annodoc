@@ -141,12 +141,12 @@ watch(ids, () => {
         allRelaOptions.length = 0
 
         for (var r of relas) {
-            if ((r.startId == keyword1 && r.endId == keyword2) || (r.startId == keyword2 && r.endId == keyword1)) {
-                if (!r.bothway && r.startId == keyword2) { // 反向了
+            if ((r.entity1 == keyword1 && r.entity2 == keyword2) || (r.entity1 == keyword2 && r.entity2 == keyword1)) {
+                if (!r.bothway && r.entity1 == keyword2) { // 反向了
                     isreverse = true
                 }
                 allRelaOptions.push({
-                    content: r.name,
+                    content: r.type,
                     id: r.id
                 })
             }

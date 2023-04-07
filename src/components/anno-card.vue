@@ -11,7 +11,7 @@ const store = useStore()
 // 监听键盘事件
 document.onkeydown = (e) => {
     labels.forEach((label) => {
-        if (label.keyword === e.key.toUpperCase()) { // 因为展示的快捷键（包括用户选择的）都是大写，但是也要能够监听小写
+        if (label.shortcut === e.key.toUpperCase()) { // 因为展示的快捷键（包括用户选择的）都是大写，但是也要能够监听小写
             labelSelect(label)
         }
     })
@@ -35,7 +35,7 @@ if (store.results.length != 0) {
             </div>
         </div>
         <template #actions>
-            <Label :disabled="false" v-for="label in labels" :name="label.name" :keyword="label.keyword"
+            <Label :disabled="false" v-for="label in labels" :name="label.type" :keyword="label.shortcut"
                 :color="label.color" :id="label.id"></Label>
         </template>
     </t-card>
