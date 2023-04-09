@@ -2,7 +2,7 @@
 import { onMounted, ref, Ref, watch, reactive } from 'vue'
 import { fileListToArray, fileSizeSum } from '@/methods/util'
 import { ErrorCircleFilledIcon, CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next'
-import { uploadInfo } from '@/interface'
+import { uplodaFiles } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 
 onMounted(() => {
@@ -37,8 +37,7 @@ onMounted(() => {
                     return
                 }
             }
-            beforeUploadFiles.push(fileListToArray(files))
-            updataFileData()
+            beforeUploadFilesPush(fileListToArray(files))
         }
     })
 
@@ -46,13 +45,26 @@ onMounted(() => {
     const input = document.getElementById('file-input') as HTMLInputElement
     input.addEventListener("change", function () {
         if (input.files?.length != 0) {
-            beforeUploadFiles.push(fileListToArray(input.files!))
-            updataFileData()
+            beforeUploadFilesPush(fileListToArray(input.files!))
         }
         // 这里由于change事件的特殊性，没有考虑去重
     })
 
 })
+
+// 不管是拖拽上传还是点击按钮，都需要往beforeUploadFiles中添加文件组和其对应的信息
+const beforeUploadFilesPush = (s: Array<File>) => {
+    beforeUploadFiles.push({
+                info: {
+                    index: beforeUploadFiles.length,
+                    name: s.length == 1? `${s[0].name}` :`${s[0].name} 等${s.length}个文件`,
+                    size: fileSizeSum(s),
+                    status: 2,
+                    progress: 0
+                },
+                files: s
+            })
+}
 
 // 通过按钮打开input标签
 const openInput = () => {
@@ -64,25 +76,13 @@ const props = defineProps({
     multiple: Boolean // 多文件
 })
 
-const beforeUploadFiles: Array<Array<File>> = reactive([]) // 等待上传的文件列表
+const beforeUploadFiles: Array<uplodaFiles> = reactive([]) // 等待上传的文件列表和其所对应的信息
 // 为了减少表格展示的数量，一起多选的文件为一组，一起上传，这可能不符合上传尽量小的原则
 
 // 参考t-design的逻辑
 // 一旦有文件上传了就不在展示拖拽上传的区域
 const uploadArea: Ref<boolean> = ref(true)
-const updataFileData = () => {
-    data.length = 0
-    var i = 0
-    for (var arr of beforeUploadFiles) {
-        data.push({
-            index: i,
-            name: `${arr[0].name} 等${arr.length}个文件`,
-            size: fileSizeSum(arr),
-            status: 2
-        })
-        i += 1
-    }
-}
+
 watch(beforeUploadFiles, () => {
     if (beforeUploadFiles.length != 0) {
         uploadArea.value = false
@@ -97,33 +97,43 @@ const statusNameListMap = [
     { label: '等待上传', theme: 'warning', icon: <ErrorCircleFilledIcon /> },
 ]
 const columns = [
-    { colKey: 'name', title: '文件名', width: '200' },
-    { colKey: 'size', title: '大小', width: '100' },
+    { colKey: 'info.name', title: '文件名', width: '200' },
+    { colKey: 'info.size', title: '大小', width: '100' },
     {
-        colKey: 'status', title: '状态', width: '150', cell: (h: any, { row }: { row: uploadInfo }) => {
+        title: '状态', width: '150', cell: (h: any, { row }: { row: uplodaFiles }) => {
             // 这里的意思是获取传入对象的row属性，这里的row就代表data的每一项
             // 通过status数字控制
-            return (
-                <t-tag shape="round" theme={statusNameListMap[row.status].theme} variant="light-outline">
-                    {statusNameListMap[row.status].icon}
-                    {statusNameListMap[row.status].label}
-                </t-tag>
-            )
+            // 等待上传、上传成功或失败是展示文字，上传中则是变化的进度（转圈圈）
+            return (<>
+                    {
+                        row.info.status == 3 
+                        ? <t-loading text={row.info.progress + '%'} size="small"></t-loading>
+                        : <t-tag shape="round" theme={statusNameListMap[row.info.status].theme} variant="light-outline">
+                            {statusNameListMap[row.info.status].icon}
+                            {statusNameListMap[row.info.status].label}
+                        </t-tag>
+                    }
+                </>)
         }
     },
     {
-        colKey: 'op', title: '操作', width: '50', cell: (h: any, { row }: { row: uploadInfo }) => {
+        title: '操作', width: '50', cell: (h: any, { row }: { row: uplodaFiles }) => {
             return (
                 <t-link theme="primary" onClick={() => {
-                    beforeUploadFiles.splice(row.index, 1)
-                    updataFileData()
+                    beforeUploadFiles.splice(row.info.index, 1)
                 }}>删除</t-link>
             )
         }
     },
 ]
 
-const data: Array<uploadInfo> = reactive([])
+// 文件上传
+const upload = ()=> {
+    for (var files of beforeUploadFiles) {
+        files.info.status = 3
+
+    }
+}
 
 </script>
 
@@ -138,10 +148,10 @@ const data: Array<uploadInfo> = reactive([])
         点击上方“选择文件”或将文件拖拽到此区域
     </div>
     <div v-if="!uploadArea" class="table-area">
-        <t-base-table size="small" class="table" row-key="index" :data="data" :columns="columns"></t-base-table>
+        <t-base-table size="small" class="table" row-key="index" :data="beforeUploadFiles" :columns="columns"></t-base-table>
         <div class="op">
             <t-button variant="outline" :disabled="true">取消上传</t-button>
-            <t-button>上传</t-button>
+            <t-button @click="upload">上传</t-button>
         </div>
     </div>
 </template>

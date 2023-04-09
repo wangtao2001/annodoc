@@ -9,7 +9,9 @@ import Rela from '@/components/real.vue'
 import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal } from '@/methods/util'
 import axios from 'axios'
+import  { useStore } from '@/store'
 const router = useRouter()
+const store = useStore()
 
 const step: Ref<number> = ref(0)
 
@@ -35,7 +37,7 @@ const newTask = ()=>{
         return null
     }
     return {
-            id: taskId,
+            id: store.createTaskId,
             type: basicInfo.type,
             taskName: basicInfo.name,
             description: basicInfo.desc,
@@ -66,7 +68,7 @@ const next = () => {
         step.value += 1
     }
     if (step.value == 1) { // 创建了文件名称之后就要分配id
-        taskId = uuidv4()
+        store.createTaskId = uuidv4()
     }
     if (step.value == maxPage) {
         nextText.value = '本地预览'
@@ -82,7 +84,6 @@ const basicInfo = reactive({
 })
 
 // page 1
-var taskId = ''
 
 // page 2
 const labelAddVisible = ref(false) // 添加实体
@@ -186,7 +187,7 @@ const uploadData = () => {
         .then((res) => {
             if(res.status == 200) {
                 MessagePlugin.success('提交成功')
-            // TODO...
+                router.push('/task/list')
             } else {
                 MessagePlugin.error('提交失败')
             }
@@ -234,7 +235,7 @@ const labelIdToName = (id: string): string => {
                         <upload :multiple="true" />
                         <p style="color: #999;">
                             支持多选，扩展名 .txt<br />
-                            单个文件大小不超过20M，仅支持UTF-8编码方式
+                            仅支持UTF-8编码方式
                         </p>
                     </div>
                 </t-form-item>

@@ -25,12 +25,13 @@ const realcColumns = [
     { colKey: 'endContent', title: '结束实体内容', width: '50' },
     { colKey: 'relaName', title: '关系', width: '50' },
 ]
-const data: Ref<Array<Object>> = ref(store.results.slice(0, 6)) // 默认首页是第一页 6个
-const relaData: Ref<Array<Object>> = ref(store.relaResults.slice(0, 6))
+const pageSize: number = 6
+const data: Ref<Array<Object>> = ref(store.results.slice(0, pageSize)) // 默认首页是第一页 6个
+const relaData: Ref<Array<Object>> = ref(store.relaResults.slice(0, pageSize))
 const change = (current: number) => {
     // 一个包含对象类型值的 ref 可以响应式地替换整个对象
-    data.value = store.results.slice((current - 1) * 6, current * 6)
-    relaData.value = store.relaResults.slice((current - 1) * 6, current * 6)
+    data.value = store.results.slice((current - 1) * pageSize, current * pageSize)
+    relaData.value = store.relaResults.slice((current - 1) * pageSize, current * pageSize)
 }
 
 const showLabel = ref(true)
@@ -41,7 +42,6 @@ const tabChange = () => {
     if (showLabel.value) {
         dataLength.value = store.results.length
     } else {
-        console.log('修改')
         dataLength.value = store.relaResults.length
     }
 }
@@ -108,7 +108,7 @@ const uploadResult = () => {
             :columns="realcColumns"></t-base-table>
         <!--分页功能-->
         <div class="bottom">
-            <t-pagination class="page" :total="dataLength" showPageNumber :showPageSize="false" :pageSize="6"
+            <t-pagination class="page" :total="dataLength" showPageNumber :showPageSize="false" :pageSize="pageSize"
                 showPreviousAndNextBtn totalContent @current-change="change" />
             <div class="option">
                 <t-button variant="outline" @click="router.back()">返回</t-button>

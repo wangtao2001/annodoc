@@ -6,8 +6,9 @@ export const useStore = defineStore('main', () => {
     const results: Array<Result> = reactive([])
     const relaResults: Array<RelaResult> = reactive([])
     const text: Ref<string> = ref("") // 待标注的文本
+    const createTaskId: Ref<string> = ref("")
     return {
-        results, relaResults, text
+        results, relaResults, text, createTaskId
     }
 })
 

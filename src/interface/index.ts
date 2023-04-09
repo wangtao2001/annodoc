@@ -49,11 +49,18 @@ export interface relaOption {
 }
 
 // 等待上传的信息
-export interface uploadInfo {
+interface uploadInfo {
     index: number
     name: string,
     size: string,
-    status: number // 2未上传 0已上传 1上传失败
+    status: number // 2未上传 0已上传 1上传失败 3正在上传
+    progress: number // 上传的进度 0-100
+}
+
+// 上传的文件组
+export interface uplodaFiles {
+    info: uploadInfo,
+    files: Array<File>
 }
 
 // 任务的信息
