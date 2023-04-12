@@ -4,6 +4,10 @@ import { fileListToArray, fileSizeSum } from '@/methods/util'
 import { ErrorCircleFilledIcon, CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next'
 import { uplodaFiles } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
+import { useStore } from '@/store'
+import axios from 'axios'
+
+const store = useStore()
 
 onMounted(() => {
     const upArea = document.querySelector('.up-area') as HTMLDivElement
@@ -60,7 +64,7 @@ const beforeUploadFilesPush = (s: Array<File>) => {
                     name: s.length == 1? `${s[0].name}` :`${s[0].name} 等${s.length}个文件`,
                     size: fileSizeSum(s),
                     status: 2,
-                    progress: 0
+                    uploaded: 0
                 },
                 files: s
             })
@@ -107,7 +111,7 @@ const columns = [
             return (<>
                     {
                         row.info.status == 3 
-                        ? <t-loading text={row.info.progress + '%'} size="small"></t-loading>
+                        ? <t-loading text={Math.floor(row.info.uploaded / row.files.length * 100) + '%'} size="small"></t-loading>
                         : <t-tag shape="round" theme={statusNameListMap[row.info.status].theme} variant="light-outline">
                             {statusNameListMap[row.info.status].icon}
                             {statusNameListMap[row.info.status].label}
@@ -120,18 +124,50 @@ const columns = [
         title: '操作', width: '50', cell: (h: any, { row }: { row: uplodaFiles }) => {
             return (
                 <t-link theme="primary" onClick={() => {
+                    if(row.info.status == 3) {
+                        MessagePlugin.error("文件正在上传中")
+                        return
+                    }
                     beforeUploadFiles.splice(row.info.index, 1)
                 }}>删除</t-link>
             )
         }
     },
 ]
-
 // 文件上传
-const upload = ()=> {
-    for (var files of beforeUploadFiles) {
-        files.info.status = 3
+const uploadFile =  async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('taskId', store.createTaskId)
+    const response = await axios.post('/api/fileOperation/fileUpload', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+    return response.data
+}
 
+const upload = async () => {
+    for (var files of beforeUploadFiles) {
+        if (files.info.status == 0) {
+            continue
+        }
+        files.info.status = 3
+        for (var file of files.files) {
+            const data = await uploadFile(file).catch((err)=> {
+                files.info.status = 3
+                // 这里也应该有错误处理
+            })
+            if (data.code == 40011) {
+                files.info.uploaded ++
+            } else {
+                files.info.status = 3
+                break // 这里的错误处理有问题，某一个文件上传失败，这一组前面的也作废了，再次上传会导致重复的问题
+            }
+            if (files.info.uploaded == files.files.length) {
+                files.info.status = 0
+            }
+        }
     }
 }
 

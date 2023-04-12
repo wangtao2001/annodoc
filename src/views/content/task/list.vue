@@ -2,20 +2,14 @@
 import { Ref, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { LabelInfo, taskInfo, RelaInfo } from '@/interface';
+import { LabelInfo, taskInfo, RelaInfo } from '@/interface'
+import { MessagePlugin } from 'tdesign-vue-next'
 
-const pageSize: number = 6 // 每页显示的任务数
-const allTasks: Ref<Array<taskInfo>> = ref([])  // 所有任务的信息
-const showDatas: Ref<Array<taskInfo>> = ref([]) // 当前页的任务信息
-const change = (current: number) => {
-    showDatas.value = allTasks.value.slice((current - 1) * pageSize, current * pageSize)
-}
-axios.get('/api/getResponses/allTasks').then((res) => {
-    // 所有任务的id
-    const data = res.data
-    for (const id of data) {
-        axios.get(`/api/getResponses/${id}`).then((res) => {
-            const data = res.data
+const loadItem = async (id: string)=> {
+    const res = await axios.get(`/api/getResponses/${id}`)
+    if (res.status == 200) {
+        if (res.data.code == 20041) {
+            const data = res.data.data
             const entitys: LabelInfo[] = []
             const relations: RelaInfo[] = []
             for (var entity of data.entitys) {
@@ -45,19 +39,42 @@ axios.get('/api/getResponses/allTasks').then((res) => {
                 entitys: entitys,
                 relations: relations,
             })
-            showDatas.value = allTasks.value.slice(0, pageSize)
-        })
-    }
-})
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('获取数据失败')
+}
+
+const loadData = async() => {
+    const res = await axios.get('/api/getResponses/allTasks')
+    if (res.status == 200) { // 网络层
+        if (res.data.code == 20041) { // 应用层
+            const allIds: Array<string> = res.data.data
+            for (var id of allIds) {
+                await loadItem(id)
+            }
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('获取数据失败')
+    showDatas.value = allTasks.value.slice(0, pageSize)
+    tableLoading.value = false
+}
+
+loadData()
+
+const pageSize: number = 6 // 每页显示的任务数
+const allTasks: Ref<Array<taskInfo>> = ref([])  // 所有任务的信息
+const showDatas: Ref<Array<taskInfo>> = ref([]) // 当前页的任务信息
+const change = (current: number) => {
+    showDatas.value = allTasks.value.slice((current - 1) * pageSize, current * pageSize)
+}
 
 const router = useRouter()
 
+const tableLoading = ref(true)
 const columns = [
     { colKey: 'type', title: '类型', width: '40' },
     { colKey: 'id', title: 'ID', width: '50', ellipsis:true },
     { colKey: 'taskName', title: '名称', width: '50' },
     { colKey: 'description', title: '描述', width: '60' },
-    { colKey: 'createTime', title: '创建时间', width: '80' },
+    { colKey: 'createTime', title: "创建时间", width: '80' },
     { colKey: 'modifyTime', title: '修改时间', width: '80' },
     { title: '操作', width: '50', cell: (h: any, { row }: { row: taskInfo }) => {
         return (
@@ -94,7 +111,7 @@ const createTask = () => {
             <t-tabs :default-value="1">
                 <t-tab-panel v-for="tab in tabs" :value="tab.value" :label="tab.title">
                     <!--这个过滤器这样写有问题-->
-                    <t-base-table class="table" :data="showDatas.filter(task => tab.title == '全部'? true : task.type == tab.title)" stripe bordered row-key="index" :columns="columns"></t-base-table>
+                    <t-base-table :loading="tableLoading" class="table" :data="showDatas.filter(task => tab.title == '全部'? true : task.type == tab.title)" stripe bordered row-key="index" :columns="columns"></t-base-table>
                 </t-tab-panel>
             </t-tabs>
             <div class="bottom">

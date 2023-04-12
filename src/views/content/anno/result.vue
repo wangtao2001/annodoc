@@ -79,19 +79,13 @@ const localPriview = () => {
 }
 
 // 上传后端
-const uploadResult = () => {
-    axios.post('/api/resultAccepts/annotationResults', resultFormat())
-        .then((res) => {
-            if(res.status == 200) {
-                MessagePlugin.success('提交成功')
-            // TODO...
-            } else {
-                MessagePlugin.error('提交失败')
-            }
-        })
-        .catch((err) => {
-            console.log(err)
-        })
+const uploadResult = async () => {
+    const res = await axios.post('/api/resultAccepts/annotationResults', resultFormat())
+    if(res.status == 200) {
+        if (res.data.code == 20041) {
+            MessagePlugin.success('提交成功')
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('提交失败')
 }
 
 </script>

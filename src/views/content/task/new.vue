@@ -177,24 +177,20 @@ const deletaRela = (id: string) => {
     }
 }
 
-// 上传标注数据
-const uploadData = () => {
+// 上传任务创建数据
+const uploadData = async() => {
     const task = newTask()
     if (task == null) {
         return
     }
-    axios.post('/api/resultAccepts/taskResults', task)
-        .then((res) => {
-            if(res.status == 200) {
-                MessagePlugin.success('提交成功')
-                router.push('/task/list')
-            } else {
-                MessagePlugin.error('提交失败')
-            }
-        })
-        .catch((err) => {
-            console.log(err)
-        })
+    const res = await axios.post('/api/resultAccepts/taskResults', task)
+    console.log(res)
+    if(res.status == 200) {
+        if (res.data.code == 20011) {
+            MessagePlugin.success('提交成功')
+            router.push('/task/list')
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('提交失败')
 }
 
 // 工具函数
@@ -216,7 +212,7 @@ const labelIdToName = (id: string): string => {
                 <t-form-item label="项目类型" name="type">
                     <t-select v-model="basicInfo.type">
                         <t-option label="医学文本" value="医学文本" />
-                        <t-option label="电子病历" value="电子病历" />
+                        <t-option label="电子病历" value="电子病历" :disabled="true" />
                     </t-select>
                 </t-form-item>
                 <t-form-item label="项目名称">
@@ -375,10 +371,5 @@ const labelIdToName = (id: string): string => {
             margin-right: 10px;
         }
     }
-}
-
-.t-dialog {
-    user-select: none;
-    width: 10px !important;
 }
 </style>

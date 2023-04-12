@@ -54,7 +54,7 @@ interface uploadInfo {
     name: string,
     size: string,
     status: number // 2未上传 0已上传 1上传失败 3正在上传
-    progress: number // 上传的进度 0-100
+    uploaded: number // 已经上传的数量
 }
 
 // 上传的文件组
