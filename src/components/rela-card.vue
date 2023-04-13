@@ -3,7 +3,7 @@ import { ref, watch, computed, reactive } from 'vue'
 import { useStore } from '@/store'
 import { relaOption } from '@/interface'
 import { relas } from '@/options'
-import { resultNumberTokeyword, resultNumberToContent, relaIDToContent } from '@/methods/util'
+import { resultNumberToLabelId, resultIDToContent, relaIDToContent } from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 import pubsub from 'pubsub-js'
 import { MessagePlugin } from 'tdesign-vue-next'
@@ -16,13 +16,17 @@ const visibleModal = ref(false) // 控制对话框
 
 const relaView: Array<{ start: number, end: number, rela: string, id: string }> = reactive([])
 // 这个应该需要能够根据store内容来填充
+// 这个就保证了根据store的结果还能展示出来
+// anno-card也需要有这个功能
+// 缓存组件是一种方法，但是不能用
+// 更进一步，从标注结果返回标注状态，第一步就是把标注结果往store中存
 if (store.relaResults.length != 0) {
     for (var r of store.relaResults) {
         relaView.push({
             id: r.id,
             start: r.startNumber,
             end: r.endNumber,
-            rela: r.relaContent
+            rela: r.relaName
         })
     }
 }
@@ -37,7 +41,7 @@ pubsub.subscribe('piniaToRelaView', () => {
         relaView.push({
             start: r.startNumber,
             end: r.endNumber,
-            rela: r.relaContent,
+            rela: r.relaName,
             id: r.id
         })
     }
@@ -47,22 +51,22 @@ pubsub.subscribe('piniaToRelaView', () => {
 var isreverse = false // 是否存在选择的关系方向于规定不同
 const dialogConfim = () => { // 点击确定对话框关闭
     // 往store中存
-    if (rela1ID.value != -1 && rela2ID.value != -1 && relaID.value != -1) {
+    if (rela1Number.value != -1 && rela1Number.value != -1 && relaID.value != "") {
         // 如果是单向关系这里就要调整顺序了
         const data = {
-            startNumber: rela1ID.value,
-            startContent: resultNumberToContent(rela1ID.value),
-            endNumber: rela2ID.value,
-            endContent: resultNumberToContent(rela2ID.value),
+            id: uuidv4(),
+            startNumber: rela1Number.value,
+            startContent: resultIDToContent(rela1Number.value),
+            endNumber: rela2Number.value,
+            endContent: resultIDToContent(rela2Number.value),
             relaId: relaID.value,
-            relaContent: relaIDToContent(relaID.value),
-            id: uuidv4()
+            relaName: relaIDToContent(relaID.value)
         }
         if (isreverse) {
-            data.startNumber = rela2ID.value
-            data.endNumber = rela1ID.value
-            data.startContent = resultNumberToContent(rela2ID.value)
-            data.endContent = resultNumberToContent(rela1ID.value)
+            data.startNumber = rela2Number.value
+            data.endNumber = rela1Number.value
+            data.startContent = resultIDToContent(rela2Number.value)
+            data.endContent = resultIDToContent(rela2Number.value)
         }
         if (data.startNumber == data.endNumber) { // 起点终点不能是一个
             MessagePlugin.error('关系起点与终点重复')
@@ -80,7 +84,7 @@ const dialogConfim = () => { // 点击确定对话框关闭
         relaView.push({
             start: data.startNumber,
             end: data.endNumber,
-            rela: data.relaContent,
+            rela: data.relaName,
             id: data.id
         })
     }
@@ -93,12 +97,12 @@ const rela2Options = rela1Options // 关系终点选择的内容
 const addRela = () => { // 打开对话框
     visibleModal.value = true
     rela1Options.length = 0 // 首先清空
-    rela1ID.value = -1 // 全都恢复默认
+    rela1Number.value = -1 // 全都恢复默认
     rela1Title.value = '选择关系起点'
-    rela2ID.value = -1
+    rela2Number.value = -1
     rela2Title.value = '选择关系终点'
     allRelaTitle.value = '选择关系'
-    relaID.value = -1
+    relaID.value = ""
     isreverse = false
     for (var r of store.results) { // 重新装载
         rela1Options.push({
@@ -109,17 +113,17 @@ const addRela = () => { // 打开对话框
 }
 
 const rela1Title = ref("选择关系起点") // 关系起点的title
-const rela1ID = ref(-1) // 关系起点选择的id
+const rela1Number = ref(-1) // 关系起点选择的id
 const rela1Choose = (data: relaOption) => {
     rela1Title.value = data.content
-    rela1ID.value = data.id
+    rela1Number.value = data.id as number
 }
 
 const rela2Title = ref("选择关系起点") // 关系起点的title
-const rela2ID = ref(-1) // 关系起点选择的id
+const rela2Number = ref(-1) // 关系起点选择的Number
 const rela2Choose = (data: relaOption) => {
     rela2Title.value = data.content
-    rela2ID.value = data.id
+    rela2Number.value = data.id as number
 }
 
 const allRelaOptions: Array<relaOption> = [] // 关系选择的内容
@@ -127,21 +131,22 @@ const allRelaOptions: Array<relaOption> = [] // 关系选择的内容
 const allRelaDisabled = ref(true) // 在没有选择起点和终点时这个选择是禁用的
 // 监听起点和终点有没有选择
 const ids = computed(() => { //合到一起便于侦听
-    return { rela1ID, rela2ID }
+    return { rela1Number, rela2Number }
 })
 watch(ids, () => {
-    if (rela1ID.value != -1 && rela2ID.value != -1) {
+    if (rela1Number.value != -1 && rela2Number.value != -1) {
         // 两个都选择了才取消选择关系的禁用
-        const keyword1 = resultNumberTokeyword(rela1ID.value)
-        const keyword2 = resultNumberTokeyword(rela2ID.value)
+        const keyword1 = resultNumberToLabelId(rela1Number.value)
+        const keyword2 = resultNumberToLabelId(rela2Number.value)
         allRelaOptions.length = 0
+
         for (var r of relas) {
-            if ((r.start == keyword1 && r.end == keyword2) || (r.start == keyword2 && r.end == keyword1)) {
-                if (!r.bothway && r.start == keyword2) { // 反向了
+            if ((r.entity1 == keyword1 && r.entity2 == keyword2) || (r.entity1 == keyword2 && r.entity2 == keyword1)) {
+                if (!r.bothway && r.entity1 == keyword2) { // 反向了
                     isreverse = true
                 }
                 allRelaOptions.push({
-                    content: r.name,
+                    content: r.type,
                     id: r.id
                 })
             }
@@ -151,10 +156,10 @@ watch(ids, () => {
 }, { deep: true })
 
 const allRelaTitle = ref("选择关系") // 关系的title
-const relaID = ref(-1) // 关系的id
+const relaID = ref("") // 关系的id
 const allRelaChoose = (data: relaOption) => {
     allRelaTitle.value = data.content
-    relaID.value = data.id
+    relaID.value = data.id as string
 }
 
 const deleteRela = (id: string) => {
@@ -184,7 +189,7 @@ const deleteRela = (id: string) => {
                 </div>
                 <t-link theme="danger" @click="deleteRela(r.id)" hover="color"> 删除 </t-link>
             </div>
-            <t-button @click="addRela" theme="primary">
+            <t-button class="add-rela" @click="addRela" theme="primary">
                 <template #icon><t-icon name="add" /></template>
                 新增关系
             </t-button>
@@ -223,8 +228,9 @@ const deleteRela = (id: string) => {
 
 <style scoped lang="less">
 .rela-area {
-    button {
+    .add-rela {
         width: 100%;
+        padding: 0 40px;
     }
 }
 

@@ -8,3 +8,5 @@ import { createPinia } from 'pinia'
 
 //document.documentElement.setAttribute('theme-mode', 'dark');
 createApp(App).use(router).use(createPinia()).use(TDesign).mount("#app")
+
+// 适配横屏，最小宽度960

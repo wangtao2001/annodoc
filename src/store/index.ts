@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
 import { Result, RelaResult } from '@/interface'
-import {reactive, ref} from 'vue'
+import {reactive, Ref ,ref} from 'vue'
 
 export const useStore = defineStore('main', () => {
     const results: Array<Result> = reactive([])
-    const resultsContainer = ref() // 灵光一现的点子
     const relaResults: Array<RelaResult> = reactive([])
+    const text: Ref<string> = ref("") // 待标注的文本
+    const createTaskId: Ref<string> = ref("")
     return {
-        results, resultsContainer, relaResults
+        results, relaResults, text, createTaskId
     }
 })
 

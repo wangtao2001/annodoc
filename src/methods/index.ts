@@ -2,6 +2,7 @@ import { LabelInfo, Result } from "@/interface"
 import { useStore } from '@/store'
 import { MessagePlugin } from 'tdesign-vue-next'
 import pubsub from 'pubsub-js'
+import { v4 as uuidv4 } from 'uuid'
 
 const store = useStore()
 
@@ -33,12 +34,13 @@ export function labelSelect(label: LabelInfo) {
                 // 要求results能够排序，那就不能简单的push，而是插入排序
                 // 还有一种方法就是push完了sort
                 const currentResult: Result = { // 待插入的信息
+                    id: uuidv4(),
                     number: 0,
                     start: offset,
                     end: offset + span.innerText.length,
                     content: span.innerText,
-                    labelKeyword: label.keyword,
-                    labelName: label.name,
+                    labelId: label.id,
+                    labelName: label.type,
                     span: span
                 }
                 // 1.1首端插入
@@ -109,8 +111,8 @@ function createSpanAndInsert(rang: Range, label: LabelInfo): HTMLSpanElement {
     const span: HTMLSpanElement = document.createElement("span")
     span.className = "onselect"
     span.style.backgroundColor = label.color // 选区的背景颜色
-    span.setAttribute("labelKeyword", label.keyword)
-    span.setAttribute("labelName", label.name) // 尽量在HTML层面信息传递多一点
+    // span.setAttribute("labelKeyword", label.keyword)
+    // span.setAttribute("labelName", label.name) // 尽量在HTML层面信息传递多一点
     span.onclick = (e) => { // 删除包裹
         const currentSpan = e.target as HTMLElement
         deleteALabel(currentSpan)
@@ -130,14 +132,20 @@ function deleteALabel(currentSpan: Element) {
         index+=1
         if (result.span == currentSpan) {
             tmp = result.number
-            // 1.1 判断当前有没有关系存在，有的话就不予删除
-            // 删除可以强制，但是增加一个标签一定要改标号
+            // 1.1 判断当前有没有关系存在，有的话就不予删除，然后把比当前关系大的标号更改
             for (var s of store.relaResults) {
                 if (s.startNumber == tmp || s.endNumber == tmp) {
                     MessagePlugin.error('请先删除相关关系')
                     return
                 }
+                if (s.startNumber >= tmp) {
+                    s.startNumber -= 1
+                }
+                if (s.endNumber >= tmp) {
+                    s.endNumber -=1
+                }
             }
+            pubsub.publish("piniaToRelaView")
             // 删除
             store.results.splice(index-1, 1)
             break
@@ -158,4 +166,18 @@ function deleteALabel(currentSpan: Element) {
 function piniaSyncLabelNumber(r: Result) {
     const tmp = r.span!.firstChild as HTMLPreElement
     tmp.innerText = r.number.toString()
+}
+
+// 从store.results产生一个标注过的div
+export function resultsToLabeledDiv(): HTMLDivElement {
+    const text = store.text
+    const div = document.createElement('div')
+    var offest = 0
+    for (var r of store.results) {
+        div.appendChild(document.createTextNode(text.substring(offest, r.start)))
+        div.appendChild(r.span!)
+        offest = r.end
+    }
+    div.appendChild(document.createTextNode(text.substring(offest-1, text.length)))
+    return div
 }

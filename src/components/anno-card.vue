@@ -1,41 +1,28 @@
 <script setup lang='ts'>
 import Label from '@/components/label.vue'
 import { ref, Ref, nextTick } from 'vue'
-import { labelSelect } from '@/methods'
+import { labelSelect, resultsToLabeledDiv } from '@/methods'
 import { useStore } from '@/store'
 import { labels } from '@/options'
 
 const store = useStore()
 
-const props = defineProps({
-    text: {
-        type: String,
-        required: true
-    }
-})
-
-// 不能用string类型，不然不会重新渲染
-const text: Ref<string> = ref(props.text)
-
 
 // 监听键盘事件
 document.onkeydown = (e) => {
     labels.forEach((label) => {
-        if (label.keyword === e.key.toUpperCase()) { // 因为展示的快捷键（包括用户选择的）都是大写，但是也要能够监听小写
+        if (label.shortcut === e.key.toUpperCase()) { // 因为展示的快捷键（包括用户选择的）都是大写，但是也要能够监听小写
             labelSelect(label)
         }
     })
 }
 
-// 返回时刚刚标注的状态保持住
-var rawText = ref(true)
-
-if (typeof store.resultsContainer != 'undefined') {
-    rawText.value = false
+// 返回时刚刚标注的状态保持住，从store的状态来同步这个结果
+if (store.results.length != 0) {
+    const labeledDiv = resultsToLabeledDiv()
     nextTick(() => {
-        document.querySelector('.container')?.appendChild(store.resultsContainer)
+        document.querySelector('.anno-area')?.firstChild?.replaceWith(labeledDiv)
     })
-    console.log("确认执行了")
 }
 
 </script>
@@ -43,12 +30,13 @@ if (typeof store.resultsContainer != 'undefined') {
 <template>
     <t-card header-bordered>
         <div class="container">
-            <div v-if="rawText" class="anno-area">
-                {{ text }}
+            <div class="anno-area">
+                {{ store.text }}
             </div>
         </div>
         <template #actions>
-            <Label v-for="label in labels" :name="label.name" :keyword="label.keyword" :color="label.color"></Label>
+            <Label :disabled="false" v-for="label in labels" :name="label.type" :keyword="label.shortcut"
+                :color="label.color" :id="label.id"></Label>
         </template>
     </t-card>
 </template>
@@ -57,7 +45,6 @@ if (typeof store.resultsContainer != 'undefined') {
 .anno-area {
     font-size: 16px;
     letter-spacing: 2px; // 字体间距
-    width: 53vw;
     color: #191919;
     //font-weight: lighter;
     line-height: 200%; // 行间距
