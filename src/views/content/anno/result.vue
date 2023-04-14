@@ -82,7 +82,7 @@ const localPriview = () => {
 const uploadResult = async () => {
     const res = await axios.post('/api/resultAccepts/annotationResults', resultFormat())
     if(res.status == 200) {
-        if (res.data.code == 20041) {
+        if (res.data.code == 20011) {
             MessagePlugin.success('提交成功')
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('提交失败')

@@ -76,3 +76,22 @@ export interface taskInfo {
     entitys: Array<LabelInfo>,
     relations: Array<RelaInfo>
 }
+
+// 标注的类型：医学文本、电子病历、医学图像...
+export interface annoType {
+    id: number,
+    title: string,
+    img: string,
+    content: string,
+    link: string,
+    disabled: boolean
+}
+
+//每个任务的标注进度（对应的文本状态）
+export interface textSatatus {
+    all: number,
+    finalized: number,
+    marked: number,
+    unmarked: number,
+    marking: number
+}

@@ -50,6 +50,12 @@ const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，�
                         </template>
                         任务管理
                     </t-menu-item>
+                    <t-menu-item value="check" to="/check">
+                        <template #icon>
+                            <t-icon name="filter-clear" />
+                        </template>
+                        审核管理
+                    </t-menu-item>
                     <t-menu-item value="space" to="/space">
                         <template #icon>
                             <t-icon name="user-circle" />

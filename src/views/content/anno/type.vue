@@ -2,24 +2,34 @@
 import textIcon from '@/assets/1.png'
 import recordIcon from '@/assets/2.png'
 import { useRouter } from 'vue-router'
+import {annoType} from '@/interface'
+import { MessagePlugin } from 'tdesign-vue-next';
 
 const router = useRouter()
 
-const tasks = [
+const annoType: Array<annoType> = [
     {
         id: 0,
         title: '医学文本',
         img: textIcon,
         content: '',
-        link: '/anno/work?type=text'
+        link: '/anno/work?type=text',
+        disabled: false
     }, {
         id: 1,
         title: '电子病历',
         img: recordIcon, // require是webpack的做法
         content: '',
-        link: '/anno/work?type=record'
+        link: '/anno/work?type=record',
+        disabled: true
     }
 ]
+
+const anno = (type: annoType)=> {
+    if(type.disabled) {
+        MessagePlugin.error('暂无任务')
+    } else router.push(type.link)
+}
 </script>
 
 <template>
@@ -27,14 +37,14 @@ const tasks = [
         <div class="container">
             <div class="label">文本标注:</div>
             <div class="tasks">
-                <div class="card" @click="router.push(task.link)" bordered v-for="task in tasks" :key="task.id">
+                <div class="card" @click="anno(type)" bordered v-for="type in annoType" :key="type.id">
                     <div class="top">
-                        <img :src="task.img" />
-                        <div class="title">{{ task.title }}</div>
+                        <img :src="type.img" />
+                        <div class="title">{{ type.title }}</div>
                         <t-tag theme="primary" variant="light">NEW</t-tag>
                     </div>
                     <div class="content">
-                        {{ task.content }}
+                        {{ type.content }}
                     </div>
                 </div>
             </div>
