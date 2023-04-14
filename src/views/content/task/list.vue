@@ -140,7 +140,6 @@ const view = async (task: taskInfo) => {
             </div>
         </div>
         <t-dialog
-            closeBtn
             v-model:visible="viewDialog"
             :footer="false"
             >
