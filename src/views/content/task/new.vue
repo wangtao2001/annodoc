@@ -159,6 +159,13 @@ const allRelas: Array<RelaInfo> = reactive([])
 
 const deletaLabel = (id: string) => {
     var i = 0
+    // 有关系先删除关系
+    for (var r of allRelas) {
+        if (r.entity1 == id || r.entity2 == id) {
+            MessagePlugin.error('请先删除相关关系')
+            return
+        }
+    }
     for (var l of allLabels) {
         if (l.id == id) {
             allLabels.splice(i, 1)
@@ -257,7 +264,8 @@ const labelIdToName = (id: string): string => {
                     <div class="rela s">
                         <div class="con">
                             <p v-if="allRelas.length == 0">配置的实体标签将显示在这里</p>
-                            <t-popconfirm v-for="r in allRelas" @confirm="deletaRela(r.id)" content="确认删除吗">
+                            <t-popconfirm v-for="r in allRelas" @confirm="deletaRela(r.id)" content="确认删除吗"
+                            theme="danger">
                                 <Rela :name="r.type" :start-name="labelIdToName(r.entity1)"
                                     :end-name="labelIdToName(r.entity2)" :bothway="r.bothway">
                                 </Rela>
