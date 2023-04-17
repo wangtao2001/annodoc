@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { LabelInfo, taskInfo, RelaInfo, textSatatus } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
+import { downloadLocal } from '@/methods/util'
 
 const loadItem = async (id: string)=> {
     const res = await axios.get(`/api/getResponses/tasks/${id}`)
@@ -73,7 +74,7 @@ const columns = [
     { colKey: 'type', title: '类型', width: '40' },
     { colKey: 'id', title: 'ID', width: '50', ellipsis:true },
     { colKey: 'taskName', title: '名称', width: '50' },
-    { colKey: 'description', title: '描述', width: '60' },
+    { colKey: 'description', title: '描述', width: '60', ellipsis:true  },
     { colKey: 'createTime', title: "创建时间", width: '80' },
     { colKey: 'modifyTime', title: '修改时间', width: '80' },
     { title: '操作', width: '50', cell: (h: any, { row }: { row: taskInfo }) => {
@@ -104,6 +105,7 @@ const createTask = () => {
     router.push('/task/new')
 }
 
+var currentTask: taskInfo
 const textSatatus: textSatatus = reactive({
     all:0, finalized:0, marked:0, unmarked:0, marking: 0
 })
@@ -120,8 +122,21 @@ const view = async (task: taskInfo) => {
             textSatatus.unmarked = data.unmarked
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('获取数据失败')
+    currentTask = task
     viewDialog.value = true
-}   
+} 
+
+// 下载最终标注结果
+const downloadResult = async ()=> {
+    const res = await axios.get(`/api/getResponses/getFinalizedText/${currentTask.id}`)
+    if (res.status == 200) {
+        if (res.data.code == 20041) {
+            const data = res.data.data
+            // 这里进行数据处理
+            downloadLocal(JSON.stringify(data , null, '\t'), `${currentTask.taskName}.json`)
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('获取数据失败')
+}
 </script>
 
 <template>
@@ -160,7 +175,7 @@ const view = async (task: taskInfo) => {
                 </div>
                 <div class="footer">
                     <t-button variant="outline" @click="viewDialog = false">关闭</t-button>
-                    <t-button @click="" :disabled="true" >下载标注结果</t-button>
+                    <t-button @click="downloadResult" :disabled="(textSatatus.all != textSatatus.finalized) || textSatatus.all == 0" >下载标注结果</t-button>
                 </div>
             </div>
           </t-dialog>
