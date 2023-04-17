@@ -34,8 +34,8 @@ const props = defineProps({
 <style scoped lang='less'>
 .name {
     color: #595959;
-    box-shadow: #e5e5e5 0px 0px 10px;
-    border: 1px solid #e5e5e5;
+    box-shadow: var(--rela-border) 0px 0px 10px;
+    border: 1px solid var(--rela-border);
     display: flex;
     flex-direction: column;
     text-align: center;
@@ -53,6 +53,7 @@ const props = defineProps({
         flex-direction: row;
         justify-content: center;
         align-items: center;
+        color: var(--real-con);
     }
 }
 

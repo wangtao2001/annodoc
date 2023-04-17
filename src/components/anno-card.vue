@@ -45,7 +45,7 @@ if (store.results.length != 0) {
 .anno-area {
     font-size: 16px;
     letter-spacing: 2px; // 字体间距
-    color: #191919;
+    color: var(--reading-text-color);
     //font-weight: lighter;
     line-height: 200%; // 行间距
     //font-family: 'Courier New', Courier, monospace;

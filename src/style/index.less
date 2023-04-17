@@ -66,7 +66,7 @@ body {
 .onselect::after {
     content: '';
     display: inline-block;
-    background-image: url('./assets/icon/close.svg');
+    background-image: url(../assets/icon/close.svg);
     background-repeat: no-repeat;
     background-size: 20px 20px;
     height: 20px;
@@ -74,4 +74,20 @@ body {
     position: relative;
     top: 5px;
     pointer-events: auto; // 实现只在伪元素上才有的单击效果
+}
+
+:root {
+    --reading-text-color: #191919;
+    --base-bgc: #fff;
+    --rela-border: #e5e5e5;
+    --real-con: #595959;
+    --common-border: #ddd;
+}
+
+:root[theme-mode="dark"] {
+    --reading-text-color: #fff;
+    --base-bgc: #242424;
+    --rela-border: #000;
+    --real-con: #fff;
+    --common-border: #5e5e5e;
 }

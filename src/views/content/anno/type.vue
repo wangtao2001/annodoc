@@ -74,7 +74,7 @@ const anno = (type: annoType)=> {
 
             .card {
                 padding: 15px;
-                border: 1px solid #ddd;
+                border: 1px solid var(--common-border);
                 margin: 0 5px;
 
                 .top {
