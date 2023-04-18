@@ -6,6 +6,9 @@ import { LabelInfo, taskInfo, RelaInfo, textSatatus } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { downloadLocal } from '@/methods/util'
 import upload from '@/components/upload.vue'
+import { useStore } from '@/store'
+
+const store = useStore()
 
 const loadItem = async (id: string)=> {
     // 反正是全部再读一次
@@ -16,7 +19,6 @@ const loadItem = async (id: string)=> {
             const data = res.data.data
             const entitys: LabelInfo[] = []
             const relations: RelaInfo[] = []
-            console.log(data)
             for (var entity of data.entitys) {
                 entitys.push({
                     type: entity.type,
@@ -90,7 +92,7 @@ const columns = [
                         return (
                             <div>
                                 <t-link theme="warning" > 发布 </t-link>
-                                <t-link theme="primary" > 继续上传文件 </t-link>
+                                <t-link theme="primary" onClick={()=> {uploadFile(row)}} > 继续上传文件 </t-link>
                                 <t-link theme="danger" onClick={()=>{deleteTask(row.id)}} > 删除 </t-link>
                             </div>
                         )
@@ -102,9 +104,15 @@ const columns = [
     } },
 ]
 
-const deleteTask = (id: string) => {
-    console.log(id)
-    console.log("删除")
+const deleteTask = async (id: string) => {
+    const res = await axios.delete(`/api/getResponses/deleteTask/${id}`)
+    console.log(res)
+    if (res.status == 200) {
+        if (res.data.code == 20031) {
+            MessagePlugin.success('删除成功')
+            loadData()
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('删除失败')
 }
 
 const tabs = [
@@ -123,6 +131,8 @@ const textSatatus: textSatatus = reactive({
 })
 const viewDialog = ref(false)
 const modifyDialog = ref(false)
+const uploadDialog = ref(false)
+
 const view = async (task: taskInfo) => {
     const res = await axios.get(`/api/getResponses/getMedicalNumber/${task.id}`)
     if (res.status == 200) {
@@ -159,7 +169,6 @@ const modifyTaskPut = async ()=> {
         return
     }
     const res = await axios.put('/api/resultAccepts/modifyTask', modifyTaskData)
-    console.log(res)
     if (res.status == 200) {
         if (res.data.code == 20021) {
             MessagePlugin.success('修改成功')
@@ -169,6 +178,10 @@ const modifyTaskPut = async ()=> {
     } else MessagePlugin.error('修改失败')
 }
 
+const uploadFile = (task: taskInfo)=>{
+    uploadDialog.value = true
+    store.createTaskId = task.id // ipload组件使用的是store中存储的
+}
 
 // 下载最终标注结果
 const downloadResult = async ()=> {
@@ -270,6 +283,18 @@ const downloadResult = async ()=> {
                         :autosize="{ minRows: 3, maxRows: 10 }" clearable />
                 </t-form-item>
             </t-form>
+        </t-dialog>
+        <t-dialog
+            v-model:visible="uploadDialog"
+            :closeBtn="true"
+            :footer="false"
+            header="继续上传文件"
+            width="600px"
+            >
+            <upload :multiple="true" />
+            <p style="color: #999; margin-top: 5px;">
+                支持多选, 扩展名 .txt, UTF-8编码方式
+            </p>
         </t-dialog>
     </div>
 </template>
