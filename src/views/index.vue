@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import {ref} from 'vue'
 import { useRoute } from 'vue-router'
-import { CloseIcon, CheckIcon } from 'tdesign-icons-vue-next';
+
 const toHome = () => {
     window.location.href = "/"
 }
@@ -10,17 +10,30 @@ const toHome = () => {
 const route = useRoute() // 获取当前路由信息
 const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，这样就要求路由的路径与muen-item的value相同
 
-const darkMode = ref(false)
+const darkMode = ref(true)
+
 const titleImg = ref('/title5.png')
 const modeChange = ()=> {
     if (darkMode.value) {
         document.documentElement.setAttribute('theme-mode', 'dark')
         titleImg.value = '/title6.png'
+        localStorage.setItem('darkMode', 'false')
     } else {
         document.documentElement.setAttribute('theme-mode', 'light')
         titleImg.value = '/title5.png'
+        localStorage.setItem('darkMode', 'true')
     }
     darkMode.value = !darkMode.value
+}
+const local = localStorage.getItem('darkMode')
+// 判断local为null
+ if(local === 'true') {
+    darkMode.value = true
+} else {
+    darkMode.value = false
+    document.documentElement.setAttribute('theme-mode', 'dark')
+    titleImg.value = '/title6.png'
+
 }
 
 </script>
