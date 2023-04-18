@@ -31,7 +31,7 @@ const pre = () => {
 const nextText = ref('下一步')
 
 // 生成设置的配置文件
-const newTask = ()=>{
+const newTask = () :taskInfo | null=>{
     if (allLabels.length == 0) {
         MessagePlugin.error('请添加实体')
         return null
@@ -44,7 +44,8 @@ const newTask = ()=>{
             createTime: new Date().toLocaleString(),
             modifyTime: new Date().toLocaleString(),
             entitys: allLabels,
-            relations: allRelas
+            relations: allRelas,
+            grade: 0
     }
 }
 

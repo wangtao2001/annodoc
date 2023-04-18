@@ -75,6 +75,7 @@ export interface taskInfo {
     modifyTime: string,
     entitys: Array<LabelInfo>,
     relations: Array<RelaInfo>,
+    grade: number, // 表示哪一级学生
 }
 
 // 标注的类型：医学文本、电子病历、医学图像...

@@ -12,13 +12,15 @@ const store = useStore()
 
 const loadItem = async (id: string)=> {
     // 反正是全部再读一次
-    allTasks.value = []
     const res = await axios.get(`/api/getResponses/tasks/${id}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
             const data = res.data.data
             const entitys: LabelInfo[] = []
             const relations: RelaInfo[] = []
+            if(data.deleted) {
+                return
+            }
             for (var entity of data.entitys) {
                 entitys.push({
                     type: entity.type,
@@ -45,12 +47,14 @@ const loadItem = async (id: string)=> {
                 modifyTime: data.modifyTime,
                 entitys: entitys,
                 relations: relations,
+                grade: data.grade,
             })
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('获取数据失败')
 }
 
 const loadData = async() => {
+    allTasks.value = [] // 相当于刷新页面
     const res = await axios.get('/api/getResponses/allTasks')
     if (res.status == 200) { // 网络层
         if (res.data.code == 20041) { // 应用层
@@ -79,9 +83,20 @@ const tableLoading = ref(true)
 const columns = [
     { colKey: 'type', title: '类型', width: '40' },
     { colKey: 'id', title: 'ID', width: '50', ellipsis:true },
-    { colKey: 'taskName', title: '名称', width: '50' },
+    { title: '名称', width: '60', ellipsis:true, cell: (h: any, { row }: { row: taskInfo }) => {
+        return (
+            <div class='task_name'>
+                <>{
+                    row.grade == 0? 
+                <t-tag theme="warning" variant="light">未发布</t-tag> :
+                <t-tag theme="success" variant="light">已发布</t-tag>
+                }</>
+                <p>{row.taskName}</p>
+            </div>
+        )
+    } },
     { colKey: 'description', title: '描述', width: '60', ellipsis:true  },
-    { colKey: 'createTime', title: "创建时间", width: '80' },
+    // { colKey: 'createTime', title: "创建时间", width: '80' },
     { colKey: 'modifyTime', title: '修改时间', width: '80' },
     { title: '操作', width: '50', cell: (h: any, { row }: { row: taskInfo }) => {
         return (
@@ -91,7 +106,11 @@ const columns = [
                 <t-popup content={()=> {
                         return (
                             <div>
-                                <t-link theme="warning" > 发布 </t-link>
+                                <>{
+                                    row.grade == 0?
+                                    <t-link theme="warning" onClick={()=>{releaseDialog.value = true; currentTask = row}} > 发布 </t-link>: ''
+                                }
+                                </>
                                 <t-link theme="primary" onClick={()=> {uploadFile(row)}} > 继续上传文件 </t-link>
                                 <t-link theme="danger" onClick={()=>{deleteTask(row.id)}} > 删除 </t-link>
                             </div>
@@ -132,6 +151,7 @@ const textSatatus: textSatatus = reactive({
 const viewDialog = ref(false)
 const modifyDialog = ref(false)
 const uploadDialog = ref(false)
+const releaseDialog = ref(false)
 
 const view = async (task: taskInfo) => {
     const res = await axios.get(`/api/getResponses/getMedicalNumber/${task.id}`)
@@ -153,13 +173,15 @@ const modifyTaskData = reactive({ // 修改任务的数据
     id: '',
     taskName: '',
     description: '',
-    modifyTime: ''
+    modifyTime: '',
+    grade: 0
 })
 const modify = (task: taskInfo) => {
     modifyTaskData.id = task.id
     modifyTaskData.type = task.type
     modifyTaskData.taskName = task.taskName
     modifyTaskData.description = task.description
+    modifyTaskData.grade = task.grade
     modifyDialog.value = true
 }
 const modifyTaskPut = async ()=> {
@@ -181,6 +203,22 @@ const modifyTaskPut = async ()=> {
 const uploadFile = (task: taskInfo)=>{
     uploadDialog.value = true
     store.createTaskId = task.id // ipload组件使用的是store中存储的
+}
+
+const grade = ref('')
+const releaseTask = async ()=> {
+    const res = await axios.put('/api/resultAccepts/assignTask', {
+        id: currentTask.id,
+        grade: grade.value
+    })
+    if (res.status == 200) {
+        if (res.data.code == 20021) {
+            console.log("剩余：", res.data.data)
+            MessagePlugin.success('发布成功')
+            releaseDialog.value = false
+            loadData()
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('发布失败')
 }
 
 // 下载最终标注结果
@@ -278,6 +316,9 @@ const downloadResult = async ()=> {
                 <t-form-item label="项目名称" name="name">
                     <t-input v-model="modifyTaskData.taskName" :maxlength="20" show-limit-number clearable />
                 </t-form-item>
+                <t-form-item label="发布年级" name="grade" v-if="modifyTaskData.grade !=0">
+                    <t-input v-model="modifyTaskData.grade" show-limit-number clearable  />
+                </t-form-item>
                 <t-form-item label="项目描述" name="desc">
                     <t-textarea v-model="modifyTaskData.description" placeholder="简单描述项目，长度限制为100" :maxcharacter="100"
                         :autosize="{ minRows: 3, maxRows: 10 }" clearable />
@@ -295,6 +336,18 @@ const downloadResult = async ()=> {
             <p style="color: #999; margin-top: 5px;">
                 支持多选, 扩展名 .txt, UTF-8编码方式
             </p>
+        </t-dialog>
+        <t-dialog
+            v-model:visible="releaseDialog"
+            :closeBtn="false"
+            header="发布任务"
+            @confirm="releaseTask"
+            >
+            <t-form label-align="left">
+                <t-form-item label="发布年级">
+                    <t-input v-model="grade" show-limit-number clearable />
+                </t-form-item>
+            </t-form>
         </t-dialog>
     </div>
 </template>
@@ -338,5 +391,6 @@ const downloadResult = async ()=> {
             }
         }
     }
+
 }
 </style>
