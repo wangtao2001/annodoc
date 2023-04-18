@@ -20,11 +20,8 @@ const modeChange = ()=> {
         document.documentElement.setAttribute('theme-mode', 'light')
         titleImg.value = '/title5.png'
     }
+    darkMode.value = !darkMode.value
 }
-
-const renderContent = (h: any, data: any) => {
-  return data.value ? <CheckIcon /> : <CloseIcon />;
-};
 
 </script>
 
@@ -35,13 +32,10 @@ const renderContent = (h: any, data: any) => {
                 <template #logo>
                     <img style="user-select: none;" @click="toHome" width="180" class="logo" :src="titleImg" alt="logo" />
                 </template>
-                <t-menu-item value="item1"> 已选内容 </t-menu-item>
-                <t-menu-item value="item2"> 菜单内容一 </t-menu-item>
-                <t-menu-item value="item3"> 菜单内容二 </t-menu-item>
-                <t-menu-item value="item4" :disabled="true"> 菜单内容三 </t-menu-item>
+                <t-menu-item value="item1"> 工作区 </t-menu-item>
+                <t-button style="margin-left: 10px;" theme="default" variant="text" @click="modeChange" value="item2"> {{ darkMode ? '深色模式' : '浅色模式' }} </t-button>
                 <template #operations>
-                    <t-switch v-model="darkMode" @change="modeChange" :label="renderContent" />
-                    <!-- <a><t-icon class="t-menu__operations-icon" name="search" /></a> -->
+                    <a><t-icon class="t-menu__operations-icon" name="search" /></a>
                     <a><t-icon class="t-menu__operations-icon" name="notification-filled" /></a>
                     <a><t-icon class="t-menu__operations-icon" name="home" /></a>
                 </template>
