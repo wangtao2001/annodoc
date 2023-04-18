@@ -53,7 +53,7 @@ const resultFormat = () => {
             id: item.id,
             start: item.start,
             end: item.end,
-            type: item.labelId,
+            typeId: item.labelId,
         }
     })
     const new_rela = store.relaResults.map((item: RelaResult) => {
@@ -61,7 +61,7 @@ const resultFormat = () => {
             id: item.id,
             entityResult1: resultNumberToId(item.startNumber),
             entityResult2: resultNumberToId(item.startNumber), // 最终结果给的是id而不是number，但是不能改RelaResult的类型
-            type: item.relaId,
+            typeId: item.relaId,
         }
     })
     return {

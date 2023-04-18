@@ -237,8 +237,7 @@ const labelIdToName = (id: string): string => {
                         <!--这个上传功能自己写-->
                         <upload :multiple="true" />
                         <p style="color: #999;">
-                            支持多选，扩展名 .txt<br />
-                            仅支持UTF-8编码方式
+                            支持多选, 扩展名 .txt, UTF-8编码方式
                         </p>
                     </div>
                 </t-form-item>

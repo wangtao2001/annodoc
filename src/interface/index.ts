@@ -74,7 +74,7 @@ export interface taskInfo {
     createTime: string,
     modifyTime: string,
     entitys: Array<LabelInfo>,
-    relations: Array<RelaInfo>
+    relations: Array<RelaInfo>,
 }
 
 // 标注的类型：医学文本、电子病历、医学图像...
