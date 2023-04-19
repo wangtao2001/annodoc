@@ -1,13 +1,14 @@
 <script setup lang='ts'>
 import AnnoCard from '@/components/anno-card.vue'
 import RelaCard from '@/components/rela-card.vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useStore } from '@/store'
 import pubsub from 'pubsub-js'
 
 const store = useStore()
 const router = useRouter()
 
+// 这里改为从后端请求
 var text: string = "消化性溃疡，又称胃及十二指肠溃疡。这是指胃、小肠前段（十二指肠）或幽门，有时也包含了食道下端的黏膜损伤（溃疡）。在胃发生的溃疡称作胃溃疡，在小肠的开头部分所发生的溃疡则是十二指肠溃疡。最常见的症状是会因为吃东西而改善的上腹痛，或者晚上因肚子痛而醒来。胃溃疡的疼痛大多被用“烧灼感”或“闷痛”描述，其他常见的症状还包括打嗝、呕吐、不明原因的体重减轻、或是胃口不佳，但年纪较大的患者中约有三分之一完全没有症状 。胃溃疡若不处理，可能会演变成出血、穿孔、或是胃出口阻塞，出血的发生率约为15%。"
 store.text = text
 

@@ -26,7 +26,7 @@ export function labelSelect(label: LabelInfo) {
         // 每次标记就应该把状态同步到pinia中，而不是最后统一扫描
         const div = document.querySelector('.anno-area') as HTMLDivElement
         var offset = 0
-        var insert: Boolean = false // 由于没有类似py的for-else结构
+        var insert: boolean = false // 由于没有类似py的for-else结构
         for (var ele of div.childNodes) {
             // 查找当前span在所有文字中的偏移
             if (ele == span) {

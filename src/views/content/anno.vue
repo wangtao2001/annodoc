@@ -1,6 +1,23 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router'
+import axios from 'axios'
+import { ref } from 'vue'
+import { MessagePlugin } from 'tdesign-vue-next'
 const route = useRoute()
+
+const currentNumber = "2020201111" // 动态替换学生
+const currentNum = ref(0)
+const allNum = ref(0)
+const getCurrentNums = async() => {
+    const res = await axios.get(`/api/getResponses/getOneHomeworkCompleted/${currentNumber}`)
+    if (res.status == 200) {
+        if (res.data.code == 20041) {
+            currentNum.value = res.data.data.finish+1
+            allNum.value = res.data.data.all
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error("网络错误")
+}
+getCurrentNums()
 </script>
 
 <template>
@@ -11,7 +28,7 @@ const route = useRoute()
                 <t-breadcrumbItem to="/anno/work" v-if="route.meta.breadcrumbLevel as number > 1"> 标注 </t-breadcrumbItem>
                 <t-breadcrumbItem to="/anno/result" v-if="route.meta.breadcrumbLevel as number > 2"> 标注结果 </t-breadcrumbItem>
             </div>
-            <div class="num" v-if="route.meta.breadcrumbLevel as number > 1">当前：67/200</div>
+            <div class="num" v-if="route.meta.breadcrumbLevel as number > 1">当前：{{ currentNum }}/{{ allNum }}</div>
         </t-breadcrumb>
         <RouterView />
     </t-layout>

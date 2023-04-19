@@ -64,7 +64,7 @@ const resultFormat = () => {
             typeId: item.relaId,
         }
     })
-    return {
+    return { // 如果是审核员这里需要多一个字段
         'studentNumber': '2020192462',
         'textId': '000000000',
         'entitys': new_labels,
