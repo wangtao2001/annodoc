@@ -15,6 +15,7 @@ export function labelSelect(label: LabelInfo) {
             return
         }
         const span = createSpanAndInsert(rang, label)
+        console.log(span)
         // 嵌套选择的话就把内层取消
         // 这里还有一种更简单的方式，就是禁止后面的选择，但是暂时实现不了
         const innerSpans = span.querySelectorAll('.onselect')
@@ -80,6 +81,7 @@ export function labelSelect(label: LabelInfo) {
                 }
                 // 1.3尾端插入
                 if (!insert) {
+                    console.log("hhhhh")
                     currentResult.number = store.results.length
                     store.results.push(currentResult)
                 }

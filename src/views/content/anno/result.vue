@@ -92,7 +92,7 @@ const uploadResult = async () => {
 
 <template>
     <div class="root">
-        <t-radio-group class="tab" @change="tabChange" default-value="1">
+        <t-radio-group class="tab" @change="tabChange" default-value="1" variant="default-filled">
             <t-radio-button value="1">实体列表</t-radio-button>
             <t-radio-button value="2">关系列表</t-radio-button>
         </t-radio-group>
