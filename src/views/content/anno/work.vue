@@ -4,13 +4,59 @@ import RelaCard from '@/components/rela-card.vue'
 import { useRouter } from 'vue-router'
 import { useStore } from '@/store'
 import pubsub from 'pubsub-js'
+import axios from 'axios'
+import { ref, Ref } from 'vue'
+import { MessagePlugin } from 'tdesign-vue-next'
+import { LabelInfo, RelaInfo } from '@/interface'
 
 const store = useStore()
 const router = useRouter()
 
-// 这里改为从后端请求
-var text: string = "消化性溃疡，又称胃及十二指肠溃疡。这是指胃、小肠前段（十二指肠）或幽门，有时也包含了食道下端的黏膜损伤（溃疡）。在胃发生的溃疡称作胃溃疡，在小肠的开头部分所发生的溃疡则是十二指肠溃疡。最常见的症状是会因为吃东西而改善的上腹痛，或者晚上因肚子痛而醒来。胃溃疡的疼痛大多被用“烧灼感”或“闷痛”描述，其他常见的症状还包括打嗝、呕吐、不明原因的体重减轻、或是胃口不佳，但年纪较大的患者中约有三分之一完全没有症状 。胃溃疡若不处理，可能会演变成出血、穿孔、或是胃出口阻塞，出血的发生率约为15%。"
-store.text = text
+var fl = true
+const loadText = async() => {
+    const res = await axios.get(`/api/getResponses/getTextToMarkStudent?grade=${store.currentGrade}&number=${store.currentNumebr}`)
+    if (res.status == 200) {
+        if (res.data.code == 20041) {
+            store.currentText = res.data.data.text
+            store.currentTextId = res.data.data.textId
+            if (res.data.data.taskId == store.currentTaskId) {
+                // 仍然属于同一个任务，不需要重新加载标签
+                fl = false
+            } else store.currentTaskId = res.data.data.taskId
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error("获取文本失败")
+}
+
+const loadLabels = async() => {
+    const res = await axios.get(`/api/getResponses/tasks/${store.currentTaskId}`)
+    if (res.status == 200) {
+        if (res.data.code == 20041) {
+            for (var entity of res.data.data.entitys) {
+                store.currentLabels.push({
+                    type: entity.type,
+                    shortcut: entity.shortcut,
+                    color: entity.color,
+                    id: entity.id,
+                })
+            }
+            for (var rela of res.data.data.relations) {
+                store.currentRelas.push({
+                    id: rela.id,
+                    type: rela.type,
+                    entity1: rela.entity1,
+                    entity2: rela.entity2,
+                    bothway: rela.bothway,
+                })
+            }
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error("获取标签失败")
+}
+
+loadText().then(() => {
+    if (fl) loadLabels() // 一定要在loadText之后，因为loadText中会修改store中的currentTaskId
+})
+
+
 
 const cancel = () => {
     window.getSelection()!.empty()
@@ -41,7 +87,7 @@ const finish = () => {
         <!--标注区域的卡片-->
         <div class="card">
             <AnnoCard style="margin-right: 20px; flex-grow: 1;"></AnnoCard>
-            <RelaCard></RelaCard>
+            <RelaCard ></RelaCard>
         </div>
         <t-card class="bottom-card">
             <div class="option">

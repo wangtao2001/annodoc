@@ -15,7 +15,6 @@ export function labelSelect(label: LabelInfo) {
             return
         }
         const span = createSpanAndInsert(rang, label)
-        console.log(span)
         // 嵌套选择的话就把内层取消
         // 这里还有一种更简单的方式，就是禁止后面的选择，但是暂时实现不了
         const innerSpans = span.querySelectorAll('.onselect')
@@ -81,7 +80,6 @@ export function labelSelect(label: LabelInfo) {
                 }
                 // 1.3尾端插入
                 if (!insert) {
-                    console.log("hhhhh")
                     currentResult.number = store.results.length
                     store.results.push(currentResult)
                 }
@@ -171,8 +169,9 @@ function piniaSyncLabelNumber(r: Result) {
 }
 
 // 从store.results产生一个标注过的div
+// 这里以后会有升级的方法，通过 start和end， 而不是已存的span
 export function resultsToLabeledDiv(): HTMLDivElement {
-    const text = store.text
+    const text = store.currentText
     const div = document.createElement('div')
     var offest = 0
     for (var r of store.results) {

@@ -1,5 +1,4 @@
 import { useStore } from '@/store'
-import { relas } from '@/options'
 const store = useStore()
 
 export function resultIDToContent(number: number): string {
@@ -12,7 +11,7 @@ export function resultIDToContent(number: number): string {
 }
 
 export function relaIDToContent(number: string): string {
-    for (var r of relas) {
+    for (var r of store.currentRelas) {
         if (number == r.id) {
             return r.type
         }

@@ -30,10 +30,9 @@ const local = localStorage.getItem('darkMode')
  if(local === 'true') {
     darkMode.value = true
 } else {
-    darkMode.value = false
-    document.documentElement.setAttribute('theme-mode', 'dark')
-    titleImg.value = '/title6.png'
-
+    darkMode.value = true
+    document.documentElement.setAttribute('theme-mode', 'light')
+    titleImg.value = '/title5.png'
 }
 
 </script>

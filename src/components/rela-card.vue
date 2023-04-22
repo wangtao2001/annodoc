@@ -2,11 +2,11 @@
 import { ref, watch, computed, reactive } from 'vue'
 import { useStore } from '@/store'
 import { relaOption } from '@/interface'
-import { relas } from '@/options'
 import { resultNumberToLabelId, resultIDToContent, relaIDToContent } from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 import pubsub from 'pubsub-js'
 import { MessagePlugin } from 'tdesign-vue-next'
+import {RelaInfo} from '@/interface'
 
 const store = useStore()
 
@@ -140,7 +140,7 @@ watch(ids, () => {
         const keyword2 = resultNumberToLabelId(rela2Number.value)
         allRelaOptions.length = 0
 
-        for (var r of relas) {
+        for (var r of store.currentRelas) {
             if ((r.entity1 == keyword1 && r.entity2 == keyword2) || (r.entity1 == keyword2 && r.entity2 == keyword1)) {
                 if (!r.bothway && r.entity1 == keyword2) { // 反向了
                     isreverse = true

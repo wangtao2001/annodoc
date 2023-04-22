@@ -64,11 +64,12 @@ const resultFormat = () => {
             typeId: item.relaId,
         }
     })
-    return { // 如果是审核员这里需要多一个字段
-        'studentNumber': '2020192462',
-        'textId': '000000000',
+    return {
+        'number': store.currentNumebr,
+        'textId': store.currentTextId,
         'entitys': new_labels,
         'relations': new_rela,
+        'pass': 0
     }
 }
 
@@ -84,6 +85,7 @@ const uploadResult = async () => {
     if(res.status == 200) {
         if (res.data.code == 20011) {
             MessagePlugin.success('提交成功')
+            window.open('/anno/work?type=text', "_self") // 上传完再跳转不能用router.push
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('提交失败')
 }
