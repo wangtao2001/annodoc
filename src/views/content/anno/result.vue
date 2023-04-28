@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { useStore } from '@/store'
+import { mainStore, statusStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { ref, Ref } from 'vue'
 import { downloadLocal } from '@/methods/util'
@@ -10,7 +10,8 @@ import { MessagePlugin } from 'tdesign-vue-next';
 
 const router = useRouter()
 
-const store = useStore()
+const store = mainStore()
+const status = statusStore()
 const columns = [
     { colKey: 'number', title: '编号', width: '50' },
     { colKey: 'start', title: '起始', width: '50' },
@@ -65,8 +66,8 @@ const resultFormat = () => {
         }
     })
     return {
-        'number': store.currentNumebr,
-        'textId': store.currentTextId,
+        'number': status.currentNumebr,
+        'textId': status.currentTextId,
         'entitys': new_labels,
         'relations': new_rela,
         'pass': 0

@@ -3,14 +3,15 @@ import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
-import { useStore } from '@/store'
+import { mainStore, statusStore } from '@/store'
 const route = useRoute()
-const store = useStore()
+const store = mainStore()
+const status = statusStore()
 
 const currentNum = ref(0)
 const allNum = ref(0)
 const getCurrentNums = async() => {
-    const res = await axios.get(`/api/getResponses/getOneHomeworkCompleted/${store.currentNumebr}`)
+    const res = await axios.get(`/api/getResponses/getOneHomeworkCompleted/${status.currentNumebr}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
             currentNum.value = res.data.data.finish+1

@@ -1,10 +1,11 @@
 import { LabelInfo, Result } from "@/interface"
-import { useStore } from '@/store'
+import { mainStore, statusStore } from '@/store'
 import { MessagePlugin } from 'tdesign-vue-next'
 import pubsub from 'pubsub-js'
 import { v4 as uuidv4 } from 'uuid'
 
-const store = useStore()
+const store = mainStore()
+const status = statusStore()
 
 // 总方法
 export function labelSelect(label: LabelInfo) {
@@ -171,7 +172,7 @@ function piniaSyncLabelNumber(r: Result) {
 // 从store.results产生一个标注过的div
 // 这里以后会有升级的方法，通过 start和end， 而不是已存的span
 export function resultsToLabeledDiv(): HTMLDivElement {
-    const text = store.currentText
+    const text = status.currentText
     const div = document.createElement('div')
     var offest = 0
     for (var r of store.results) {

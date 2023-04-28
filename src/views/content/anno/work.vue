@@ -2,37 +2,43 @@
 import AnnoCard from '@/components/anno-card.vue'
 import RelaCard from '@/components/rela-card.vue'
 import { useRouter } from 'vue-router'
-import { useStore } from '@/store'
+import { mainStore, statusStore } from '@/store'
 import pubsub from 'pubsub-js'
 import axios from 'axios'
 import { ref, Ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { LabelInfo, RelaInfo } from '@/interface'
 
-const store = useStore()
+const store = mainStore()
+const status = statusStore()
 const router = useRouter()
 
 var fl = true
+const hasText = ref(false) // 用来渲染页面
 const loadText = async() => {
-    const res = await axios.get(`/api/getResponses/getTextToMarkStudent?grade=${store.currentGrade}&number=${store.currentNumebr}`)
+    const res = await axios.get(`/api/getResponses/getTextToMarkStudent?grade=${status.currentGrade}&number=${status.currentNumebr}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
-            store.currentText = res.data.data.text
-            store.currentTextId = res.data.data.textId
-            if (res.data.data.taskId == store.currentTaskId) {
+            hasText.value = true
+            status.currentText = res.data.data.text
+            status.currentTextId = res.data.data.textId
+            if (res.data.data.taskId == status.currentTaskId) {
                 // 仍然属于同一个任务，不需要重新加载标签
                 fl = false
-            } else store.currentTaskId = res.data.data.taskId
-        } else MessagePlugin.error(res.data.msg)
+            } else status.currentTaskId = res.data.data.taskId
+        } else {
+            MessagePlugin.error(res.data.msg)
+            router.push('/anno/type')
+        }
     } else MessagePlugin.error("获取文本失败")
 }
 
 const loadLabels = async() => {
-    const res = await axios.get(`/api/getResponses/tasks/${store.currentTaskId}`)
+    const res = await axios.get(`/api/getResponses/tasks/${status.currentTaskId}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
             for (var entity of res.data.data.entitys) {
-                store.currentLabels.push({
+                status.currentLabels.push({
                     type: entity.type,
                     shortcut: entity.shortcut,
                     color: entity.color,
@@ -40,7 +46,7 @@ const loadLabels = async() => {
                 })
             }
             for (var rela of res.data.data.relations) {
-                store.currentRelas.push({
+                status.currentRelas.push({
                     id: rela.id,
                     type: rela.type,
                     entity1: rela.entity1,
@@ -83,7 +89,7 @@ const finish = () => {
 </script>
 
 <template>
-    <div class="root">
+    <div class="root" v-if="hasText">
         <!--标注区域的卡片-->
         <div class="card">
             <AnnoCard style="margin-right: 20px; flex-grow: 1;"></AnnoCard>

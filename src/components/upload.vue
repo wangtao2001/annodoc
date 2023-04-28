@@ -4,10 +4,10 @@ import { fileListToArray, fileSizeSum } from '@/methods/util'
 import { ErrorCircleFilledIcon, CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next'
 import { uplodaFiles } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
-import { useStore } from '@/store'
+import { mainStore } from '@/store'
 import axios from 'axios'
 
-const store = useStore()
+const store = mainStore()
 
 onMounted(() => {
     const upArea = document.querySelector('.up-area') as HTMLDivElement

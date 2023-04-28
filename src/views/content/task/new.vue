@@ -9,9 +9,9 @@ import Rela from '@/components/real.vue'
 import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal } from '@/methods/util'
 import axios from 'axios'
-import  { useStore } from '@/store'
+import  { mainStore } from '@/store'
 const router = useRouter()
-const store = useStore()
+const store = mainStore()
 
 const step: Ref<number> = ref(0)
 

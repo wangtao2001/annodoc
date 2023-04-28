@@ -2,13 +2,14 @@
 import Label from '@/components/label.vue'
 import { ref, Ref, nextTick } from 'vue'
 import { labelSelect, resultsToLabeledDiv } from '@/methods'
-import { useStore } from '@/store'
+import { statusStore, mainStore } from '@/store'
 
-const store = useStore()
+const status = statusStore()
+const store = mainStore()
 
 // 监听键盘事件
 document.onkeydown = (e) => {
-    store.currentLabels.forEach((label) => {
+    status.currentLabels.forEach((label) => {
         if (label.shortcut === e.key.toUpperCase()) { // 因为展示的快捷键（包括用户选择的）都是大写，但是也要能够监听小写
             labelSelect(label)
         }
@@ -30,11 +31,11 @@ if (store.results.length != 0) {
     <t-card header-bordered>
         <div class="container">
             <div class="anno-area">
-                {{ store.currentText }}
+                {{ status.currentText }}
             </div>
         </div>
         <template #actions>
-            <Label :disabled="false" v-for="label in store.currentLabels" :name="label.type" :keyword="label.shortcut"
+            <Label :disabled="false" v-for="label in status.currentLabels" :name="label.type" :keyword="label.shortcut"
                 :color="label.color" :id="label.id"></Label>
         </template>
     </t-card>

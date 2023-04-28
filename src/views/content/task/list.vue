@@ -6,9 +6,9 @@ import { LabelInfo, taskInfo, RelaInfo, textSatatus } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { downloadLocal } from '@/methods/util'
 import upload from '@/components/upload.vue'
-import { useStore } from '@/store'
+import { mainStore } from '@/store'
 
-const store = useStore()
+const store = mainStore()
 
 const loadItem = async (id: string)=> {
     // 反正是全部再读一次

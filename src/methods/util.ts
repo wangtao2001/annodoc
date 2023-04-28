@@ -1,5 +1,6 @@
-import { useStore } from '@/store'
-const store = useStore()
+import { mainStore, statusStore } from '@/store'
+const store = mainStore()
+const status = statusStore()
 
 export function resultIDToContent(number: number): string {
     for (var r of store.results) {
@@ -11,7 +12,7 @@ export function resultIDToContent(number: number): string {
 }
 
 export function relaIDToContent(number: string): string {
-    for (var r of store.currentRelas) {
+    for (var r of status.currentRelas) {
         if (number == r.id) {
             return r.type
         }
