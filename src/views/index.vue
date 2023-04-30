@@ -1,6 +1,9 @@
 <script setup lang="tsx">
 import {ref} from 'vue'
 import { useRoute } from 'vue-router'
+import { statusStore } from '@/store'
+ 
+const status = statusStore()
 
 const toHome = () => {
     window.location.href = "/"
@@ -67,25 +70,25 @@ const local = localStorage.getItem('darkMode')
                         <template #icon>
                             <t-icon name="edit-1" />
                         </template>
-                        标注
+                        {{ status.currnetRole == "student" ? "标注" : "标注审核" }}
                     </t-menu-item>
-                    <t-menu-item value="task" to="/task">
+                    <t-menu-item v-if="status.currnetRole === 'admin'" value="task" to="/task">
                         <template #icon>
                             <t-icon name="server" />
                         </template>
                         任务管理
                     </t-menu-item>
-                    <t-menu-item value="check" to="/check">
+                    <t-menu-item v-if="status.currnetRole === 'admin'" value="check" to="/check">
                         <template #icon>
                             <t-icon name="filter-clear" />
                         </template>
                         审核管理
                     </t-menu-item>
-                    <t-menu-item value="space" to="/space">
+                    <t-menu-item v-if="status.currnetRole === 'admin'" value="space" to="/student">
                         <template #icon>
                             <t-icon name="user-circle" />
                         </template>
-                        个人中心
+                        学生管理
                     </t-menu-item>
                 </t-menu>
             </t-aside>

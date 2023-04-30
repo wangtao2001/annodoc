@@ -293,6 +293,7 @@ const downloadResult = async ()=> {
                 </div>
                 <div class="footer">
                     <t-button variant="outline" @click="viewDialog = false">关闭</t-button>
+                    <t-button theme="danger" >提前结束任务</t-button>
                     <t-button @click="downloadResult" :disabled="(textSatatus.all != textSatatus.finalized) || textSatatus.all == 0" >下载标注结果</t-button>
                 </div>
             </div>

@@ -70,7 +70,7 @@ const resultFormat = () => {
         'textId': status.currentTextId,
         'entitys': new_labels,
         'relations': new_rela,
-        'pass': 0
+        'pass': status.currnetRole === "student" ? 0: 2
     }
 }
 

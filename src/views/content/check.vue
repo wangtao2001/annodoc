@@ -5,7 +5,7 @@ import { MessagePlugin } from 'tdesign-vue-next'
 
 
 const columns = [
-    { colKey: 'number', title: '学号/工号'},
+    { colKey: 'number', title: '学号/工号', width: 150},
     { colKey: 'name', title: '姓名'},
     {title: '操作', cell: (h: any, { row }: { row: any }) => {
         return (

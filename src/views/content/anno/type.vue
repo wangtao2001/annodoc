@@ -3,7 +3,7 @@ import textIcon from '@/assets/1.png'
 import recordIcon from '@/assets/2.png'
 import { useRouter } from 'vue-router'
 import {annoType} from '@/interface'
-import { MessagePlugin } from 'tdesign-vue-next';
+import { MessagePlugin } from 'tdesign-vue-next'
 
 const router = useRouter()
 

@@ -14,7 +14,7 @@ const status = statusStore()
 const router = useRouter()
 
 var fl = true
-const hasText = ref(false) // 用来渲染页面
+const hasText = ref(false) // 用来渲染页面, 避免没有任务时出现空页面
 const loadText = async() => {
     const res = await axios.get(`/api/getResponses/getTextToMarkStudent?grade=${status.currentGrade}&number=${status.currentNumebr}`)
     if (res.status == 200) {
@@ -58,11 +58,11 @@ const loadLabels = async() => {
     } else MessagePlugin.error("获取标签失败")
 }
 
-loadText().then(() => {
-    if (fl) loadLabels() // 一定要在loadText之后，因为loadText中会修改store中的currentTaskId
-})
-
-
+if(status.currnetRole === 'student') {
+    loadText().then(() => {
+        if (fl) loadLabels() // 一定要在loadText之后，因为loadText中会修改store中的currentTaskId
+    })
+}
 
 const cancel = () => {
     window.getSelection()!.empty()
