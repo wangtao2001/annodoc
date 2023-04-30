@@ -78,6 +78,15 @@ export interface taskInfo {
     grade: number, // 表示哪一级学生
 }
 
+//学生信息
+export interface studentInfo {
+    number: number,
+    name: string,
+    grade: number,
+    score: number,
+    finish: number
+}
+
 // 标注的类型：医学文本、电子病历、医学图像...
 export interface annoType {
     id: number,

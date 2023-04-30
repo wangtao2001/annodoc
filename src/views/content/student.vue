@@ -1,11 +1,16 @@
 <script lang="tsx" setup>
-import {ref, onMounted,reactive, toRaw } from 'vue'
+import {ref, onMounted,reactive, toRaw, Ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
+import { studentInfo } from '@/interface'
 import * as xlsx from "xlsx"
+import axios from 'axios'
+import { NotifyPlugin } from 'tdesign-vue-next'
 
 const columns = [
     { colKey: 'number', title: '学号', width: 150},
-    { colKey: 'name', title: '姓名'},
+    { colKey: 'name', title: '姓名', width: 100},
+    { colKey: 'score', title: '得分'},
+    { colKey: 'finish', title: '完成数量'},
     // 其他信息
     {title: '操作', cell: (h: any, { row }: { row: any }) => {
         return (
@@ -16,11 +21,43 @@ const columns = [
     }}
 ]
 
-const displayGrade = ref("19")
+const allStudents: Ref<Array<studentInfo>> = ref([])
+
+const displayGrade = ref("19") // 默认19级
+const loadData = async (grade: number | string)=> { 
+    const res = await axios.get(`/api/getResponses/getAllStudentNumberByGrade/${grade}`)
+    if(res.status == 200) {
+        if (res.data.code == 20041) {
+            const allStudents: Array<string> = res.data.data
+            for (var number of allStudents) {
+                await loadItem(number)
+            }
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('获取学生信息失败')
+}
+
+const loadItem = async (number: number | string)=> {
+    const res = await axios.get(`/api/getResponses/getByStudentNumber/${number}`)
+    if(res.status == 200) {
+        if (res.data.code == 20041) {
+            const data = res.data.data
+            allStudents.value.push({
+                number: data.number,
+                name: data.name,
+                score: data.score,
+                finish: data.finish,
+                grade: data.grade
+            })
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('获取学生信息失败')
+}
+
+loadData(displayGrade.value)
 
 
 const openInput = ()=> {
     const input = document.getElementById('file-input') as HTMLInputElement
+    NotifyPlugin('warning', { title: '提示', content: '表格至少需要number与name两列' })
     input.click()
 }
 onMounted(()=> {
@@ -43,27 +80,38 @@ onMounted(()=> {
             const data = xlsx.utils.sheet_to_json(worksheet) 
             const newData: Array<{
                 name: string,
-                number: string
+                number: string,
+                grade: number
             }> = []
             data.forEach((d: any)=> {
                 newData.push({
-                    number: d.number.toString(),
-                    name: d.name
+                    number: d.number.toString(), // 保证上传的文件有这两列
+                    name: d.name,
+                    grade: Number(displayGrade.value)
                 })
             })
-            uploadStudent(newData)
+            console.log(newData)
         }
     })
 })
 
 const uploadStudent = async (data: Array<{name: string,number: string}>) => {
-    console.log(data)
+    const res = await axios.post('/api/resultAccepts/batchAddStudent', data)
+    if(res.status == 200) {
+        if (res.data.code == 20041) {
+            MessagePlugin.success('添加成功')
+            formVisable.value = false
+            allStudents.value = []
+            loadData(displayGrade.value)
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('添加失败')
 }
 
 const formVisable = ref(false)
 const newStudent = reactive({
     number: '',
-    name: ''
+    name: '',
+    grade: Number(displayGrade.value)
 })
 const upNewStudent =  async ()=>{
     if (newStudent.number == '' || newStudent.name == '') {
@@ -72,11 +120,16 @@ const upNewStudent =  async ()=>{
     }
     uploadStudent([toRaw(newStudent)])
 }
+
+const changeGrade = (value: string)=> {
+    allStudents.value = []
+    loadData(value)
+}
 </script>
 
 <template>
     <t-layout>
-        <t-select class="grade s" v-model="displayGrade">
+        <t-select class="grade s" @change="changeGrade" v-model="displayGrade">
             <t-option label="2019级" value="19" />
             <t-option label="2020级" value="20" />
         </t-select>
@@ -84,6 +137,7 @@ const upNewStudent =  async ()=>{
         class="table s"
         bordered        
         :columns="columns"
+        :data="allStudents"
         table-layout="auto"
         row-key="number"
         ></t-base-table>
@@ -124,7 +178,7 @@ const upNewStudent =  async ()=>{
     }
 
     .table  {
-        width: 30%;
+        width: 40%;
         margin-bottom: 20px;
     }
 
