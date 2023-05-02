@@ -28,7 +28,7 @@ export interface Result {
     labelId: string,
     labelName: string,
     // 为了删除标签的时候快速定位，决定把span自己存进去
-    span: HTMLSpanElement // 便于下载到本地时删除
+    span?: HTMLSpanElement
 }
 
 // 关系标记结果

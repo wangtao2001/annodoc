@@ -5,27 +5,44 @@ import { useRouter } from 'vue-router'
 import { mainStore, statusStore } from '@/store'
 import pubsub from 'pubsub-js'
 import axios from 'axios'
-import { ref, Ref } from 'vue'
+import { ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
-import { LabelInfo, RelaInfo } from '@/interface'
+import {labelIdToLabel, resultIdToContent, resultIdToNumber, relaLabelToName} from '@/methods/util'
 
 const store = mainStore()
 const status = statusStore()
 const router = useRouter()
 
-var fl = true
+
+var entityResults: Array<any>
+var relationResults: Array<any>
+
 const hasText = ref(false) // 用来渲染页面, 避免没有任务时出现空页面
+const isStudent = status.currnetRole === 'student'
+var hasAlreadyResult = false
+
+var fl = true
 const loadText = async() => {
-    const res = await axios.get(`/api/getResponses/getTextToMarkStudent?grade=${status.currentGrade}&number=${status.currentNumebr}`)
+    const res = await axios.get(`/api/getResponses/${isStudent ? "getTextToMarkStudent": "getTextToMarkChecker" }?grade=${status.currentGrade}&number=${status.currentNumebr}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
+            const data = res.data.data
             hasText.value = true
-            status.currentText = res.data.data.text
-            status.currentTextId = res.data.data.textId
-            if (res.data.data.taskId == status.currentTaskId) {
+            if(!isStudent && data.entityResults !== null) { // 有没有已经标注好的结果
+                hasAlreadyResult = true
+            }
+            status.currentText = isStudent ? data.text : data.originalText // 后端设计缺陷
+            status.currentTextId = data.textId
+            if (hasAlreadyResult) {
+                // 将后端结果转换为Result 和 RelaResult
+                // 这里先不做，加载完实体和关系类型后在做
+                entityResults = data.entityResults
+                relationResults = data.relationResults
+            }
+            if (data.taskId == status.currentTaskId) {
                 // 仍然属于同一个任务，不需要重新加载标签
                 fl = false
-            } else status.currentTaskId = res.data.data.taskId
+            } else status.currentTaskId = data.taskId
         } else {
             MessagePlugin.error(res.data.msg)
             router.push('/anno/type')
@@ -58,11 +75,50 @@ const loadLabels = async() => {
     } else MessagePlugin.error("获取标签失败")
 }
 
-if(status.currnetRole === 'student') {
-    loadText().then(() => { // 这里load基本信息anno-card直接从pinia中读取
-        if (fl) loadLabels() // 一定要在loadText之后，因为loadText中会修改store中的currentTaskId
-    })
+const asyncComponent = ref(false)
+const init = async ()=> {
+    await loadText()
+    if (fl) await loadLabels()
+     // 等实体关系标签加载结束
+    if (hasAlreadyResult) {
+        // 先做实体
+        store.results.length = 0 // 先清空
+        for(var i=0; i< entityResults.length; i++) {
+            const c = entityResults[i]
+            store.results.push({
+                id: c.id,
+                number: i,
+                start: c.start,
+                end: c.end,
+                content: status.currentText.slice(c.start, c.end),
+                labelId: c.typeId,
+                labelName: labelIdToLabel(c.typeId)!.type
+            })
+        }
+        // 再做关系
+        store.relaResults.length = 0
+        for (var i=0; i< relationResults.length; i++) {
+            const c = relationResults[i]
+            store.relaResults.push({
+                id: c.id,
+                startContent: resultIdToContent(c.entityResult1),
+                startNumber: resultIdToNumber(c.entityResult1),
+                endContent: resultIdToContent(c.entityResult2),
+                endNumber: resultIdToNumber(c.entityResult2),
+                relaId: c.typeId,
+                relaName: relaLabelToName(c.typeId)
+            })
+        }
+    }
+    if (hasAlreadyResult) {
+        MessagePlugin.success("请进行审核")
+    } else if (!hasAlreadyResult && status.currnetRole !== 'student') {
+        MessagePlugin.success('请进行标注')
+    }
+    asyncComponent.value = true // 确保父组件这些配置项加载完成之后加载子组件
 }
+
+init()
 
 const cancel = () => {
     window.getSelection()!.empty()
@@ -92,8 +148,8 @@ const finish = () => {
     <div class="root" v-if="hasText">
         <!--标注区域的卡片-->
         <div class="card">
-            <AnnoCard style="margin-right: 20px; flex-grow: 1;"></AnnoCard>
-            <RelaCard ></RelaCard>
+            <AnnoCard v-if="asyncComponent" style="margin-right: 20px; flex-grow: 1;"></AnnoCard>
+            <RelaCard v-if="asyncComponent" ></RelaCard>
         </div>
         <t-card class="bottom-card">
             <div class="option">

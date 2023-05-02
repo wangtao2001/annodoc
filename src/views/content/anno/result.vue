@@ -82,7 +82,9 @@ const localPriview = () => {
 
 // 上传后端
 const uploadResult = async () => {
-    const res = await axios.post('/api/resultAccepts/annotationResults', resultFormat())
+    const data = resultFormat()
+    console.log(data)
+    const res = await axios.post('/api/resultAccepts/annotationResults', data)
     if(res.status == 200) {
         if (res.data.code == 20011) {
             MessagePlugin.success('提交成功')
@@ -111,7 +113,6 @@ const uploadResult = async () => {
                 <t-button variant="outline" @click="router.back()">返回</t-button>
                 <t-button :disabled="store.results.length != 0 ? false : true" @click="localPriview">本地预览</t-button>
                 <t-button :disabled="store.results.length != 0 ? false : true" @click="uploadResult">提交</t-button>
-                <t-button >下一份</t-button>
             </div>
         </div>
     </div>

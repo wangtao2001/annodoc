@@ -2,7 +2,7 @@
 import { ref, watch, computed, reactive } from 'vue'
 import { mainStore, statusStore } from '@/store'
 import { relaOption } from '@/interface'
-import { resultNumberToLabelId, resultIDToContent, relaIDToContent } from '@/methods/util'
+import { resultNumberToLabelId, resultNumberToContent, relaNumberToContent } from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 import pubsub from 'pubsub-js'
 import { MessagePlugin } from 'tdesign-vue-next'
@@ -57,17 +57,17 @@ const dialogConfim = () => { // 点击确定对话框关闭
         const data = {
             id: uuidv4(),
             startNumber: rela1Number.value,
-            startContent: resultIDToContent(rela1Number.value),
+            startContent: resultNumberToContent(rela1Number.value),
             endNumber: rela2Number.value,
-            endContent: resultIDToContent(rela2Number.value),
+            endContent: resultNumberToContent(rela2Number.value),
             relaId: relaID.value,
-            relaName: relaIDToContent(relaID.value)
+            relaName: relaNumberToContent(relaID.value)
         }
         if (isreverse) {
             data.startNumber = rela2Number.value
             data.endNumber = rela1Number.value
-            data.startContent = resultIDToContent(rela2Number.value)
-            data.endContent = resultIDToContent(rela2Number.value)
+            data.startContent = resultNumberToContent(rela2Number.value)
+            data.endContent = resultNumberToContent(rela2Number.value)
         }
         if (data.startNumber == data.endNumber) { // 起点终点不能是一个
             MessagePlugin.error('关系起点与终点重复')

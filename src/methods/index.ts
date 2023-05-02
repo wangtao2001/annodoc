@@ -3,6 +3,7 @@ import { mainStore, statusStore } from '@/store'
 import { MessagePlugin } from 'tdesign-vue-next'
 import pubsub from 'pubsub-js'
 import { v4 as uuidv4 } from 'uuid'
+import {labelIdToLabel} from './util'
 
 const store = mainStore()
 const status = statusStore()
@@ -171,12 +172,29 @@ function piniaSyncLabelNumber(r: Result) {
 
 // 从store.results产生一个标注过的div
 // 这里以后会有升级的方法，通过 start和end， 而不是已存的span
-export function resultsToLabeledDivBySpan(): HTMLDivElement {
+export function resultsToLabeledDiv(): HTMLDivElement {
     const text = status.currentText
     const div = document.createElement('div')
+    // 如果是完全手动标注，就会有一个span存进来，用span渲染会更快
+    // 如果是审核员从已有的标注结果，就没有span，就需要从头渲染一个span出来
     var offest = 0
     for (var r of store.results) {
         div.appendChild(document.createTextNode(text.substring(offest, r.start)))
+        if (!('span' in r)) { 
+            const span: HTMLSpanElement = document.createElement("span")
+            span.innerText = r.content
+            span.className = "onselect"
+            span.style.backgroundColor = labelIdToLabel(r.labelId)!.color
+            span.onclick = (e) => {
+                const currentSpan = e.target as HTMLElement
+                deleteALabel(currentSpan)
+            }
+            const i = document.createElement('i')
+            i.innerText = r.number.toString()
+            span.insertBefore(i, span.firstChild)
+            div.appendChild(span)
+            r.span = span
+        }
         div.appendChild(r.span!)
         offest = r.end
     }

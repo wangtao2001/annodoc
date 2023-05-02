@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import Label from '@/components/label.vue'
 import { ref, Ref, nextTick } from 'vue'
-import { labelSelect, resultsToLabeledDivBySpan } from '@/methods'
+import { labelSelect, resultsToLabeledDiv } from '@/methods'
 import { statusStore, mainStore } from '@/store'
 
 const status = statusStore()
@@ -16,9 +16,9 @@ document.onkeydown = (e) => {
     })
 }
 
-// 返回时刚刚标注的状态保持住，从store的状态来同步这个结果
+//返回时刚刚标注的状态保持住，从store的状态来同步这个结果
 if (store.results.length != 0) {
-    const labeledDiv = resultsToLabeledDivBySpan()
+    const labeledDiv = resultsToLabeledDiv()
     labeledDiv.classList.add('anno-area')
     nextTick(() => {
         document.querySelector('.container')?.firstChild?.replaceWith(labeledDiv)
