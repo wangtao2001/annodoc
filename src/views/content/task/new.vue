@@ -9,9 +9,9 @@ import Rela from '@/components/real.vue'
 import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal } from '@/methods/util'
 import axios from 'axios'
-import  { useStore } from '@/store'
+import  { mainStore } from '@/store'
 const router = useRouter()
-const store = useStore()
+const store = mainStore()
 
 const step: Ref<number> = ref(0)
 
@@ -31,7 +31,7 @@ const pre = () => {
 const nextText = ref('下一步')
 
 // 生成设置的配置文件
-const newTask = ()=>{
+const newTask = () :taskInfo | null=>{
     if (allLabels.length == 0) {
         MessagePlugin.error('请添加实体')
         return null
@@ -44,7 +44,8 @@ const newTask = ()=>{
             createTime: new Date().toLocaleString(),
             modifyTime: new Date().toLocaleString(),
             entitys: allLabels,
-            relations: allRelas
+            relations: allRelas,
+            grade: 0
     }
 }
 
@@ -159,6 +160,13 @@ const allRelas: Array<RelaInfo> = reactive([])
 
 const deletaLabel = (id: string) => {
     var i = 0
+    // 有关系先删除关系
+    for (var r of allRelas) {
+        if (r.entity1 == id || r.entity2 == id) {
+            MessagePlugin.error('请先删除相关关系')
+            return
+        }
+    }
     for (var l of allLabels) {
         if (l.id == id) {
             allLabels.splice(i, 1)
@@ -230,8 +238,7 @@ const labelIdToName = (id: string): string => {
                         <!--这个上传功能自己写-->
                         <upload :multiple="true" />
                         <p style="color: #999;">
-                            支持多选，扩展名 .txt<br />
-                            仅支持UTF-8编码方式
+                            支持多选, 扩展名 .txt, UTF-8编码方式
                         </p>
                     </div>
                 </t-form-item>
@@ -257,7 +264,8 @@ const labelIdToName = (id: string): string => {
                     <div class="rela s">
                         <div class="con">
                             <p v-if="allRelas.length == 0">配置的实体标签将显示在这里</p>
-                            <t-popconfirm v-for="r in allRelas" @confirm="deletaRela(r.id)" content="确认删除吗">
+                            <t-popconfirm v-for="r in allRelas" @confirm="deletaRela(r.id)" content="确认删除吗"
+                            theme="danger">
                                 <Rela :name="r.type" :start-name="labelIdToName(r.entity1)"
                                     :end-name="labelIdToName(r.entity2)" :bothway="r.bothway">
                                 </Rela>

@@ -1,5 +1,10 @@
-<script setup lang="ts">
+<script setup lang="tsx">
+import {ref} from 'vue'
 import { useRoute } from 'vue-router'
+import { statusStore } from '@/store'
+ 
+const status = statusStore()
+
 const toHome = () => {
     window.location.href = "/"
 }
@@ -8,6 +13,31 @@ const toHome = () => {
 const route = useRoute() // 获取当前路由信息
 const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，这样就要求路由的路径与muen-item的value相同
 
+const darkMode = ref(true)
+
+const titleImg = ref('/title5.png')
+const modeChange = ()=> {
+    if (darkMode.value) {
+        document.documentElement.setAttribute('theme-mode', 'dark')
+        titleImg.value = '/title6.png'
+        localStorage.setItem('darkMode', 'false')
+    } else {
+        document.documentElement.setAttribute('theme-mode', 'light')
+        titleImg.value = '/title5.png'
+        localStorage.setItem('darkMode', 'true')
+    }
+    darkMode.value = !darkMode.value
+}
+const local = localStorage.getItem('darkMode')
+// 判断local为null
+ if(local === 'true') {
+    darkMode.value = true
+} else {
+    darkMode.value = true
+    document.documentElement.setAttribute('theme-mode', 'light')
+    titleImg.value = '/title5.png'
+}
+
 </script>
 
 <template>
@@ -15,12 +45,10 @@ const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，�
         <t-header>
             <t-head-menu value="item1" height="120px">
                 <template #logo>
-                    <img style="user-select: none;" @click="toHome" width="180" class="logo" src="/title5.png" alt="logo" />
+                    <img style="user-select: none;" @click="toHome" width="180" class="logo" :src="titleImg" alt="logo" />
                 </template>
-                <t-menu-item value="item1"> 已选内容 </t-menu-item>
-                <t-menu-item value="item2"> 菜单内容一 </t-menu-item>
-                <t-menu-item value="item3"> 菜单内容二 </t-menu-item>
-                <t-menu-item value="item4" :disabled="true"> 菜单内容三 </t-menu-item>
+                <t-menu-item value="item1"> 工作区 </t-menu-item>
+                <t-button style="margin-left: 10px;" theme="default" variant="text" @click="modeChange" value="item2"> {{ darkMode ? '深色模式' : '浅色模式' }} </t-button>
                 <template #operations>
                     <a><t-icon class="t-menu__operations-icon" name="search" /></a>
                     <a><t-icon class="t-menu__operations-icon" name="notification-filled" /></a>
@@ -42,19 +70,25 @@ const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，�
                         <template #icon>
                             <t-icon name="edit-1" />
                         </template>
-                        标注
+                        {{ status.currnetRole == "student" ? "标注" : "标注审核" }}
                     </t-menu-item>
-                    <t-menu-item value="task" to="/task">
+                    <t-menu-item v-if="status.currnetRole === 'admin'" value="task" to="/task">
                         <template #icon>
                             <t-icon name="server" />
                         </template>
                         任务管理
                     </t-menu-item>
-                    <t-menu-item value="space" to="/space">
+                    <t-menu-item v-if="status.currnetRole === 'admin'" value="check" to="/check">
+                        <template #icon>
+                            <t-icon name="filter-clear" />
+                        </template>
+                        审核管理
+                    </t-menu-item>
+                    <t-menu-item v-if="status.currnetRole === 'admin'" value="space" to="/student">
                         <template #icon>
                             <t-icon name="user-circle" />
                         </template>
-                        个人中心
+                        学生管理
                     </t-menu-item>
                 </t-menu>
             </t-aside>
@@ -80,6 +114,6 @@ const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，�
 .content {
     margin: 20px 20px 0 20px;
     height: auto;
-    background-color: white;
+    background-color: var(--base-bgc);
 }
 </style>

@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { ref, watch, computed, reactive } from 'vue'
-import { useStore } from '@/store'
+import { mainStore, statusStore } from '@/store'
 import { relaOption } from '@/interface'
-import { relas } from '@/options'
-import { resultNumberToLabelId, resultIDToContent, relaIDToContent } from '@/methods/util'
+import { resultNumberToLabelId, resultNumberToContent, relaNumberToContent } from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 import pubsub from 'pubsub-js'
 import { MessagePlugin } from 'tdesign-vue-next'
+import {RelaInfo} from '@/interface'
 
-const store = useStore()
+const store = mainStore()
+const status = statusStore()
 
 // 命名规则 rela1关系起点 rela2关系终点 allRela能够展示出来的关系 relas所有关系
 
@@ -56,17 +57,17 @@ const dialogConfim = () => { // 点击确定对话框关闭
         const data = {
             id: uuidv4(),
             startNumber: rela1Number.value,
-            startContent: resultIDToContent(rela1Number.value),
+            startContent: resultNumberToContent(rela1Number.value),
             endNumber: rela2Number.value,
-            endContent: resultIDToContent(rela2Number.value),
+            endContent: resultNumberToContent(rela2Number.value),
             relaId: relaID.value,
-            relaName: relaIDToContent(relaID.value)
+            relaName: relaNumberToContent(relaID.value)
         }
         if (isreverse) {
             data.startNumber = rela2Number.value
             data.endNumber = rela1Number.value
-            data.startContent = resultIDToContent(rela2Number.value)
-            data.endContent = resultIDToContent(rela2Number.value)
+            data.startContent = resultNumberToContent(rela2Number.value)
+            data.endContent = resultNumberToContent(rela2Number.value)
         }
         if (data.startNumber == data.endNumber) { // 起点终点不能是一个
             MessagePlugin.error('关系起点与终点重复')
@@ -140,7 +141,7 @@ watch(ids, () => {
         const keyword2 = resultNumberToLabelId(rela2Number.value)
         allRelaOptions.length = 0
 
-        for (var r of relas) {
+        for (var r of status.currentRelas) {
             if ((r.entity1 == keyword1 && r.entity2 == keyword2) || (r.entity1 == keyword2 && r.entity2 == keyword1)) {
                 if (!r.bothway && r.entity1 == keyword2) { // 反向了
                     isreverse = true

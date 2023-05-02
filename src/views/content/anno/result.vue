@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { useStore } from '@/store'
+import { mainStore, statusStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { ref, Ref } from 'vue'
 import { downloadLocal } from '@/methods/util'
@@ -10,7 +10,8 @@ import { MessagePlugin } from 'tdesign-vue-next';
 
 const router = useRouter()
 
-const store = useStore()
+const store = mainStore()
+const status = statusStore()
 const columns = [
     { colKey: 'number', title: '编号', width: '50' },
     { colKey: 'start', title: '起始', width: '50' },
@@ -53,7 +54,7 @@ const resultFormat = () => {
             id: item.id,
             start: item.start,
             end: item.end,
-            type: item.labelId,
+            typeId: item.labelId,
         }
     })
     const new_rela = store.relaResults.map((item: RelaResult) => {
@@ -61,14 +62,15 @@ const resultFormat = () => {
             id: item.id,
             entityResult1: resultNumberToId(item.startNumber),
             entityResult2: resultNumberToId(item.startNumber), // 最终结果给的是id而不是number，但是不能改RelaResult的类型
-            type: item.relaId,
+            typeId: item.relaId,
         }
     })
     return {
-        'studentNumber': '2020192462',
-        'textId': '000000000',
+        'number': status.currentNumebr,
+        'textId': status.currentTextId,
         'entitys': new_labels,
         'relations': new_rela,
+        'pass': status.currnetRole === "student" ? 0: 2
     }
 }
 
@@ -80,10 +82,13 @@ const localPriview = () => {
 
 // 上传后端
 const uploadResult = async () => {
-    const res = await axios.post('/api/resultAccepts/annotationResults', resultFormat())
+    const data = resultFormat()
+    console.log(data)
+    const res = await axios.post('/api/resultAccepts/annotationResults', data)
     if(res.status == 200) {
-        if (res.data.code == 20041) {
+        if (res.data.code == 20011) {
             MessagePlugin.success('提交成功')
+            window.open('/anno/work?type=text', "_self") // 上传完再跳转不能用router.push
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('提交失败')
 }
@@ -92,7 +97,7 @@ const uploadResult = async () => {
 
 <template>
     <div class="root">
-        <t-radio-group class="tab" @change="tabChange" default-value="1">
+        <t-radio-group class="tab" @change="tabChange" default-value="1" variant="default-filled">
             <t-radio-button value="1">实体列表</t-radio-button>
             <t-radio-button value="2">关系列表</t-radio-button>
         </t-radio-group>
@@ -108,7 +113,6 @@ const uploadResult = async () => {
                 <t-button variant="outline" @click="router.back()">返回</t-button>
                 <t-button :disabled="store.results.length != 0 ? false : true" @click="localPriview">本地预览</t-button>
                 <t-button :disabled="store.results.length != 0 ? false : true" @click="uploadResult">提交</t-button>
-                <t-button >下一份</t-button>
             </div>
         </div>
     </div>

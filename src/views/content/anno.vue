@@ -1,5 +1,9 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router'
+import  counter from '@/components/counter.vue'
+import { statusStore } from '@/store'
+
+const status = statusStore()
 const route = useRoute()
 </script>
 
@@ -11,7 +15,7 @@ const route = useRoute()
                 <t-breadcrumbItem to="/anno/work" v-if="route.meta.breadcrumbLevel as number > 1"> 标注 </t-breadcrumbItem>
                 <t-breadcrumbItem to="/anno/result" v-if="route.meta.breadcrumbLevel as number > 2"> 标注结果 </t-breadcrumbItem>
             </div>
-            <div class="num" v-if="route.meta.breadcrumbLevel as number > 1">当前：67/200</div>
+            <counter v-if="route.meta.breadcrumbLevel as number > 1" />
         </t-breadcrumb>
         <RouterView />
     </t-layout>
@@ -28,13 +32,6 @@ const route = useRoute()
     .b {
         display: flex;
         flex-direction: row;
-    }
-
-    .num {
-        margin: 0 20px 0 0;
-        color: #0052d9;
-        background-color: #f3f3f3;
-        padding: 10px 20px;
     }
 }
 </style>

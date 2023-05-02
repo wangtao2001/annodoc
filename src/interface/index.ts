@@ -28,7 +28,7 @@ export interface Result {
     labelId: string,
     labelName: string,
     // 为了删除标签的时候快速定位，决定把span自己存进去
-    span: HTMLSpanElement // 便于下载到本地时删除
+    span?: HTMLSpanElement
 }
 
 // 关系标记结果
@@ -74,5 +74,34 @@ export interface taskInfo {
     createTime: string,
     modifyTime: string,
     entitys: Array<LabelInfo>,
-    relations: Array<RelaInfo>
+    relations: Array<RelaInfo>,
+    grade: number, // 表示哪一级学生
+}
+
+//学生信息
+export interface studentInfo {
+    number: number,
+    name: string,
+    grade: number,
+    score: number,
+    finish: number
+}
+
+// 标注的类型：医学文本、电子病历、医学图像...
+export interface annoType {
+    id: number,
+    title: string,
+    img: string,
+    content: string,
+    link: string,
+    disabled: boolean
+}
+
+//每个任务的标注进度（对应的文本状态）
+export interface textSatatus {
+    all: number,
+    finalized: number,
+    marked: number,
+    unmarked: number,
+    marking: number
 }

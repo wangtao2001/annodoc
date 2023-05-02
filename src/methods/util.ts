@@ -1,8 +1,9 @@
-import { useStore } from '@/store'
-import { relas } from '@/options'
-const store = useStore()
+import { LabelInfo } from '@/interface'
+import { mainStore, statusStore } from '@/store'
+const store = mainStore()
+const status = statusStore()
 
-export function resultIDToContent(number: number): string {
+export function resultNumberToContent(number: number): string {
     for (var r of store.results) {
         if (number == r.number) {
             return r.content
@@ -11,8 +12,26 @@ export function resultIDToContent(number: number): string {
     return ""
 }
 
-export function relaIDToContent(number: string): string {
-    for (var r of relas) {
+export function resultIdToContent(id: string): string {
+    for (var r of store.results) {
+        if (id == r.id) {
+            return r.content
+        }
+    }
+    return ""
+}
+
+export function resultIdToNumber(id: string): number {
+    for (var r of store.results) {
+        if (id == r.id) {
+            return r.number
+        }
+    }
+    return 0
+}
+
+export function relaNumberToContent(number: string): string {
+    for (var r of status.currentRelas) {
         if (number == r.id) {
             return r.type
         }
@@ -33,6 +52,24 @@ export function resultNumberToId(number: number): string {
     for (var r of store.results) {
         if (number == r.number) {
             return r.id
+        }
+    }
+    return ""
+}
+
+export function labelIdToLabel(id: string): LabelInfo | null {
+    for (var l of status.currentLabels) {
+        if (l.id == id) {
+            return l
+        }
+    }
+    return null
+}
+
+export function relaLabelToName(id: string): string {
+    for (var r of status.currentRelas) {
+        if (r.id == id) {
+            return r.type
         }
     }
     return ""
