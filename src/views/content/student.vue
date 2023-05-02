@@ -14,12 +14,24 @@ const columns = [
     // 其他信息
     {title: '操作', cell: (h: any, { row }: { row: any }) => {
         return (
-            <t-popconfirm  theme="danger" content="确认删除吗">
+            <t-popconfirm  theme="danger" on-confirm={()=>{deleteStudent(row)}} content="确认删除吗">
                 <t-link theme="danger" > 删除 </t-link>
             </t-popconfirm>
         )
     }}
 ]
+
+const deleteStudent = async (row: studentInfo)=> {
+    const res = await axios.delete(`/api/getResponses/deleteStudent/${row.number}`)
+    console.log(res)
+    if (res.status == 200) {
+        if (res.data.code == 20031) {
+            MessagePlugin.success('删除成功')
+            allStudents.value = []
+            loadData(displayGrade.value)
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('删除失败')
+}
 
 const allStudents: Ref<Array<studentInfo>> = ref([])
 

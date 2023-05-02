@@ -257,9 +257,18 @@ const downloadResult = async ()=> {
     } else MessagePlugin.error('获取数据失败')
 }
 
-const finishTask = () => {
-    
+const colseTask = async () => {
+    const res = await axios.get(`/api/getResponses/endHomework/${closeTaskGrade.value}`)
+    if (res.status == 200) {
+        if (res.data.code == 20021) {
+            MessagePlugin.success("操作成功")
+            closeTaskDialog.value = false
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('失败')
 }
+
+const closeTaskDialog = ref(false)
+const closeTaskGrade = ref("")
 </script>
 
 <template>
@@ -272,11 +281,26 @@ const finishTask = () => {
                 </t-tab-panel>
             </t-tabs>
             <div class="bottom">
-                <t-button class="new" @click="createTask">创建任务</t-button>
+                <div>
+                    <t-button class="new" style="margin-right: 10px;" @click="createTask">创建任务</t-button>
+                    <t-button theme="danger" @click="closeTaskDialog = true" >提前结束任务</t-button>
+                </div>
                 <t-pagination class="page" :total="allTasks.length" showPageNumber :showPageSize="false" :pageSize="pageSize"
                     showPreviousAndNextBtn totalContent @current-change="change"  />
             </div>
         </div>
+        <t-dialog
+            v-model:visible="closeTaskDialog"
+            :closeBtn="false"
+            header="提前结束任务"
+            @confirm="colseTask"
+            >
+            <t-form label-align="left">
+                <t-form-item label="选择年级" name="grade">
+                    <t-input v-model="closeTaskGrade" show-limit-number clearable  />
+                </t-form-item>
+            </t-form>
+        </t-dialog>
         <t-dialog
             v-model:visible="viewDialog"
             :footer="false"
@@ -297,7 +321,6 @@ const finishTask = () => {
                 </div>
                 <div class="footer">
                     <t-button variant="outline" @click="viewDialog = false">关闭</t-button>
-                    <t-button theme="danger" @click="finishTask" >提前结束任务</t-button>
                     <t-button @click="downloadResult" :disabled="(textSatatus.all != textSatatus.finalized) || textSatatus.all == 0" >下载标注结果</t-button>
                 </div>
             </div>

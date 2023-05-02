@@ -171,7 +171,7 @@ function piniaSyncLabelNumber(r: Result) {
 
 // 从store.results产生一个标注过的div
 // 这里以后会有升级的方法，通过 start和end， 而不是已存的span
-export function resultsToLabeledDiv(): HTMLDivElement {
+export function resultsToLabeledDivBySpan(): HTMLDivElement {
     const text = status.currentText
     const div = document.createElement('div')
     var offest = 0

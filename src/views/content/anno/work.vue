@@ -59,7 +59,7 @@ const loadLabels = async() => {
 }
 
 if(status.currnetRole === 'student') {
-    loadText().then(() => {
+    loadText().then(() => { // 这里load基本信息anno-card直接从pinia中读取
         if (fl) loadLabels() // 一定要在loadText之后，因为loadText中会修改store中的currentTaskId
     })
 }
