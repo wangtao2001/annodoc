@@ -1,22 +1,76 @@
 <template>
     <t-layout class="content">
-        <t-card  title="数据概览" class="data">
-        </t-card>
-        <t-card  title="当前得分" class="data">
-        </t-card>
+        <div class="card">
+            <div class="title">姓名：{{ name }}</div>
+            <div class="title">学号：{{ status.currentNumebr }}</div>  
+        </div>
+        <div class="card">
+            <div class="title">完成情况：{{ currentFinsh }} / {{ all }}</div>
+        </div>
+        <div class="card">
+            <div class="title">当前得分：{{ currentScore }} / 100</div>
+        </div>
     </t-layout>
 </template>
 
-<style lang="less" scoped>
+<script lang="ts" setup>
+import { ref } from 'vue'
+import { statusStore } from '@/store'
+import axios from 'axios'
+import { MessagePlugin } from 'tdesign-vue-next'
 
-.content {
-    padding: 0 20px;
+const status = statusStore()
+
+const currentScore = ref(0)
+const name = ref('')
+const currentFinsh = ref(0)
+const all = ref(0)
+
+const loadInfo = async ()=> {
+    const res = await axios.get(`/api/getResponses/getByStudentNumber/${status.currentNumebr}`)
+    if (res.status == 200) {
+        if (res.data.code == 20041) {
+            console.log(res.data.data)
+            const data = res.data.data
+            currentScore.value = data.score
+            name.value = data.name
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('获取数据失败')
 }
-.data {
-    margin-top: 20px;
+
+const loadFinsh = async()=> {
+    const res = await axios.get(`/api/getResponses/getOneHomeworkCompleted/${status.currentNumebr}`)
+    if (res.status == 200) {
+        if (res.data.code == 20041) {
+            console.log(res.data.data)
+            const data = res.data.data
+            all.value = data.all
+            currentFinsh.value = data.finish
+        } else MessagePlugin.error(res.data.msg)
+    } else MessagePlugin.error('获取数据失败')
+}
+
+loadInfo()
+loadFinsh()
+</script>
+
+<style lang="less" scoped>
+.card {
+    margin: 20px 0 0 20px;
     user-select: none;
     width: 400px;
+    height: 70px;
+    border: 1px solid var(--common-border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    user-select: none;
 
+    .title {
+        margin: 5px 20px;
+    }
+    
     @media screen and (max-width: 900px) {
         width: 100%;
     }

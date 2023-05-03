@@ -123,7 +123,7 @@ const closeMenu = () => {
             <t-aside class="aside">
                 <t-menu theme="light" :default-value="currentItem" style="margin-right: 50px" router>
 
-                    <t-menu-item value="home" to="/">
+                    <t-menu-item value="home" v-if="status.currnetRole === 'student'" to="/">
                         <template #icon>
                             <t-icon name="dashboard" />
                         </template>
