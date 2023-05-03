@@ -156,9 +156,9 @@ const finish = () => {
 <template>
     <div class="root" v-if="hasText">
         <!--标注区域的卡片-->
-        <div class="card">
-            <AnnoCard v-if="asyncComponent" style="margin-right: 20px; flex-grow: 1;"></AnnoCard>
-            <RelaCard v-if="asyncComponent" ></RelaCard>
+        <div class="card" v-if="asyncComponent">
+            <AnnoCard class="anno-card" ></AnnoCard>
+            <RelaCard ></RelaCard>
         </div>
         <t-card class="bottom-card">
             <div class="option">
@@ -184,6 +184,11 @@ const finish = () => {
         display: flex;
         flex-direction: row;
         width: 90%;
+
+        .anno-card {
+            margin-right: 20px; 
+            flex-grow: 1;
+        }
     }
 
     .bottom-card {
@@ -204,5 +209,16 @@ const finish = () => {
 
 button {
     user-select: none; // 除了选区部分其他都不能选，可能会出现问题
+}
+
+@media screen and (max-width: 900px) {
+    .card {
+        flex-direction: column !important;
+
+        .anno-card {
+            margin: 0 !important;
+            margin-bottom: 10px !important;
+        }
+    }
 }
 </style>

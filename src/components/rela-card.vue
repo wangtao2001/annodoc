@@ -192,7 +192,7 @@ const deleteRela = (id: string) => {
             </div>
             <t-button class="add-rela" @click="addRela" theme="primary">
                 <template #icon><t-icon name="add" /></template>
-                <div class="t">新增关系</div>
+                新增关系
             </t-button>
             <t-dialog style="user-select: none;" v-model:visible="visibleModal" header="新增关系" mode="modal" draggable
                 :on-confirm="dialogConfim">
@@ -229,9 +229,9 @@ const deleteRela = (id: string) => {
 
 <style scoped lang="less">
 .rela-area {
+    width: 180px;
     .add-rela {
         width: 100%;
-        padding: 0 40px;
     }
 }
 
@@ -243,9 +243,9 @@ const deleteRela = (id: string) => {
     justify-content: space-between;
 }
 
-.t {
-    @media screen and (max-width: 900px) {
-        display: none;
+@media screen and (max-width: 900px) { 
+    .rela-area {
+        width: 100%;
     }
 }
 </style>

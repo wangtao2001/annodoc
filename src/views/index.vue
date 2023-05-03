@@ -113,13 +113,13 @@ const closeMenu = () => {
                         </template>
                         学生管理
                     </t-button>
-                    <t-button class="color" @click="modeChange(); closeMenu()" theme="default">
+                    <t-button class="color" @click="modeChange()" theme="default">
                         {{ darkMode ? '深色模式' : '浅色模式' }}
                     </t-button>
                 </div>
             </div>
         </t-drawer>
-        <t-layout style="margin-top: 2px;">
+        <t-layout class="nonTop">
             <t-aside class="aside">
                 <t-menu theme="light" :default-value="currentItem" style="margin-right: 50px" router>
 
@@ -175,6 +175,10 @@ const closeMenu = () => {
     height: 100vh;
 }
 
+.nonTop {
+    margin-top: 2px;
+}
+
 .content {
     margin: 20px 20px 0 20px;
     height: auto;
@@ -212,6 +216,15 @@ const closeMenu = () => {
     .menu-button {
         display: block;
         margin-right: 15px;
+    }
+
+    .content {
+        margin: 0;
+    }
+
+    .nonTop {
+        margin: 0;
+        border-top: 1px solid #eee;
     }
 }
 </style>

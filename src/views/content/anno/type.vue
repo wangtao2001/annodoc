@@ -66,6 +66,7 @@ const anno = (type: annoType)=> {
 
         .label {
             margin-right: 40px;
+            margin-bottom: 10px;
         }
 
         .tasks {
@@ -75,7 +76,7 @@ const anno = (type: annoType)=> {
             .card {
                 padding: 15px;
                 border: 1px solid var(--common-border);
-                margin: 0 5px;
+                margin: 5px 5px 5px 0;
 
                 .top {
                     display: flex;
@@ -101,6 +102,12 @@ const anno = (type: annoType)=> {
                 }
             }
         }
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .container, .tasks {
+        flex-direction: column !important;
     }
 }
 </style>
