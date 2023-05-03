@@ -36,7 +36,7 @@ const deleteStudent = async (row: studentInfo)=> {
 const allStudents: Ref<Array<studentInfo>> = ref([])
 const pageSize = 6
 const viewStudents: Ref<Array<studentInfo>> = ref([]) // 实际展示出来的，为了分页和搜索
-var tempView // 缓存
+var tempView : Array<studentInfo>// 缓存
 
 const displayGrade = ref("19") // 默认19级
 const loadData = async (grade: number | string)=> { 

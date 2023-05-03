@@ -83,7 +83,7 @@ const closeMenu = () => {
         >
             <div class="drawer">
                 <div class="center">
-                    <t-button variant="text" theme="default" @click="router.push('/'); closeMenu()">
+                    <t-button variant="text" theme="default" @click="router.push('/'); closeMenu()" v-if="status.currnetRole === 'student'">
                         <template #icon>
                             <t-icon name="dashboard" />
                         </template>

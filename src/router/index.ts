@@ -89,15 +89,25 @@ const router = createRouter({
     routes
 })
 
-// 权限控制，目前针对 task check两个地址
+// 权限控制
 router.beforeEach((to, from, next) => {
+    // 只有管理员能访问
     if (to.name === 'task_list' || to.name === "task_new" || to.name === 'check' || to.name == 'student') {
         if ( status.currnetRole === 'admin') {
             next()
         } else {
             next({ name: 'home' })
         }
-    } else {
+    } else
+     // 只有学生能访
+    if(to.name === 'home') {
+        if (status.currnetRole === 'student') {
+            next()
+        } else {
+            next({name: 'task_list'})
+        }
+    }
+    else {
         next()
     }
 })

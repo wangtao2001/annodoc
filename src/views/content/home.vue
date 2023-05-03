@@ -55,11 +55,14 @@ loadFinsh()
 </script>
 
 <style lang="less" scoped>
+.content {
+    padding: 20px 20px 0 20px;
+}
 .card {
-    margin: 20px 0 0 20px;
     user-select: none;
     width: 400px;
     height: 70px;
+    margin-bottom: 20px;
     border: 1px solid var(--common-border);
     display: flex;
     flex-direction: column;
@@ -70,8 +73,10 @@ loadFinsh()
     .title {
         margin: 5px 20px;
     }
-    
-    @media screen and (max-width: 900px) {
+}
+
+@media screen and (max-width: 900px) {
+    .card {
         width: 100%;
     }
 }
