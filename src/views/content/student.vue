@@ -7,8 +7,8 @@ import axios from 'axios'
 import { NotifyPlugin } from 'tdesign-vue-next'
 
 const columns = [
-    { colKey: 'number', title: '学号', width: 150},
-    { colKey: 'name', title: '姓名', width: 100},
+    { colKey: 'number', title: '学号'},
+    { colKey: 'name', title: '姓名'},
     { colKey: 'score', title: '得分'},
     { colKey: 'finish', title: '完成数量'},
     // 其他信息
@@ -137,6 +137,8 @@ const changeGrade = (value: string)=> {
     allStudents.value = []
     loadData(value)
 }
+
+const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
 </script>
 
 <template>
@@ -154,7 +156,7 @@ const changeGrade = (value: string)=> {
         row-key="number"
         ></t-base-table>
         <div class="s form" v-if="formVisable">
-                <t-form>
+                <t-form :label-align="labelAalign">
                     <t-form-item label="学号" name="number">
                         <t-input  :maxlength="10" v-model="newStudent.number"  show-limit-number clearable />
                     </t-form-item>
@@ -181,21 +183,20 @@ const changeGrade = (value: string)=> {
     .s {
         margin-left: 40px;
         user-select: none;
+        margin: 10px 40px 10px 40px;
     }
 
     .grade {
-        margin-top: 50px;
         width: 15%;
-        margin-bottom: 20px;
+        margin-top: 40px;
     }
 
     .table  {
-        width: 40%;
-        margin-bottom: 20px;
+        width: 500px;
     }
 
     .form {
-        width: 30%;
+        width: 350px;
 
         .option {
             margin-top: 20px;
@@ -205,4 +206,15 @@ const changeGrade = (value: string)=> {
             }
         }
     }
+
+@media screen and (max-width: 900px) {
+    .s {
+        margin: 10px 20px;
+        width: auto;
+    }
+
+    .grade {
+        margin-top: 20px !important;
+    }
+}
 </style>

@@ -97,7 +97,7 @@ const columns = [
     } },
     { colKey: 'description', title: '描述', width: '60', ellipsis:true  },
     // { colKey: 'createTime', title: "创建时间", width: '80' },
-    { colKey: 'modifyTime', title: '修改时间', width: '80' },
+    { colKey: 'modifyTime', title: '修改时间', width: '55' },
     { title: '操作', width: '50', cell: (h: any, { row }: { row: taskInfo }) => {
         return (
             <div>
@@ -281,12 +281,12 @@ const closeTaskGrade = ref("")
                 </t-tab-panel>
             </t-tabs>
             <div class="bottom">
-                <div>
+                <t-pagination class="page" :total="allTasks.length" showPageNumber :showPageSize="false" :pageSize="pageSize"
+                    showPreviousAndNextBtn totalContent @current-change="change"  />
+                <div class="option">
                     <t-button class="new" style="margin-right: 10px;" @click="createTask">创建任务</t-button>
                     <t-button theme="danger" @click="closeTaskDialog = true" >提前结束任务</t-button>
                 </div>
-                <t-pagination class="page" :total="allTasks.length" showPageNumber :showPageSize="false" :pageSize="pageSize"
-                    showPreviousAndNextBtn totalContent @current-change="change"  />
             </div>
         </div>
         <t-dialog
@@ -420,5 +420,29 @@ const closeTaskGrade = ref("")
         }
     }
 
+}
+
+@media screen and (max-width: 900px) {
+    .root {
+        justify-content: center;
+        padding: 0 20px;
+    }
+
+    .container {
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    .bottom {
+        flex-direction: column !important;
+
+        .option {
+            flex-direction: column !important;
+        }
+
+        .page {
+                width: auto;
+            }
+    }
 }
 </style>

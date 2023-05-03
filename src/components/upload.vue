@@ -223,4 +223,10 @@ const upload = async () => {
         }
     }
 }
+
+@media screen and (max-width: 900px) {
+    .up-area {
+        display: none;
+    }
+}
 </style>

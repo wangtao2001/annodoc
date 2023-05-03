@@ -158,8 +158,22 @@ const uploadResult = async () => {
 }
 
 @media screen and (max-width: 900px) {
+    .root {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .tab {
+        margin-right: 0;
+    }
+
+    .table {
+        width: 100%;
+    }
+
     .bottom {
         flex-direction: column;
+        width: 100%;
 
         .option {
             margin-top: 10px;

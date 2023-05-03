@@ -5,7 +5,7 @@ import { MessagePlugin } from 'tdesign-vue-next'
 
 
 const columns = [
-    { colKey: 'number', title: '学号/工号', width: 150},
+    { colKey: 'number', title: '学号/工号'},
     { colKey: 'name', title: '姓名'},
     {title: '操作', cell: (h: any, { row }: { row: any }) => {
         return (
@@ -60,6 +60,8 @@ const upNewChecker =  async ()=>{
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('添加失败')
 }
+
+const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
 </script>
 
 <template>
@@ -74,7 +76,7 @@ const upNewChecker =  async ()=>{
         ></t-base-table>
         <div class="form">
             <div v-if="formVisable">
-                <t-form>
+                <t-form :label-align="labelAalign">
                     <t-form-item label="学号/工号" name="number">
                         <t-input v-model="newChecker.number" :maxlength="10" show-limit-number clearable />
                     </t-form-item>
@@ -95,16 +97,14 @@ const upNewChecker =  async ()=>{
 
 <style lang="less" scoped>
     .table {
-        margin-left: 40px;
-        margin-top: 50px;
-        width: 30%;
+        margin: 50px 40px 0 40px;
+        width: 350px;
         user-select: none;
     }
 
     .form {
-        margin-left: 40px;
-        margin-top: 20px;
-        width: 35%;
+        margin: 20px 40px 0 40px;
+        width: 350px;
 
         .option {
             margin-top: 20px;
@@ -116,4 +116,16 @@ const upNewChecker =  async ()=>{
             }
         }
     }
+
+@media screen and (max-width: 900px) {
+    .table {
+        width: auto;
+        margin: 30px 20px 0 20px;
+    }
+
+    .form {
+        width: auto;
+        margin: 20px 20px 0 20px;
+    }
+}
 </style>

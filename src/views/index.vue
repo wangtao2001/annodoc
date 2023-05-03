@@ -63,8 +63,8 @@ const closeMenu = () => {
                 <template #logo>
                     <img style="user-select: none;" @click="toHome" width="180" class="logo" :src="titleImg" alt="logo" />
                 </template>
-                <t-menu-item class="s"> 工作区 </t-menu-item>
-                <t-button class="s" style="margin-left: 10px;" theme="default" variant="text" @click="modeChange" value="item2">{{ darkMode ? '深色模式' : '浅色模式' }}</t-button>
+                <t-menu-item class="s" style="margin-right: 5px;"> 工作区 </t-menu-item>
+                <t-button class="s"  theme="default" variant="text" @click="modeChange" value="item2">{{ darkMode ? '深色模式' : '浅色模式' }}</t-button>
                 <template #operations>
                     <t-icon class="t-menu__operations-icon s" name="search" />
                     <t-icon class="t-menu__operations-icon s" name="notification-filled" />

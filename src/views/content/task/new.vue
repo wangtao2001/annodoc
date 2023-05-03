@@ -76,6 +76,7 @@ const next = () => {
     }
 }
 
+const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
 // page 0
 // 表单
 const basicInfo = reactive({
@@ -216,7 +217,7 @@ const labelIdToName = (id: string): string => {
 <template>
     <div class="root">
         <div class="container">
-            <t-form v-if="step == 0" label-align="left">
+            <t-form v-if="step == 0" :label-align="labelAalign">
                 <t-form-item label="项目类型" name="type">
                     <t-select v-model="basicInfo.type">
                         <t-option label="医学文本" value="医学文本" />
@@ -231,7 +232,7 @@ const labelIdToName = (id: string): string => {
                         :autosize="{ minRows: 5, maxRows: 10 }" clearable />
                 </t-form-item>
             </t-form>
-            <t-form v-if="step == 1" label-align="left">
+            <t-form v-if="step == 1" :label-align="labelAalign">
                 <!--先把样式写出来，文件控制以后再说-->
                 <t-form-item label="上传数据文件">
                     <div class="file">
@@ -243,7 +244,7 @@ const labelIdToName = (id: string): string => {
                     </div>
                 </t-form-item>
             </t-form>
-            <t-form v-if="step == 2" label-align="left">
+            <t-form v-if="step == 2" :label-align="labelAalign">
                 <t-form-item label="实体配置">
                     <div class="label s">
                         <div class="con">
@@ -290,7 +291,7 @@ const labelIdToName = (id: string): string => {
     <t-dialog style="user-select: none" v-model:visible="labelAddVisible" mode="modal" draggable
         :on-confirm="labelAddConfim">
         <div>
-            <t-form label-align="left">
+            <t-form :label-align="labelAalign">
                 <t-form-item label="实体名称">
                     <t-input v-model="addLabelFrom.name" :maxlength="10" show-limit-number clearable />
                 </t-form-item>
@@ -308,7 +309,7 @@ const labelIdToName = (id: string): string => {
     </t-dialog>
     <t-dialog style="user-select: none" v-model:visible="relaAddVisible" mode="modal" draggable :on-confirm="relaAddConfim">
         <div>
-            <t-form label-align="left">
+            <t-form :label-align="labelAalign">
                 <t-form-item label="关系名称">
                     <t-input v-model="addRelaFrom.name" :maxlength="10" show-limit-number clearable />
                 </t-form-item>
@@ -378,6 +379,18 @@ const labelIdToName = (id: string): string => {
         button {
             margin-right: 10px;
         }
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .root {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .container {
+        width: 100%;
+        margin: 0;
     }
 }
 </style>
