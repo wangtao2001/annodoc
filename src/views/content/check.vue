@@ -1,6 +1,6 @@
 <script lang="tsx" setup>
 import axios from 'axios'
-import { reactive, ref } from 'vue'
+import { reactive, ref, Ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 
 
@@ -16,7 +16,9 @@ const columns = [
     }}
 ]
 
-const data = ref([])
+const data: Ref<Array<{
+    number: string, name: string
+}>> = ref([])
 const loadData= async () => {
     data.value = []
     const res = await axios.get('/api/getResponses/allChecker');
@@ -59,6 +61,8 @@ const upNewChecker =  async ()=>{
             formVisable.value = false
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('添加失败')
+    newChecker.number = ''
+    newChecker.name = ''
 }
 
 const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
@@ -74,6 +78,15 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
         table-layout="auto"
         row-key="number"
         ></t-base-table>
+        <!--移动端将表格转换为列表，全部场景-->
+        <div class="form list">
+            <div class="list-item" v-for="d in data" :key="d.number">
+                <div>{{ d.number + ' / ' + d.name }}</div>
+                <t-popconfirm  :on-confirm="deleteCheck" theme="danger" content="确认删除吗">
+                    <t-link theme="danger" > 删除 </t-link>
+                </t-popconfirm>
+            </div>
+        </div>
         <div class="form">
             <div v-if="formVisable">
                 <t-form :label-align="labelAalign">
@@ -96,36 +109,54 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
 </template>
 
 <style lang="less" scoped>
-    .table {
-        margin: 50px 40px 0 40px;
-        width: 350px;
-        user-select: none;
-    }
+.table {
+    margin: 50px 40px 0 40px;
+    width: 350px;
+    user-select: none;
+}
 
-    .form {
-        margin: 20px 40px 0 40px;
-        width: 350px;
+.form {
+    margin: 20px 40px 0 40px;
+    width: 350px;
 
-        .option {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: row;
+    .option {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: row;
 
-            button {
-                margin-right: 10px;
-            }
+        button {
+            margin-right: 10px;
         }
     }
+}
+
+.list {
+    display: none;
+}
 
 @media screen and (max-width: 900px) {
     .table {
-        width: auto;
-        margin: 30px 20px 0 20px;
+        display: none;
     }
 
     .form {
         width: auto;
         margin: 20px 20px 0 20px;
+    }
+
+    .list {
+        display: block;
+        border: 1px solid var( --common-border);
+        padding: 20px 20px;
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+
+    .list-item:nth-child(n + 2) {
+        margin-top: 10px;
     }
 }
 </style>

@@ -34,6 +34,9 @@ const deleteStudent = async (row: studentInfo)=> {
 }
 
 const allStudents: Ref<Array<studentInfo>> = ref([])
+const pageSize = 6
+const viewStudents: Ref<Array<studentInfo>> = ref([]) // 实际展示出来的，为了分页和搜索
+var tempView // 缓存
 
 const displayGrade = ref("19") // 默认19级
 const loadData = async (grade: number | string)=> { 
@@ -60,6 +63,8 @@ const loadItem = async (number: number | string)=> {
                 finish: data.finish,
                 grade: data.grade
             })
+            viewStudents.value = allStudents.value.slice(0, pageSize)
+            tempView = viewStudents.value
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('获取学生信息失败')
 }
@@ -102,7 +107,7 @@ onMounted(()=> {
                     grade: Number(displayGrade.value)
                 })
             })
-            console.log(newData)
+            uploadStudent(newData)
         }
     })
 })
@@ -131,6 +136,8 @@ const upNewStudent =  async ()=>{
         return
     }
     uploadStudent([toRaw(newStudent)])
+    newStudent.number = ''
+    newStudent.name = ''
 }
 
 const changeGrade = (value: string)=> {
@@ -139,42 +146,88 @@ const changeGrade = (value: string)=> {
 }
 
 const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
+
+const changePage = (current: number) => {
+    viewStudents.value = allStudents.value.slice((current - 1) * pageSize, current * pageSize)
+    tempView = viewStudents.value
+}
+
+const searchValue = ref("")
+const clearSearch = () => {
+    searchValue.value = ""
+}
+const searchChange = (value: string)=> {
+    if (value.length == 0) { // 清空的时候
+        viewStudents.value = tempView!
+        return
+    }
+    const t = []
+    for (var s of allStudents.value) {
+        if (s.number.toString().includes(value)) {
+            t.push(s)
+        }
+    }
+    viewStudents.value = t
+}
 </script>
 
 <template>
     <t-layout>
-        <t-select class="grade s" @change="changeGrade" v-model="displayGrade">
-            <t-option label="2019级" value="19" />
-            <t-option label="2020级" value="20" />
-        </t-select>
+        <div class="s select">
+            <t-select class="grade" @change="changeGrade" v-model="displayGrade">
+                <t-option label="2019级" value="19" />
+                <t-option label="2020级" value="20" />
+                </t-select>
+            <t-input class="search" @change="searchChange" v-model="searchValue" placeholder="请输入学号" :maxlength="10" show-limit-number clearable>
+                <template #suffixIcon>
+                    <t-icon name="search" />
+                </template>
+            </t-input>
+        </div>
         <t-base-table
         class="table s"
         bordered        
         :columns="columns"
-        :data="allStudents"
+        :data="viewStudents"
         table-layout="auto"
         row-key="number"
         ></t-base-table>
-        <div class="s form" v-if="formVisable">
-                <t-form :label-align="labelAalign">
-                    <t-form-item label="学号" name="number">
-                        <t-input  :maxlength="10" v-model="newStudent.number"  show-limit-number clearable />
-                    </t-form-item>
-                    <t-form-item label="姓名" name="name">
-                        <t-input  :maxlength="10" v-model="newStudent.name"  show-limit-number clearable />
-                    </t-form-item>
-                </t-form>
-                <div class="option">
-                    <t-button variant="outline" @click="formVisable = false">取消</t-button>
-                    <t-button @click="upNewStudent" >添加</t-button>
+        <div class="s list">
+            <div class="list-item" v-for="d in viewStudents" :key="d.number">
+                <div class="stu">
+                    <div class="title">{{ d.number + ' / ' + d.name }}</div>
+                    <div class="info">{{ '得分：' + d.score + '&nbsp;&nbsp; 完成数量：' + d.finish}}</div>
                 </div>
+                <t-popconfirm theme="danger" content="确认删除吗">
+                    <t-link theme="danger" > 删除 </t-link>
+                </t-popconfirm>
             </div>
-        <div class="s" v-if="!formVisable">
+        </div>
+        <t-pagination v-show="searchValue.length == 0" class=" page s" :total="allStudents.length" showPageNumber :showPageSize="false" :pageSize="8"
+                showPreviousAndNextBtn totalContent  @current-change="changePage" />
+        <div class="s form" v-if="formVisable">
+            <t-form :label-align="labelAalign">
+                <t-form-item label="学号" name="number">
+                    <t-input  :maxlength="10" v-model="newStudent.number"  show-limit-number clearable />
+                </t-form-item>
+                <t-form-item label="姓名" name="name">
+                    <t-input  :maxlength="10" v-model="newStudent.name"  show-limit-number clearable />
+                </t-form-item>
+            </t-form>
+            <div class="option">
+                <t-button variant="outline" @click="formVisable = false">取消</t-button>
+                <t-button @click="upNewStudent" >添加</t-button>
+            </div>
+        </div>
+        <div class="s" v-if="!formVisable && searchValue.length ==0">
             <t-button @click="openInput" style="margin-right: 10px;">
                 从文件添加
             </t-button>
             <input type="file" style="display: none;" id="file-input" accept=".xls,.xlsx" />
             <t-button @click="formVisable = true">手动添加</t-button>
+        </div>
+        <div v-else class="s" v-if="searchValue.length != 0">
+            <t-button variant="outline" theme="default" @click="clearSearch" >清空搜索</t-button>
         </div>
     </t-layout>
 </template>
@@ -186,9 +239,20 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
         margin: 10px 40px 10px 40px;
     }
 
-    .grade {
-        width: 15%;
+    .select {
+        width: 40%;
+        display: flex;
+        flex-direction: row;
         margin-top: 40px;
+        justify-content: space-between;
+
+        .grade, .search {
+            width: 47%;
+        }
+    }
+
+    .page {
+        width: 40%;
     }
 
     .table  {
@@ -207,14 +271,52 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
         }
     }
 
+    .list {
+        display: none;
+    }
+
 @media screen and (max-width: 900px) {
     .s {
         margin: 10px 20px;
         width: auto;
     }
 
-    .grade {
-        margin-top: 20px !important;
+    .table {
+        display: none;
+    }
+
+    .select {
+        margin-top: 20px;
+        flex-direction: column;
+        
+        .grade, .search {
+            width: 100%;
+        }
+
+        .search {
+            margin-top: 10px;
+        }
+    }
+
+    .list {
+        display: block;
+        border: 1px solid var( --common-border);
+        padding: 20px 20px;
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+
+            .stu {
+                .title {
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+
+    .list-item:nth-child(n + 2) {
+        margin-top: 10px;
     }
 }
 </style>

@@ -5,7 +5,7 @@ import { ref, Ref } from 'vue'
 import { downloadLocal } from '@/methods/util'
 import axios from 'axios'
 import { Result, RelaResult } from '@/interface'
-import { resultNumberToId} from '@/methods/util'
+import { resultNumberToId, labelIdToLabel} from '@/methods/util'
 import { MessagePlugin } from 'tdesign-vue-next';
 
 const router = useRouter()
@@ -27,8 +27,8 @@ const realcColumns = [
     { colKey: 'relaName', title: '关系'},
 ]
 const pageSize: number = 6
-const data: Ref<Array<Object>> = ref(store.results.slice(0, pageSize)) // 默认首页是第一页 6个
-const relaData: Ref<Array<Object>> = ref(store.relaResults.slice(0, pageSize))
+const data: Ref<Array<Result>> = ref(store.results.slice(0, pageSize)) // 默认首页是第一页 6个
+const relaData: Ref<Array<RelaResult>> = ref(store.relaResults.slice(0, pageSize))
 const change = (current: number) => {
     // 一个包含对象类型值的 ref 可以响应式地替换整个对象
     data.value = store.results.slice((current - 1) * pageSize, current * pageSize)
@@ -107,6 +107,24 @@ const uploadResult = async () => {
         <t-base-table v-else class="table" stripe bordered row-key="index" :data="relaData"
             :columns="realcColumns"
             table-layout="auto"></t-base-table>
+        <div class="list" v-if="showLabel">
+            <div class="list-item" v-for="d in data">
+                <div class="top">
+                    <div class="num">{{ '第' + d.number + `个：[${d.start}, ${d.end}]` }}</div>
+                    <span :style="{'color': labelIdToLabel(d.labelId)?.color}">{{ d.labelName }}</span>
+                </div>
+                <div class="cont">{{'内容：' + d.content }}</div>
+            </div>
+        </div>
+        <div class="list" v-else>
+            <div class="list-item" v-for="d in relaData">
+                <div class="left">
+                    <span>{{ '从：' + d.startContent + `(${d.startNumber})` }}</span>
+                    <span>{{ '到：' + d.endContent + `(${d.endNumber})` }}</span>
+                </div>
+                <div class="rig">{{ '关系类型：' + d.relaName }}</div>
+            </div>
+        </div>
         <!--分页功能-->
         <div class="bottom">
             <t-pagination class="page" :total="dataLength" showPageNumber :showPageSize="false" :pageSize="pageSize"
@@ -157,6 +175,10 @@ const uploadResult = async () => {
     }
 }
 
+.list {
+    display: none;
+}
+
 @media screen and (max-width: 900px) {
     .root {
         margin-left: 20px;
@@ -168,7 +190,7 @@ const uploadResult = async () => {
     }
 
     .table {
-        width: 100%;
+        display: none;
     }
 
     .bottom {
@@ -178,6 +200,42 @@ const uploadResult = async () => {
         .option {
             margin-top: 10px;
         }
+    }
+
+    .list {
+        display: block;
+        width: 100%;
+        border: 1px solid var( --common-border);
+        padding: 20px 20px;
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            flex-direction:column;
+
+            .top {
+                display: flex;
+                justify-content: space-between;
+                
+                span {
+                    text-decoration: underline;
+                }
+            }
+
+            .cont {
+                color: #999;
+            }
+
+            .left {
+                display: flex;
+                flex-direction: column ;
+                width: auto;
+            }
+        }
+    }
+
+    .list-item:nth-child(n + 2) {
+            margin-top: 10px;
     }
 }
 </style>
