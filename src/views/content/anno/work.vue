@@ -8,6 +8,7 @@ import axios from 'axios'
 import { ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import {labelIdToLabel, resultIdToContent, resultIdToNumber, relaLabelToName} from '@/methods/util'
+import { v4 as uuidv4 } from 'uuid'
 
 const store = mainStore()
 const status = statusStore()
@@ -28,7 +29,7 @@ const loadText = async() => {
         if (res.data.code == 20041) {
             const data = res.data.data
             hasText.value = true
-            if(!isStudent && data.entityResults !== null) { // 有没有已经标注好的结果
+            if(!isStudent && data.entityResults.length != 0) { // 有没有已经标注好的结果，没有就是0
                 hasAlreadyResult = true
             }
             status.currentText = isStudent ? data.text : data.originalText // 后端设计缺陷
@@ -82,9 +83,14 @@ const init = async ()=> {
      // 等实体关系标签加载结束
     if (hasAlreadyResult) {
         // 先做实体
+        // 这里需要重置id
+        const entityIdToNew = new Map()
         store.results.length = 0 // 先清空
         for(var i=0; i< entityResults.length; i++) {
             const c = entityResults[i]
+            const newId = uuidv4()
+            entityIdToNew.set(c.id, newId)
+            c.id = newId
             store.results.push({
                 id: c.id,
                 number: i,
@@ -99,8 +105,11 @@ const init = async ()=> {
         store.relaResults.length = 0
         for (var i=0; i< relationResults.length; i++) {
             const c = relationResults[i]
+            // 更新start和id entity的id
+            c.entityResult1 = entityIdToNew.get(c.entityResult1)
+            c.entityResult2 = entityIdToNew.get(c.entityResult2)
             store.relaResults.push({
-                id: c.id,
+                id: uuidv4(), // 关心更改id不需要记录
                 startContent: resultIdToContent(c.entityResult1),
                 startNumber: resultIdToNumber(c.entityResult1),
                 endContent: resultIdToContent(c.entityResult2),
@@ -111,9 +120,9 @@ const init = async ()=> {
         }
     }
     if (hasAlreadyResult) {
-        MessagePlugin.success("请进行审核")
+        MessagePlugin.info("请进行审核")
     } else if (!hasAlreadyResult && status.currnetRole !== 'student') {
-        MessagePlugin.success('请进行标注')
+        MessagePlugin.warning("请进行标注")
     }
     asyncComponent.value = true // 确保父组件这些配置项加载完成之后加载子组件
 }

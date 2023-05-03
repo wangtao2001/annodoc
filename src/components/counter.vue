@@ -32,14 +32,14 @@ else getToCheckNums()
 </script>
 
 <template>
-    <div class="num">{{status.currnetRole === 'student' ? '当前：' + currentNum + '/' + allNum : '剩余未审核：' + toCheckNum }}</div>
+    <div class="num">{{status.currnetRole === 'student' ? '当前：' + currentNum + '/' + allNum : '剩余未完成：' + toCheckNum }}</div>
 </template>
 
 <style lang="less" scoped>
     .num {
         margin: 0 40px 0 0;
         color: #0052d9;
-        background-color: #f3f3f3;
+        background-color: var(--counter-bgc);;
         padding: 10px 20px;
     }
 </style>
