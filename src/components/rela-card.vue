@@ -229,9 +229,9 @@ const deleteRela = (id: string) => {
 
 <style scoped lang="less">
 .rela-area {
+    width: 180px;
     .add-rela {
         width: 100%;
-        padding: 0 40px;
     }
 }
 
@@ -241,5 +241,11 @@ const deleteRela = (id: string) => {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+@media screen and (max-width: 900px) { 
+    .rela-area {
+        width: 100%;
+    }
 }
 </style>

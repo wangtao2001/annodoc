@@ -1,5 +1,5 @@
 <template>
-    <t-layout>
+    <t-layout class="content">
         <div class="card">
             <div class="title">姓名：{{ name }}</div>
             <div class="title">学号：{{ status.currentNumebr }}</div>  
@@ -65,9 +65,14 @@ loadFinsh()
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
+    user-select: none;
 
     .title {
         margin: 5px 20px;
+    }
+    
+    @media screen and (max-width: 900px) {
+        width: 100%;
     }
 }
 </style>

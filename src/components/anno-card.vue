@@ -35,8 +35,10 @@ if (store.results.length != 0) {
             </div>
         </div>
         <template #actions>
-            <Label :disabled="false" v-for="label in status.currentLabels" :name="label.type" :keyword="label.shortcut"
+            <div class="top">
+                <Label :disabled="false" v-for="label in status.currentLabels" :name="label.type" :keyword="label.shortcut"
                 :color="label.color" :id="label.id"></Label>
+            </div>
         </template>
     </t-card>
 </template>
@@ -49,5 +51,11 @@ if (store.results.length != 0) {
     //font-weight: lighter;
     line-height: 200%; // 行间距
     //font-family: 'Courier New', Courier, monospace;
+}
+
+.top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 </style>

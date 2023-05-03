@@ -97,7 +97,7 @@ const columns = [
     } },
     { colKey: 'description', title: '描述', width: '60', ellipsis:true  },
     // { colKey: 'createTime', title: "创建时间", width: '80' },
-    { colKey: 'modifyTime', title: '修改时间', width: '80' },
+    { colKey: 'modifyTime', title: '修改时间', width: '55' },
     { title: '操作', width: '50', cell: (h: any, { row }: { row: taskInfo }) => {
         return (
             <div>
@@ -269,6 +269,8 @@ const colseTask = async () => {
 
 const closeTaskDialog = ref(false)
 const closeTaskGrade = ref("")
+
+const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
 </script>
 
 <template>
@@ -278,15 +280,39 @@ const closeTaskGrade = ref("")
                 <t-tab-panel v-for="tab in tabs" :value="tab.value" :label="tab.title">
                     <!--这个过滤器这样写有问题-->
                     <t-base-table :loading="tableLoading" class="table" :data="showDatas.filter(task => tab.title == '全部'? true : task.type == tab.title)" stripe bordered row-key="index" :columns="columns"></t-base-table>
+                    <div class="list">
+                        <div class="list-item" v-for="d in showDatas.filter(task => tab.title == '全部'? true : task.type == tab.title) " :key="d.id">
+                            <div class="left">
+                                <div class="title">
+                                    {{ d.type + '/' + d.taskName }}
+                                    <t-tag v-if="d.grade == 0" theme="warning" variant="light">未发布</t-tag>
+                                    <t-tag v-else theme="success" variant="light">已发布</t-tag>
+                                </div>
+                                <div class="desc">
+                                    {{ d.description }}
+                                </div>
+                                <div class="time">
+                                    {{ '最后修改时间：' + d.modifyTime }}
+                                </div>
+                                <div class="option">
+                                    <t-link underline @click="view(d)" theme="success">查看</t-link>
+                                    <t-link underline @click="modify(d)" theme="primary">修改</t-link>
+                                    <t-link underline theme="warning" v-if="d.grade == 0" @click="releaseDialog = true; currentTask = d" > 发布 </t-link>
+                                    <t-link underline theme="primary" @click="uploadFile(d)" > 继续上传文件 </t-link>
+                                    <t-link underline theme="danger" @click="deleteTask(d.id)" > 删除 </t-link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </t-tab-panel>
             </t-tabs>
             <div class="bottom">
-                <div>
+                <t-pagination class="page" :total="allTasks.length" showPageNumber :showPageSize="false" :pageSize="pageSize"
+                    showPreviousAndNextBtn totalContent @current-change="change"  />
+                <div class="option">
                     <t-button class="new" style="margin-right: 10px;" @click="createTask">创建任务</t-button>
                     <t-button theme="danger" @click="closeTaskDialog = true" >提前结束任务</t-button>
                 </div>
-                <t-pagination class="page" :total="allTasks.length" showPageNumber :showPageSize="false" :pageSize="pageSize"
-                    showPreviousAndNextBtn totalContent @current-change="change"  />
             </div>
         </div>
         <t-dialog
@@ -295,7 +321,7 @@ const closeTaskGrade = ref("")
             header="提前结束任务"
             @confirm="colseTask"
             >
-            <t-form label-align="left">
+            <t-form :label-align="labelAalign">
                 <t-form-item label="选择年级" name="grade">
                     <t-input v-model="closeTaskGrade" show-limit-number clearable  />
                 </t-form-item>
@@ -331,7 +357,7 @@ const closeTaskGrade = ref("")
             header="修改任务信息"
             @confirm="modifyTaskPut"
             >
-            <t-form label-align="left">
+            <t-form :label-align="labelAalign">
                 <t-form-item label="项目id" name="id">
                     <t-input v-model="modifyTaskData.id" disabled />
                 </t-form-item>
@@ -371,7 +397,7 @@ const closeTaskGrade = ref("")
             header="发布任务"
             @confirm="releaseTask"
             >
-            <t-form label-align="left">
+            <t-form :label-align="labelAalign">
                 <t-form-item label="发布年级">
                     <t-input v-model="grade" show-limit-number clearable />
                 </t-form-item>
@@ -421,4 +447,56 @@ const closeTaskGrade = ref("")
     }
 
 }
+
+.list {
+    display: none;
+}
+
+@media screen and (max-width: 900px) {
+    .root {
+        justify-content: center;
+        padding: 0 20px;
+    }
+
+    .container {
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    .bottom {
+        flex-direction: column !important;
+
+        .option {
+            flex-direction: column !important;
+        }
+
+        .page {
+                width: auto;
+            }
+    }
+
+    .table {
+        display: none;
+    }
+
+    .list {
+        display: block;
+        border: 1px solid var( --common-border);
+        padding: 20px 20px;
+        margin: 20px 0;
+
+        .title {
+            font-weight: 600;
+        }
+
+        .time {
+            color: #999;
+        }
+    }
+
+    .list-item:nth-child(n + 2) {
+            margin-top: 10px;
+    }
+}
+
 </style>

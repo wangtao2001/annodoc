@@ -1,11 +1,11 @@
 <script lang="tsx" setup>
 import axios from 'axios'
-import { reactive, ref } from 'vue'
+import { reactive, ref, Ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 
 
 const columns = [
-    { colKey: 'number', title: '学号/工号', width: 150},
+    { colKey: 'number', title: '学号/工号'},
     { colKey: 'name', title: '姓名'},
     {title: '操作', cell: (h: any, { row }: { row: any }) => {
         return (
@@ -16,7 +16,9 @@ const columns = [
     }}
 ]
 
-const data = ref([])
+const data: Ref<Array<{
+    number: string, name: string
+}>> = ref([])
 const loadData= async () => {
     data.value = []
     const res = await axios.get('/api/getResponses/allChecker');
@@ -59,7 +61,11 @@ const upNewChecker =  async ()=>{
             formVisable.value = false
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('添加失败')
+    newChecker.number = ''
+    newChecker.name = ''
 }
+
+const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
 </script>
 
 <template>
@@ -72,9 +78,18 @@ const upNewChecker =  async ()=>{
         table-layout="auto"
         row-key="number"
         ></t-base-table>
+        <!--移动端将表格转换为列表，全部场景-->
+        <div class="form list">
+            <div class="list-item" v-for="d in data" :key="d.number">
+                <div>{{ d.number + ' / ' + d.name }}</div>
+                <t-popconfirm  :on-confirm="deleteCheck" theme="danger" content="确认删除吗">
+                    <t-link theme="danger" > 删除 </t-link>
+                </t-popconfirm>
+            </div>
+        </div>
         <div class="form">
             <div v-if="formVisable">
-                <t-form>
+                <t-form :label-align="labelAalign">
                     <t-form-item label="学号/工号" name="number">
                         <t-input v-model="newChecker.number" :maxlength="10" show-limit-number clearable />
                     </t-form-item>
@@ -94,26 +109,54 @@ const upNewChecker =  async ()=>{
 </template>
 
 <style lang="less" scoped>
+.table {
+    margin: 50px 40px 0 40px;
+    width: 350px;
+    user-select: none;
+}
+
+.form {
+    margin: 20px 40px 0 40px;
+    width: 350px;
+
+    .option {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: row;
+
+        button {
+            margin-right: 10px;
+        }
+    }
+}
+
+.list {
+    display: none;
+}
+
+@media screen and (max-width: 900px) {
     .table {
-        margin-left: 40px;
-        margin-top: 50px;
-        width: 30%;
-        user-select: none;
+        display: none;
     }
 
     .form {
-        margin-left: 40px;
-        margin-top: 20px;
-        width: 35%;
+        width: auto;
+        margin: 20px 20px 0 20px;
+    }
 
-        .option {
-            margin-top: 20px;
+    .list {
+        display: block;
+        border: 1px solid var( --common-border);
+        padding: 20px 20px;
+
+        .list-item {
             display: flex;
-            flex-direction: row;
-
-            button {
-                margin-right: 10px;
-            }
+            justify-content: space-between;
         }
     }
+
+    .list-item:nth-child(n + 2) {
+        margin-top: 10px;
+    }
+}
 </style>

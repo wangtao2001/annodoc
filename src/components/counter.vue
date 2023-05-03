@@ -37,7 +37,6 @@ else getToCheckNums()
 
 <style lang="less" scoped>
     .num {
-        margin: 0 40px 0 0;
         color: #0052d9;
         background-color: var(--counter-bgc);;
         padding: 10px 20px;

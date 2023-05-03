@@ -29,3 +29,11 @@ export const statusStore = defineStore('current', () => {
     }
 })
 
+export const infoStore = defineStore('info', () => {
+    const mobileDevice: boolean = window.innerWidth <= 500
+
+    return {
+        mobileDevice
+    }
+})
+

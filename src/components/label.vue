@@ -56,6 +56,10 @@ const click = () => {
     margin: 0 8px;
     transition: 0.4s;
 
+    @media screen and (max-width: 900px) {
+        margin: 2px 2px;
+    }
+
     .key {
         margin-left: 6px;
         background-color: white;
