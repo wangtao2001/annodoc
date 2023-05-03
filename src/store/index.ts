@@ -15,7 +15,7 @@ export const mainStore = defineStore('main', () => {
 export const statusStore = defineStore('current', () => {
     const currentNumebr: Ref<string> = ref("2020192462") // 模拟登录的学号
     const currentGrade: Ref<number> = ref(19)   // 模拟登录的年级 
-    const currnetRole: Ref<string> = ref("admin") // 用以做权限控制 student  | admin | checker
+    const currnetRole: Ref<string> = ref("student") // 用以做权限控制 student  | admin | checker
 
     const currentTextId: Ref<string>= ref("")
     const currentText: Ref<string> = ref("")
