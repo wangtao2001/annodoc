@@ -192,7 +192,7 @@ const deleteRela = (id: string) => {
             </div>
             <t-button class="add-rela" @click="addRela" theme="primary">
                 <template #icon><t-icon name="add" /></template>
-                新增关系
+                <div class="t">新增关系</div>
             </t-button>
             <t-dialog style="user-select: none;" v-model:visible="visibleModal" header="新增关系" mode="modal" draggable
                 :on-confirm="dialogConfim">
@@ -241,5 +241,11 @@ const deleteRela = (id: string) => {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.t {
+    @media screen and (max-width: 900px) {
+        display: none;
+    }
 }
 </style>
