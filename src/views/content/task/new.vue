@@ -1,11 +1,8 @@
 <script setup lang='ts'>
 import { useRouter } from 'vue-router'
-import { ref, Ref, reactive, watch, nextTick } from 'vue'
-import upload from '@/components/upload.vue'
+import { ref, Ref, reactive } from 'vue'
 import { LabelInfo, RelaInfo, taskInfo } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
-import Label from '@/components/label.vue'
-import Rela from '@/components/real.vue'
 import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal } from '@/methods/util'
 import axios from 'axios'

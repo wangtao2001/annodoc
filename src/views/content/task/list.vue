@@ -5,7 +5,6 @@ import axios from 'axios'
 import { LabelInfo, taskInfo, RelaInfo, textSatatus } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { downloadLocal } from '@/methods/util'
-import upload from '@/components/upload.vue'
 import { mainStore } from '@/store'
 
 const store = mainStore()
@@ -112,7 +111,9 @@ const columns = [
                                 }
                                 </>
                                 <t-link theme="primary" onClick={()=> {uploadFile(row)}} > 继续上传文件 </t-link>
-                                <t-link theme="danger" onClick={()=>{deleteTask(row.id)}} > 删除 </t-link>
+                                <t-popconfirm on-confirm={()=>{deleteTask(row.id)}} theme="danger" content="确认删除吗">
+                                    <t-link theme="danger" > 删除 </t-link>
+                                </t-popconfirm>
                             </div>
                         )
                     }}>
@@ -299,7 +300,9 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
                                     <t-link underline @click="modify(d)" theme="primary">修改</t-link>
                                     <t-link underline theme="warning" v-if="d.grade == 0" @click="releaseDialog = true; currentTask = d" > 发布 </t-link>
                                     <t-link underline theme="primary" @click="uploadFile(d)" > 继续上传文件 </t-link>
-                                    <t-link underline theme="danger" @click="deleteTask(d.id)" > 删除 </t-link>
+                                    <t-popconfirm @confirm="deleteTask(d.id)" theme="danger" content="确认删除吗">
+                                        <t-link underline theme="danger" > 删除 </t-link>
+                                    </t-popconfirm>
                                 </div>
                             </div>
                         </div>

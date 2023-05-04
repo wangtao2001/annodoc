@@ -1,6 +1,4 @@
 <script setup lang='ts'>
-import AnnoCard from '@/components/anno-card.vue'
-import RelaCard from '@/components/rela-card.vue'
 import { useRouter } from 'vue-router'
 import { mainStore, statusStore } from '@/store'
 import pubsub from 'pubsub-js'

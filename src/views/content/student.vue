@@ -198,7 +198,7 @@ const searchChange = (value: string)=> {
                     <div class="title">{{ d.number + ' / ' + d.name }}</div>
                     <div class="info">{{ '得分：' + d.score + '&nbsp;&nbsp; 完成数量：' + d.finish}}</div>
                 </div>
-                <t-popconfirm theme="danger" content="确认删除吗">
+                <t-popconfirm @confirm="deleteStudent(d)" theme="danger" content="确认删除吗">
                     <t-link theme="danger" > 删除 </t-link>
                 </t-popconfirm>
             </div>

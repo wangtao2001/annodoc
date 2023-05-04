@@ -6,7 +6,6 @@ import { resultNumberToLabelId, resultNumberToContent, relaNumberToContent } fro
 import { v4 as uuidv4 } from 'uuid'
 import pubsub from 'pubsub-js'
 import { MessagePlugin } from 'tdesign-vue-next'
-import {RelaInfo} from '@/interface'
 
 const store = mainStore()
 const status = statusStore()

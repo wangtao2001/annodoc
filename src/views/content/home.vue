@@ -30,7 +30,6 @@ const loadInfo = async ()=> {
     const res = await axios.get(`/api/getResponses/getByStudentNumber/${status.currentNumebr}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
-            console.log(res.data.data)
             const data = res.data.data
             currentScore.value = data.score
             name.value = data.name
@@ -42,7 +41,6 @@ const loadFinsh = async()=> {
     const res = await axios.get(`/api/getResponses/getOneHomeworkCompleted/${status.currentNumebr}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
-            console.log(res.data.data)
             const data = res.data.data
             all.value = data.all
             currentFinsh.value = data.finish

@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { statusStore } from '@/store'
 import pinia from "@/store/pinia"
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+NProgress.configure({ showSpinner: false })
+
 // 这样写是为了能够在路由守卫中使用store
 const status = statusStore(pinia)
 
@@ -91,6 +95,7 @@ const router = createRouter({
 
 // 权限控制
 router.beforeEach((to, from, next) => {
+    NProgress.start()
     // 只有管理员能访问
     if (to.name === 'task_list' || to.name === "task_new" || to.name === 'check' || to.name == 'student') {
         if ( status.currnetRole === 'admin') {
@@ -111,5 +116,9 @@ router.beforeEach((to, from, next) => {
         next()
     }
 })
+
+router.afterEach(() => {
+    NProgress.done()
+  })
 
 export default router

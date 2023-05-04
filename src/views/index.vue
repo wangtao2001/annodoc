@@ -1,7 +1,8 @@
 <script setup lang="tsx">
-import {ref} from 'vue'
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { statusStore } from '@/store'
+import { MessagePlugin } from 'tdesign-vue-next'
  
 const status = statusStore()
 
@@ -54,6 +55,20 @@ const closeMenu = () => {
     menuVisible.value = false
     menuButtonIcon.value = "format-vertical-align-right"
 }
+
+const dropdownOption = [
+    {'content': '退出登录', value: 0}
+]
+
+const dropdownClick = (row: any) => {
+    if (row.value === 0) {
+        logout()
+    }
+}
+
+const logout = () => {
+    MessagePlugin.success("已退出登录")
+}
 </script>
 
 <template>
@@ -68,7 +83,16 @@ const closeMenu = () => {
                 <template #operations>
                     <t-icon class="t-menu__operations-icon s" name="search" />
                     <t-icon class="t-menu__operations-icon s" name="notification-filled" />
-                    <t-icon @click="router.push('/')" class="t-menu__operations-icon s" name="home" />
+                    <t-dropdown class="s"  @click="dropdownClick" :options="dropdownOption">
+                        <t-space>
+                            <t-button variant="text">
+                            <template #icon><t-icon name="user-circle" size="16" /></template>
+                            {{ status.currentNumebr }}
+                            <template #suffix> <t-icon name="chevron-down" size="16" /></template>
+                            </t-button>
+                        </t-space>
+                    </t-dropdown>
+                    <t-icon @click="toHome" class="t-menu__operations-icon s" name="home" />
                     <t-icon @click="openMenu" class="menu-button" :name="menuButtonIcon" />
                 </template>
             </t-head-menu>
@@ -116,6 +140,10 @@ const closeMenu = () => {
                     <t-button class="color" @click="modeChange()" theme="default">
                         {{ darkMode ? '深色模式' : '浅色模式' }}
                     </t-button>
+                    <t-button @click="logout" variant="text" theme="default">
+                        <template #icon><t-icon name="user-circle" size="16" /></template>
+                        退出登录
+                    </t-button>
                 </div>
             </div>
         </t-drawer>
@@ -147,7 +175,7 @@ const closeMenu = () => {
                         </template>
                         审核管理
                     </t-menu-item>
-                    <t-menu-item v-if="status.currnetRole === 'admin'" value="space" to="/student">
+                    <t-menu-item v-if="status.currnetRole === 'admin'" value="student" to="/student">
                         <template #icon>
                             <t-icon name="user-circle" />
                         </template>
@@ -158,7 +186,7 @@ const closeMenu = () => {
             <t-layout>
                 <RouterView class="content" />
 
-                <t-footer style="user-select: none; display: flex; justify-content: center;">Copyright @ 2023-{{
+                <t-footer class="copy" style="user-select: none; display: flex; justify-content: center;">Copyright @ 2023-{{
                     new
                         Date().getFullYear()
                 }}
@@ -203,7 +231,7 @@ const closeMenu = () => {
         }
 
         .color {
-            margin-top: 20px;
+            margin: 20px 0;
         }
     }
 }
@@ -211,6 +239,10 @@ const closeMenu = () => {
 @media screen and (max-width: 900px) {
     .aside, .s {
         display: none;
+    }
+
+    .copy {
+        display: none !important;
     }
 
     .menu-button {

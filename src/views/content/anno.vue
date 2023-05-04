@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router'
-import  counter from '@/components/counter.vue'
-import { statusStore } from '@/store'
 
-const status = statusStore()
 const route = useRoute()
 </script>
 

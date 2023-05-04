@@ -6,7 +6,7 @@ import { downloadLocal } from '@/methods/util'
 import axios from 'axios'
 import { Result, RelaResult } from '@/interface'
 import { resultNumberToId, labelIdToLabel} from '@/methods/util'
-import { MessagePlugin } from 'tdesign-vue-next';
+import { MessagePlugin } from 'tdesign-vue-next'
 
 const router = useRouter()
 

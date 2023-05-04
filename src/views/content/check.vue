@@ -82,7 +82,7 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
         <div class="form list">
             <div class="list-item" v-for="d in data" :key="d.number">
                 <div>{{ d.number + ' / ' + d.name }}</div>
-                <t-popconfirm  :on-confirm="deleteCheck" theme="danger" content="确认删除吗">
+                <t-popconfirm  @confirm="deleteCheck(d)" theme="danger" content="确认删除吗">
                     <t-link theme="danger" > 删除 </t-link>
                 </t-popconfirm>
             </div>

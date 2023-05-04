@@ -1,6 +1,5 @@
 <script setup lang='ts'>
-import Label from '@/components/label.vue'
-import { ref, Ref, nextTick } from 'vue'
+import { nextTick } from 'vue'
 import { labelSelect, resultsToLabeledDiv } from '@/methods'
 import { statusStore, mainStore } from '@/store'
 
