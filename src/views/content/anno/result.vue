@@ -66,11 +66,11 @@ const resultFormat = () => {
         }
     })
     return {
-        'number': status.currentNumebr,
+        'number': status.currentUser.number,
         'textId': status.currentTextId,
         'entitys': new_labels,
         'relations': new_rela,
-        'pass': status.currnetRole === "student" ? 0: 2
+        'pass': status.currentUser.role === "student" ? 0: 2
     }
 }
 

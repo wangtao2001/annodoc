@@ -1,7 +1,7 @@
 <script lang="tsx" setup>
 import {ref, onMounted,reactive, toRaw, Ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
-import { studentInfo } from '@/interface'
+import { StudentInfo } from '@/interface'
 import * as xlsx from "xlsx"
 import axios from 'axios'
 import { NotifyPlugin } from 'tdesign-vue-next'
@@ -21,7 +21,7 @@ const columns = [
     }}
 ]
 
-const deleteStudent = async (row: studentInfo)=> {
+const deleteStudent = async (row: StudentInfo)=> {
     const res = await axios.delete(`/api/getResponses/deleteStudent/${row.number}`)
     console.log(res)
     if (res.status == 200) {
@@ -33,10 +33,10 @@ const deleteStudent = async (row: studentInfo)=> {
     } else MessagePlugin.error('删除失败')
 }
 
-const allStudents: Ref<Array<studentInfo>> = ref([])
+const allStudents: Ref<Array<StudentInfo>> = ref([])
 const pageSize = 6
-const viewStudents: Ref<Array<studentInfo>> = ref([]) // 实际展示出来的，为了分页和搜索
-var tempView : Array<studentInfo>// 缓存
+const viewStudents: Ref<Array<StudentInfo>> = ref([]) // 实际展示出来的，为了分页和搜索
+var tempView : Array<StudentInfo>// 缓存
 
 const displayGrade = ref("19") // 默认19级
 const loadData = async (grade: number | string)=> { 
@@ -47,7 +47,10 @@ const loadData = async (grade: number | string)=> {
             for (var number of allStudents) {
                 await loadItem(number)
             }
-        } else MessagePlugin.error(res.data.msg)
+        } else {
+            MessagePlugin.error(res.data.msg)
+            viewStudents.value = []
+        }
     } else MessagePlugin.error('获取学生信息失败')
 }
 

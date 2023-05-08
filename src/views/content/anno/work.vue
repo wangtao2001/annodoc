@@ -17,12 +17,12 @@ var entityResults: Array<any>
 var relationResults: Array<any>
 
 const hasText = ref(false) // 用来渲染页面, 避免没有任务时出现空页面
-const isStudent = status.currnetRole === 'student'
+const isStudent = status.currentUser.role === 'student'
 var hasAlreadyResult = false
 
 var fl = true
 const loadText = async() => {
-    const res = await axios.get(`/api/getResponses/${isStudent ? "getTextToMarkStudent": "getTextToMarkChecker" }?grade=${status.currentGrade}&number=${status.currentNumebr}`)
+    const res = await axios.get(`/api/getResponses/${isStudent ? "getTextToMarkStudent": "getTextToMarkChecker" }?grade=${status.currentUser.grade}&number=${status.currentUser.number}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
             const data = res.data.data
@@ -119,7 +119,7 @@ const init = async ()=> {
     }
     if (hasAlreadyResult) {
         MessagePlugin.info("请进行审核")
-    } else if (!hasAlreadyResult && status.currnetRole !== 'student') {
+    } else if (!hasAlreadyResult && status.currentUser.role !== 'student') {
         MessagePlugin.warning("请进行标注")
     }
     asyncComponent.value = true // 确保父组件这些配置项加载完成之后加载子组件

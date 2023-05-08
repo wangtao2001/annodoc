@@ -85,7 +85,14 @@ const routes: Array<RouteRecordRaw> = [{
                 },
             ]
         },
-    ]
+    ],
+}, {
+    "path": "/404",
+    "name": "notfound",
+    component: ()=>  import('@/views/404.vue')
+}, {
+    path: "/:pathMath(.*)", // 此处需特别注意置于最底部
+    redirect: "/404"
 }]
 
 const router = createRouter({
@@ -98,7 +105,7 @@ router.beforeEach((to, from, next) => {
     NProgress.start()
     // 只有管理员能访问
     if (to.name === 'task_list' || to.name === "task_new" || to.name === 'check' || to.name == 'student') {
-        if ( status.currnetRole === 'admin') {
+        if ( status.currentUser.role === 'admin') {
             next()
         } else {
             next({ name: 'home' })
@@ -106,7 +113,7 @@ router.beforeEach((to, from, next) => {
     } else
      // 只有学生能访
     if(to.name === 'home') {
-        if (status.currnetRole === 'student') {
+        if (status.currentUser.role === 'student') {
             next()
         } else {
             next({name: 'task_list'})

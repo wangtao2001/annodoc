@@ -2,7 +2,7 @@
 import { Ref, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { LabelInfo, taskInfo, RelaInfo, textSatatus } from '@/interface'
+import { LabelInfo, TaskInfo, RelaInfo, TextSatatus } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { downloadLocal } from '@/methods/util'
 import { mainStore } from '@/store'
@@ -68,8 +68,8 @@ const loadData = async() => {
 }
 
 const pageSize: number = 6 // 每页显示的任务数
-const allTasks: Ref<Array<taskInfo>> = ref([])  // 所有任务的信息
-const showDatas: Ref<Array<taskInfo>> = ref([]) // 当前页的任务信息
+const allTasks: Ref<Array<TaskInfo>> = ref([])  // 所有任务的信息
+const showDatas: Ref<Array<TaskInfo>> = ref([]) // 当前页的任务信息
 const change = (current: number) => {
     showDatas.value = allTasks.value.slice((current - 1) * pageSize, current * pageSize)
 }
@@ -82,7 +82,7 @@ const tableLoading = ref(true)
 const columns = [
     { colKey: 'type', title: '类型', width: '40' },
     { colKey: 'id', title: 'ID', width: '50', ellipsis:true },
-    { title: '名称', width: '60', ellipsis:true, cell: (h: any, { row }: { row: taskInfo }) => {
+    { title: '名称', width: '60', ellipsis:true, cell: (h: any, { row }: { row: TaskInfo }) => {
         return (
             <div class='task_name'>
                 <>{
@@ -97,7 +97,7 @@ const columns = [
     { colKey: 'description', title: '描述', width: '60', ellipsis:true  },
     // { colKey: 'createTime', title: "创建时间", width: '80' },
     { colKey: 'modifyTime', title: '修改时间', width: '55' },
-    { title: '操作', width: '50', cell: (h: any, { row }: { row: taskInfo }) => {
+    { title: '操作', width: '50', cell: (h: any, { row }: { row: TaskInfo }) => {
         return (
             <div>
                 <t-link onClick={()=>{view(row)}} theme="success">查看</t-link>
@@ -145,8 +145,8 @@ const createTask = () => {
     router.push('/task/new')
 }
 
-var currentTask: taskInfo
-const textSatatus: textSatatus = reactive({
+var currentTask: TaskInfo
+const textSatatus: TextSatatus = reactive({
     all:0, finalized:0, marked:0, unmarked:0, marking: 0
 })
 const viewDialog = ref(false)
@@ -154,7 +154,7 @@ const modifyDialog = ref(false)
 const uploadDialog = ref(false)
 const releaseDialog = ref(false)
 
-const view = async (task: taskInfo) => {
+const view = async (task: TaskInfo) => {
     const res = await axios.get(`/api/getResponses/getMedicalNumber/${task.id}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
@@ -177,7 +177,7 @@ const modifyTaskData = reactive({ // 修改任务的数据
     modifyTime: '',
     grade: 0
 })
-const modify = (task: taskInfo) => {
+const modify = (task: TaskInfo) => {
     modifyTaskData.id = task.id
     modifyTaskData.type = task.type
     modifyTaskData.taskName = task.taskName
@@ -201,7 +201,7 @@ const modifyTaskPut = async ()=> {
     } else MessagePlugin.error('修改失败')
 }
 
-const uploadFile = (task: taskInfo)=>{
+const uploadFile = (task: TaskInfo)=>{
     uploadDialog.value = true
     store.createTaskId = task.id // ipload组件使用的是store中存储的
 }

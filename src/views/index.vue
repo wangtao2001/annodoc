@@ -83,7 +83,7 @@ const logout = () => {
                         <t-space>
                             <t-button variant="text">
                             <template #icon><t-icon name="user-circle" size="16" /></template>
-                            {{ status.currentNumebr }}
+                            {{ status.currentUser.number }}
                             <template #suffix> <t-icon name="chevron-down" size="16" /></template>
                             </t-button>
                         </t-space>
@@ -103,7 +103,7 @@ const logout = () => {
         >
             <div class="drawer">
                 <div class="center">
-                    <t-button variant="text" theme="default" @click="router.push('/'); closeMenu()" v-if="status.currnetRole === 'student'">
+                    <t-button variant="text" theme="default" @click="router.push('/'); closeMenu()" v-if="status.currentUser.role === 'student'">
                         <template #icon>
                             <t-icon name="dashboard" />
                         </template>
@@ -113,21 +113,21 @@ const logout = () => {
                         <template #icon>
                             <t-icon name="edit-1" />
                         </template>
-                        {{ status.currnetRole == "student" ? "标注" : "标注审核" }}
+                        {{ status.currentUser.role == "student" ? "标注" : "标注审核" }}
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/task'); closeMenu()" v-if="status.currnetRole === 'admin'" value="task">
+                    <t-button variant="text" theme="default" @click="router.push('/task'); closeMenu()" v-if="status.currentUser.role === 'admin'" value="task">
                         <template #icon>
                             <t-icon name="server" />
                         </template>
                         任务管理
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/check'); closeMenu()" v-if="status.currnetRole === 'admin'">
+                    <t-button variant="text" theme="default" @click="router.push('/check'); closeMenu()" v-if="status.currentUser.role === 'admin'">
                         <template #icon>
                             <t-icon name="filter-clear" />
                         </template>
                         审核管理
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/student'); closeMenu()" v-if="status.currnetRole === 'admin'">
+                    <t-button variant="text" theme="default" @click="router.push('/student'); closeMenu()" v-if="status.currentUser.role === 'admin'">
                         <template #icon>
                             <t-icon name="user-circle" />
                         </template>
@@ -147,7 +147,7 @@ const logout = () => {
             <t-aside class="aside">
                 <t-menu theme="light" :default-value="currentItem" style="margin-right: 50px" router>
 
-                    <t-menu-item value="home" v-if="status.currnetRole === 'student'" to="/">
+                    <t-menu-item value="home" v-if="status.currentUser.role === 'student'" to="/">
                         <template #icon>
                             <t-icon name="dashboard" />
                         </template>
@@ -157,21 +157,21 @@ const logout = () => {
                         <template #icon>
                             <t-icon name="edit-1" />
                         </template>
-                        {{ status.currnetRole == "student" ? "标注" : "标注审核" }}
+                        {{ status.currentUser.role== "student" ? "标注" : "标注审核" }}
                     </t-menu-item>
-                    <t-menu-item v-if="status.currnetRole === 'admin'" value="task" to="/task">
+                    <t-menu-item v-if="status.currentUser.role === 'admin'" value="task" to="/task">
                         <template #icon>
                             <t-icon name="server" />
                         </template>
                         任务管理
                     </t-menu-item>
-                    <t-menu-item v-if="status.currnetRole === 'admin'" value="check" to="/check">
+                    <t-menu-item v-if="status.currentUser.role === 'admin'" value="check" to="/check">
                         <template #icon>
                             <t-icon name="filter-clear" />
                         </template>
                         审核管理
                     </t-menu-item>
-                    <t-menu-item v-if="status.currnetRole === 'admin'" value="student" to="/student">
+                    <t-menu-item v-if="status.currentUser.role === 'admin'" value="student" to="/student">
                         <template #icon>
                             <t-icon name="user-circle" />
                         </template>

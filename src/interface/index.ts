@@ -1,7 +1,7 @@
 // 标签信息
 export interface LabelInfo {
     type: string, // 名称
-    shortcut: string, // 这里其实应该还有一些限制，也就是只能26个字母，包括label组件的defineProps
+    shortcut: string,
     color: string,
     id: string
 }
@@ -27,7 +27,7 @@ export interface Result {
     content: string,
     labelId: string,
     labelName: string,
-    // 为了删除标签的时候快速定位，决定把span自己存进去
+    // 为了删除and重构标签的时候快速定位
     span?: HTMLSpanElement
 }
 
@@ -43,13 +43,13 @@ export interface RelaResult {
 }
 
 // 下拉选择关系的配置项
-export interface relaOption {
+export interface RelaOption {
     content: string,
     id: string | number // 对关系来说就是string(关系的id)对标签来说就是numebr(关系的number) 
 }
 
 // 等待上传的信息
-interface uploadInfo {
+interface UploadInfo {
     index: number
     name: string,
     size: string,
@@ -58,15 +58,14 @@ interface uploadInfo {
 }
 
 // 上传的文件组
-export interface uplodaFiles {
-    info: uploadInfo,
+export interface UplodaFiles {
+    info: UploadInfo,
     files: Array<File>
 }
 
 // 任务的信息
-// 文件的信息我这里不写
 // 流程是，一旦创建了任务名称，就给他一个uuid，上传文件的时候带上这个uuid就行
-export interface taskInfo {
+export interface TaskInfo {
     id: string,
     type: string,
     taskName: string,
@@ -79,8 +78,8 @@ export interface taskInfo {
 }
 
 //学生信息
-export interface studentInfo {
-    number: number,
+export interface StudentInfo {
+    number: string,
     name: string,
     grade: number,
     score: number,
@@ -88,7 +87,7 @@ export interface studentInfo {
 }
 
 // 标注的类型：医学文本、电子病历、医学图像...
-export interface annoType {
+export interface AnnoType {
     id: number,
     title: string,
     img: string,
@@ -98,10 +97,16 @@ export interface annoType {
 }
 
 //每个任务的标注进度（对应的文本状态）
-export interface textSatatus {
+export interface TextSatatus {
     all: number,
     finalized: number,
     marked: number,
     unmarked: number,
     marking: number
+}
+
+export interface User {
+    number: string,
+    grade: number,
+    role: string
 }

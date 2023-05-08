@@ -1,49 +1,55 @@
 <template>
     <t-layout class="content">
         <div class="card">
-            <div class="title">姓名：{{ name }}</div>
-            <div class="title">学号：{{ status.currentNumebr }}</div>  
+            <div class="title">姓名：{{ currentStudent.name }}</div>
+            <div class="title">学号：{{ status.currentUser.number }}</div>  
         </div>
         <div class="card">
-            <div class="title">完成情况：{{ currentFinsh }} / {{ all }}</div>
+            <div class="title">完成情况：{{ currentStudent.finish }} / {{ all }}</div>
         </div>
         <div class="card">
-            <div class="title">当前得分：{{ currentScore }} / 100</div>
+            <div class="title">当前得分：{{ currentStudent.score }} / 100</div>
         </div>
     </t-layout>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, Ref } from 'vue'
 import { statusStore } from '@/store'
 import axios from 'axios'
+import { StudentInfo } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 
 const status = statusStore()
 
-const currentScore = ref(0)
-const name = ref('')
-const currentFinsh = ref(0)
 const all = ref(0)
 
+const currentStudent: Ref<StudentInfo> = ref({
+    number: status.currentUser.number,
+    name: '',
+    grade: status.currentUser.grade,
+    score: 0,
+    finish: 0
+})
+
 const loadInfo = async ()=> {
-    const res = await axios.get(`/api/getResponses/getByStudentNumber/${status.currentNumebr}`)
+    const res = await axios.get(`/api/getResponses/getByStudentNumber/${status.currentUser.number}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
             const data = res.data.data
-            currentScore.value = data.score
-            name.value = data.name
+            currentStudent.value.score = data.score
+            currentStudent.value.name = data.name
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('获取数据失败')
 }
 
 const loadFinsh = async()=> {
-    const res = await axios.get(`/api/getResponses/getOneHomeworkCompleted/${status.currentNumebr}`)
+    const res = await axios.get(`/api/getResponses/getOneHomeworkCompleted/${status.currentUser.number}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
             const data = res.data.data
             all.value = data.all
-            currentFinsh.value = data.finish
+            currentStudent.value.finish = data.finish
         } else MessagePlugin.error(res.data.msg)
     } else MessagePlugin.error('获取数据失败')
 }

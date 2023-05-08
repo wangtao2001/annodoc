@@ -10,7 +10,7 @@ const currentNum = ref(0)
 const allNum = ref(0)
 const toCheckNum = ref(0)
 const getCurrentNums = async() => {
-    const res = await axios.get(`/api/getResponses/getOneHomeworkCompleted/${status.currentNumebr}`)
+    const res = await axios.get(`/api/getResponses/getOneHomeworkCompleted/${status.currentUser.number}`)
     if (res.status == 200) {
         if (res.data.code == 20041) {
             currentNum.value = res.data.data.finish+1
@@ -27,12 +27,12 @@ const getToCheckNums = async () => {
     } else MessagePlugin.error("网络错误")
 }
 
-if (status.currnetRole === 'student') getCurrentNums()
+if (status.currentUser.role === 'student') getCurrentNums()
 else getToCheckNums()
 </script>
 
 <template>
-    <div class="num">{{status.currnetRole === 'student' ? '当前：' + currentNum + '/' + allNum : '剩余未完成：' + toCheckNum }}</div>
+    <div class="num">{{status.currentUser.role === 'student' ? '当前：' + currentNum + '/' + allNum : '剩余未完成：' + toCheckNum }}</div>
 </template>
 
 <style lang="less" scoped>

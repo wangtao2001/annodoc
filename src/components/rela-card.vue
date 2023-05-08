@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, reactive } from 'vue'
 import { mainStore, statusStore } from '@/store'
-import { relaOption } from '@/interface'
+import { RelaOption } from '@/interface'
 import { resultNumberToLabelId, resultNumberToContent, relaNumberToContent } from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 import pubsub from 'pubsub-js'
@@ -90,7 +90,7 @@ const dialogConfim = () => { // 点击确定对话框关闭
     }
 }
 
-const rela1Options: Array<relaOption> = [] // 关系起点的选择的内容
+const rela1Options: Array<RelaOption> = [] // 关系起点的选择的内容
 const rela2Options = rela1Options // 关系终点选择的内容
 
 
@@ -114,19 +114,19 @@ const addRela = () => { // 打开对话框
 
 const rela1Title = ref("选择关系起点") // 关系起点的title
 const rela1Number = ref(-1) // 关系起点选择的id
-const rela1Choose = (data: relaOption) => {
+const rela1Choose = (data: RelaOption) => {
     rela1Title.value = data.content
     rela1Number.value = data.id as number
 }
 
 const rela2Title = ref("选择关系起点") // 关系起点的title
 const rela2Number = ref(-1) // 关系起点选择的Number
-const rela2Choose = (data: relaOption) => {
+const rela2Choose = (data: RelaOption) => {
     rela2Title.value = data.content
     rela2Number.value = data.id as number
 }
 
-const allRelaOptions: Array<relaOption> = [] // 关系选择的内容
+const allRelaOptions: Array<RelaOption> = [] // 关系选择的内容
 // 这里面的内容需要根据选择的关系起点和终点来展示，比如选择了两个疾病，就只能展示并发症这一种
 const allRelaDisabled = ref(true) // 在没有选择起点和终点时这个选择是禁用的
 // 监听起点和终点有没有选择
@@ -157,7 +157,7 @@ watch(ids, () => {
 
 const allRelaTitle = ref("选择关系") // 关系的title
 const relaID = ref("") // 关系的id
-const allRelaChoose = (data: relaOption) => {
+const allRelaChoose = (data: RelaOption) => {
     allRelaTitle.value = data.content
     relaID.value = data.id as string
 }

@@ -2,7 +2,7 @@
 import { onMounted, ref, Ref, watch, reactive } from 'vue'
 import { fileListToArray, fileSizeSum } from '@/methods/util'
 import { ErrorCircleFilledIcon, CheckCircleFilledIcon, CloseCircleFilledIcon } from 'tdesign-icons-vue-next'
-import { uplodaFiles } from '@/interface'
+import { UplodaFiles } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { mainStore } from '@/store'
 import axios from 'axios'
@@ -80,7 +80,7 @@ const props = defineProps({
     multiple: Boolean // 多文件
 })
 
-const beforeUploadFiles: Array<uplodaFiles> = reactive([]) // 等待上传的文件列表和其所对应的信息
+const beforeUploadFiles: Array<UplodaFiles> = reactive([]) // 等待上传的文件列表和其所对应的信息
 // 为了减少表格展示的数量，一起多选的文件为一组，一起上传，这可能不符合上传尽量小的原则
 
 // 参考t-design的逻辑
@@ -104,7 +104,7 @@ const columns = [
     { colKey: 'info.name', title: '文件名', width: '200' },
     { colKey: 'info.size', title: '大小', width: '100' },
     {
-        title: '状态', width: '150', cell: (h: any, { row }: { row: uplodaFiles }) => {
+        title: '状态', width: '150', cell: (h: any, { row }: { row: UplodaFiles }) => {
             // 这里的意思是获取传入对象的row属性，这里的row就代表data的每一项
             // 通过status数字控制
             // 等待上传、上传成功或失败是展示文字，上传中则是变化的进度（转圈圈）
@@ -121,7 +121,7 @@ const columns = [
         }
     },
     {
-        title: '操作', width: '50', cell: (h: any, { row }: { row: uplodaFiles }) => {
+        title: '操作', width: '50', cell: (h: any, { row }: { row: UplodaFiles }) => {
             return (
                 <t-link theme="primary" onClick={() => {
                     if(row.info.status == 3) {
@@ -171,7 +171,7 @@ const upload = async () => {
     }
 }
 
-const deleteByList = (d: uplodaFiles)=>{
+const deleteByList = (d: UplodaFiles)=>{
     if (d.info.status == 3) {
         MessagePlugin.error('文件正在上传中')
         return

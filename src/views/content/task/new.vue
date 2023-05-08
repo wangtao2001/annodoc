@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { useRouter } from 'vue-router'
 import { ref, Ref, reactive } from 'vue'
-import { LabelInfo, RelaInfo, taskInfo } from '@/interface'
+import { LabelInfo, RelaInfo, TaskInfo } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal } from '@/methods/util'
@@ -28,7 +28,7 @@ const pre = () => {
 const nextText = ref('下一步')
 
 // 生成设置的配置文件
-const newTask = () :taskInfo | null=>{
+const newTask = () :TaskInfo | null=>{
     if (allLabels.length == 0) {
         MessagePlugin.error('请添加实体')
         return null
