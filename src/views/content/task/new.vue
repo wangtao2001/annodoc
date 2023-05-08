@@ -230,7 +230,6 @@ const labelIdToName = (id: string): string => {
                 </t-form-item>
             </t-form>
             <t-form v-if="step == 1" :label-align="labelAalign">
-                <!--先把样式写出来，文件控制以后再说-->
                 <t-form-item label="上传数据文件">
                     <div class="file">
                         <!--这个上传功能自己写-->
@@ -298,7 +297,7 @@ const labelIdToName = (id: string): string => {
                     </t-select>
                 </t-form-item>
                 <t-form-item label="标签配色">
-                    <t-color-picker v-model="addLabelFrom.color" :swatchColors="null" :format="['RGB']"
+                    <t-color-picker v-model="addLabelFrom.color" :swatchColors="null"
                         :colorModes="['monochrome']" :show-primary-color-preview="false" />
                 </t-form-item>
             </t-form>
@@ -388,6 +387,10 @@ const labelIdToName = (id: string): string => {
     .container {
         width: 100%;
         margin: 0;
+    }
+
+    .file {
+        width: 100%;
     }
 }
 </style>

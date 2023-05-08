@@ -171,6 +171,14 @@ const upload = async () => {
     }
 }
 
+const deleteByList = (d: uplodaFiles)=>{
+    if (d.info.status == 3) {
+        MessagePlugin.error('文件正在上传中')
+        return
+    }
+    beforeUploadFiles.splice(d.info.index, 1)
+}
+
 </script>
 
 <template>
@@ -185,6 +193,25 @@ const upload = async () => {
     </div>
     <div v-if="!uploadArea" class="table-area">
         <t-base-table size="small" class="table" row-key="index" :data="beforeUploadFiles" :columns="columns"></t-base-table>
+        <div class="list">
+            <div class="list-item" v-for="d in beforeUploadFiles" :key="d.info.index">
+                <div class="top">
+                    <div class="name">{{ d.info.name }}</div>
+                    <div class="status">
+                    <t-loading v-if="d.info.status == 3 " :text="Math.floor(d.info.uploaded / d.files.length * 100) + '%'" size="small"></t-loading>
+                    <t-tag v-else shape="round" :theme="statusNameListMap[d.info.status].theme" variant="light-outline">
+                        {{statusNameListMap[d.info.status].label}}
+                        <template #icon>
+                            <CheckCircleFilledIcon v-if="d.info.status == 0" />
+                            <CloseCircleFilledIcon v-else-if="d.info.status == 1" />
+                            <ErrorCircleFilledIcon v-else />    
+                        </template>
+                    </t-tag>
+                    </div>
+                </div>
+                <t-link theme="primary" @click="deleteByList(d)">删除</t-link>
+                </div>
+        </div>
         <div class="op">
             <t-button variant="outline" :disabled="true">取消上传</t-button>
             <t-button @click="upload">上传</t-button>
@@ -224,9 +251,28 @@ const upload = async () => {
     }
 }
 
+.list {
+    display: none;
+}
+
 @media screen and (max-width: 900px) {
-    .up-area {
+    .up-area, .table {
         display: none;
+    }
+
+    .list {
+        display: block;
+
+        .list-item {
+            display: flex;
+            flex-direction: column;
+
+            .top {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
     }
 }
 </style>

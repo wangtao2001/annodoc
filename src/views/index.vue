@@ -15,29 +15,25 @@ const route = useRoute() // 获取当前路由信息
 const router = useRouter()
 const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，这样就要求路由的路径与muen-item的value相同
 
-const darkMode = ref(true)
+const lightMode = ref(true)
 
 const titleImg = ref('/title5.png')
 const modeChange = ()=> {
-    if (darkMode.value) {
+    if (lightMode.value) {
         document.documentElement.setAttribute('theme-mode', 'dark')
         titleImg.value = '/title6.png'
-        localStorage.setItem('darkMode', 'false')
+        localStorage.setItem('lightMode', 'false')
     } else {
         document.documentElement.setAttribute('theme-mode', 'light')
         titleImg.value = '/title5.png'
-        localStorage.setItem('darkMode', 'true')
+        localStorage.setItem('lightMode', 'true')
     }
-    darkMode.value = !darkMode.value
+    lightMode.value = !lightMode.value
 }
-const local = localStorage.getItem('darkMode')
+const local = localStorage.getItem('lightMode')
 // 判断local为null
- if(local === 'true') {
-    darkMode.value = true
-} else {
-    darkMode.value = true
-    document.documentElement.setAttribute('theme-mode', 'light')
-    titleImg.value = '/title5.png'
+if(local === 'false') {
+    modeChange()
 }
 
 const menuVisible = ref(false)
@@ -79,7 +75,7 @@ const logout = () => {
                     <img style="user-select: none;" @click="toHome" width="180" class="logo" :src="titleImg" alt="logo" />
                 </template>
                 <t-menu-item class="s" style="margin-right: 5px;"> 工作区 </t-menu-item>
-                <t-button class="s"  theme="default" variant="text" @click="modeChange" value="item2">{{ darkMode ? '深色模式' : '浅色模式' }}</t-button>
+                <t-button class="s"  theme="default" variant="text" @click="modeChange" value="item2">{{ lightMode ? '深色模式' : '浅色模式' }}</t-button>
                 <template #operations>
                     <t-icon class="t-menu__operations-icon s" name="search" />
                     <t-icon class="t-menu__operations-icon s" name="notification-filled" />
@@ -138,7 +134,7 @@ const logout = () => {
                         学生管理
                     </t-button>
                     <t-button class="color" @click="modeChange()" theme="default">
-                        {{ darkMode ? '深色模式' : '浅色模式' }}
+                        {{ lightMode ? '深色模式' : '浅色模式' }}
                     </t-button>
                     <t-button @click="logout" variant="text" theme="default">
                         <template #icon><t-icon name="user-circle" size="16" /></template>
