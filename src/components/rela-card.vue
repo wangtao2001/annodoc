@@ -2,7 +2,7 @@
 import { ref, watch, computed, reactive } from 'vue'
 import { mainStore, statusStore } from '@/store'
 import { RelaOption } from '@/interface'
-import { resultNumberToLabelId, resultNumberToContent, relaNumberToContent } from '@/methods/util'
+import { numberToResult, numberToRela } from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 import pubsub from 'pubsub-js'
 import { MessagePlugin } from 'tdesign-vue-next'
@@ -56,17 +56,17 @@ const dialogConfim = () => { // 点击确定对话框关闭
         const data = {
             id: uuidv4(),
             startNumber: rela1Number.value,
-            startContent: resultNumberToContent(rela1Number.value),
+            startContent: numberToResult(rela1Number.value)!.content,
             endNumber: rela2Number.value,
-            endContent: resultNumberToContent(rela2Number.value),
+            endContent: numberToResult(rela2Number.value)!.content,
             relaId: relaID.value,
-            relaName: relaNumberToContent(relaID.value)
+            relaName: numberToRela(relaID.value)!.type
         }
         if (isreverse) {
             data.startNumber = rela2Number.value
             data.endNumber = rela1Number.value
-            data.startContent = resultNumberToContent(rela2Number.value)
-            data.endContent = resultNumberToContent(rela2Number.value)
+            data.startContent = numberToResult(rela2Number.value)!.content
+            data.endContent = numberToResult(rela2Number.value)!.content
         }
         if (data.startNumber == data.endNumber) { // 起点终点不能是一个
             MessagePlugin.error('关系起点与终点重复')
@@ -136,8 +136,8 @@ const ids = computed(() => { //合到一起便于侦听
 watch(ids, () => {
     if (rela1Number.value != -1 && rela2Number.value != -1) {
         // 两个都选择了才取消选择关系的禁用
-        const keyword1 = resultNumberToLabelId(rela1Number.value)
-        const keyword2 = resultNumberToLabelId(rela2Number.value)
+        const keyword1 = numberToResult(rela1Number.value)!.labelId
+        const keyword2 = numberToResult(rela2Number.value)!.labelId
         allRelaOptions.length = 0
 
         for (var r of status.currentRelas) {

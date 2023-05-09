@@ -1,60 +1,42 @@
-import { LabelInfo } from '@/interface'
+import { LabelInfo, Result, RelaInfo } from '@/interface'
 import { mainStore, statusStore } from '@/store'
 const store = mainStore()
 const status = statusStore()
 
-export function resultNumberToContent(number: number): string {
+export function numberToResult(number: number): Result | null {
     for (var r of store.results) {
         if (number == r.number) {
-            return r.content
+            return r
         }
     }
-    return ""
+    return null
 }
 
-export function resultIdToContent(id: string): string {
+export function idToResult(id: string): Result | null {
     for (var r of store.results) {
         if (id == r.id) {
-            return r.content
+            return r
         }
     }
-    return ""
+    return null
 }
 
-export function resultIdToNumber(id: string): number {
-    for (var r of store.results) {
-        if (id == r.id) {
-            return r.number
+export function idToRela(id: string): RelaInfo | null {
+    for (var r of status.currentRelas) {
+        if (r.id == id) {
+            return r
         }
     }
-    return 0
+    return null
 }
 
-export function relaNumberToContent(number: string): string {
+export function numberToRela(number: string): RelaInfo | null {
     for (var r of status.currentRelas) {
         if (number == r.id) {
-            return r.type
+            return r
         }
     }
-    return ""
-}
-
-export function resultNumberToLabelId(number: number): string {
-    for (var r of store.results) {
-        if (number == r.number) {
-            return r.labelId
-        }
-    }
-    return ""
-}
-
-export function resultNumberToId(number: number): string {
-    for (var r of store.results) {
-        if (number == r.number) {
-            return r.id
-        }
-    }
-    return ""
+    return null
 }
 
 export function labelIdToLabel(id: string): LabelInfo | null {
@@ -64,15 +46,6 @@ export function labelIdToLabel(id: string): LabelInfo | null {
         }
     }
     return null
-}
-
-export function relaLabelToName(id: string): string {
-    for (var r of status.currentRelas) {
-        if (r.id == id) {
-            return r.type
-        }
-    }
-    return ""
 }
 
 export function fileListToArray(fileList: FileList): Array<File> {

@@ -5,7 +5,7 @@ import pubsub from 'pubsub-js'
 import {request, getConfig} from '@/methods/request'
 import { ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
-import {labelIdToLabel, resultIdToContent, resultIdToNumber, relaLabelToName} from '@/methods/util'
+import {labelIdToLabel, idToResult, idToRela} from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 
 const store = mainStore()
@@ -108,12 +108,12 @@ const init = async ()=> {
             c.entityResult2 = entityIdToNew.get(c.entityResult2)
             store.relaResults.push({
                 id: uuidv4(), // 关心更改id不需要记录
-                startContent: resultIdToContent(c.entityResult1),
-                startNumber: resultIdToNumber(c.entityResult1),
-                endContent: resultIdToContent(c.entityResult2),
-                endNumber: resultIdToNumber(c.entityResult2),
+                startContent: idToResult(c.entityResult1)!.content,
+                startNumber: idToResult(c.entityResult1)!.number,
+                endContent: idToResult(c.entityResult2)!.content,
+                endNumber: idToResult(c.entityResult2)!.number,
                 relaId: c.typeId,
-                relaName: relaLabelToName(c.typeId)
+                relaName: idToRela(c.typeId)!.type
             })
         }
     }

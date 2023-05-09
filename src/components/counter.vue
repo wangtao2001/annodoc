@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { request, getConfig } from '@/methods/request'
 import { ref } from 'vue'
-import { MessagePlugin } from 'tdesign-vue-next'
 import { statusStore } from '@/store'
 
 const status = statusStore()

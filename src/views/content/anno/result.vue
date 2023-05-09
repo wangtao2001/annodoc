@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { ref, Ref } from 'vue'
 import { downloadLocal } from '@/methods/util'
 import { Result, RelaResult } from '@/interface'
-import { resultNumberToId, labelIdToLabel} from '@/methods/util'
+import { numberToResult, labelIdToLabel} from '@/methods/util'
 import {request, postConfig} from '@/methods/request'
 
 const router = useRouter()
@@ -59,8 +59,8 @@ const resultFormat = () => {
     const new_rela = store.relaResults.map((item: RelaResult) => {
         return {
             id: item.id,
-            entityResult1: resultNumberToId(item.startNumber),
-            entityResult2: resultNumberToId(item.startNumber), // 最终结果给的是id而不是number，但是不能改RelaResult的类型
+            entityResult1: numberToResult(item.startNumber)!.id,
+            entityResult2: numberToResult(item.startNumber)!.id, // 最终结果给的是id而不是number，但是不能改RelaResult的类型
             typeId: item.relaId,
         }
     })
