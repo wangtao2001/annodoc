@@ -3,10 +3,9 @@ import { mainStore, statusStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { ref, Ref } from 'vue'
 import { downloadLocal } from '@/methods/util'
-import axios from 'axios'
 import { Result, RelaResult } from '@/interface'
 import { resultNumberToId, labelIdToLabel} from '@/methods/util'
-import { MessagePlugin } from 'tdesign-vue-next'
+import {request, postConfig} from '@/methods/request'
 
 const router = useRouter()
 
@@ -83,14 +82,13 @@ const localPriview = () => {
 // 上传后端
 const uploadResult = async () => {
     const data = resultFormat()
-    console.log(data)
-    const res = await axios.post('/api/resultAccepts/annotationResults', data)
-    if(res.status == 200) {
-        if (res.data.code == 20011) {
-            MessagePlugin.success('提交成功')
-            window.open('/anno/work?type=text', "_self") // 上传完再跳转不能用router.push
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('提交失败')
+    request(
+        postConfig,
+        '/api/resultAccepts/annotationResults',
+        () => window.open('/anno/work?type=text', "_self"), // 上传完再跳转不能用router.push,
+        data,
+        "提交成功"
+    )
 }
 
 </script>

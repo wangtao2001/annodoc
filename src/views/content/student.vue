@@ -3,8 +3,8 @@ import {ref, onMounted,reactive, toRaw, Ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { StudentInfo } from '@/interface'
 import * as xlsx from "xlsx"
-import axios from 'axios'
 import { NotifyPlugin } from 'tdesign-vue-next'
+import {request, getConfig, deleteConfig, postConfig} from '@/methods/request'
 
 const columns = [
     { colKey: 'number', title: '学号'},
@@ -21,16 +21,18 @@ const columns = [
     }}
 ]
 
-const deleteStudent = async (row: StudentInfo)=> {
-    const res = await axios.delete(`/api/getResponses/deleteStudent/${row.number}`)
-    console.log(res)
-    if (res.status == 200) {
-        if (res.data.code == 20031) {
-            MessagePlugin.success('删除成功')
+const deleteStudent = async (row: StudentInfo) => {
+    request(
+        deleteConfig,
+        `/api/getResponses/deleteStudent/${row.number}`,
+        () => {
             allStudents.value = []
             loadData(displayGrade.value)
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('删除失败')
+        },
+        undefined,
+        "删除成功",
+        undefined
+    )
 }
 
 const allStudents: Ref<Array<StudentInfo>> = ref([])
@@ -39,26 +41,29 @@ const viewStudents: Ref<Array<StudentInfo>> = ref([]) // 实际展示出来的�
 var tempView : Array<StudentInfo>// 缓存
 
 const displayGrade = ref("19") // 默认19级
-const loadData = async (grade: number | string)=> { 
-    const res = await axios.get(`/api/getResponses/getAllStudentNumberByGrade/${grade}`)
-    if(res.status == 200) {
-        if (res.data.code == 20041) {
-            const allStudents: Array<string> = res.data.data
-            for (var number of allStudents) {
-                await loadItem(number)
-            }
-        } else {
-            MessagePlugin.error(res.data.msg)
+
+const loadData = async (grade: number | string) =>  {
+    request(
+        getConfig, 
+        `/api/getResponses/getAllStudentNumberByGrade/${grade}`, 
+        async (data) => {
+            const allStudents: Array<string> = data
+                for (var number of allStudents) {
+                    await loadItem(number)
+                }
+        }, 
+        undefined, undefined,
+        () => {
             viewStudents.value = []
         }
-    } else MessagePlugin.error('获取学生信息失败')
+    )
 }
 
 const loadItem = async (number: number | string)=> {
-    const res = await axios.get(`/api/getResponses/getByStudentNumber/${number}`)
-    if(res.status == 200) {
-        if (res.data.code == 20041) {
-            const data = res.data.data
+    request(
+        getConfig,
+        `/api/getResponses/getByStudentNumber/${number}`,
+        (data) => {
             allStudents.value.push({
                 number: data.number,
                 name: data.name,
@@ -68,8 +73,8 @@ const loadItem = async (number: number | string)=> {
             })
             viewStudents.value = allStudents.value.slice(0, pageSize)
             tempView = viewStudents.value
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取学生信息失败')
+        }
+    )
 }
 
 loadData(displayGrade.value)
@@ -116,15 +121,17 @@ onMounted(()=> {
 })
 
 const uploadStudent = async (data: Array<{name: string,number: string}>) => {
-    const res = await axios.post('/api/resultAccepts/batchAddStudent', data)
-    if(res.status == 200) {
-        if (res.data.code == 20041) {
-            MessagePlugin.success('添加成功')
+    request(
+        postConfig,
+        '/api/resultAccepts/batchAddStudent',
+        () => {
             formVisable.value = false
             allStudents.value = []
             loadData(displayGrade.value)
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('添加失败')
+        },
+        data,
+        "添加成功"
+    )
 }
 
 const formVisable = ref(false)

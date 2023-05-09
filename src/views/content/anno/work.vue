@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router'
 import { mainStore, statusStore } from '@/store'
 import pubsub from 'pubsub-js'
-import axios from 'axios'
+import {request, getConfig} from '@/methods/request'
 import { ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import {labelIdToLabel, resultIdToContent, resultIdToNumber, relaLabelToName} from '@/methods/util'
@@ -22,10 +22,10 @@ var hasAlreadyResult = false
 
 var fl = true
 const loadText = async() => {
-    const res = await axios.get(`/api/getResponses/${isStudent ? "getTextToMarkStudent": "getTextToMarkChecker" }?grade=${status.currentUser.grade}&number=${status.currentUser.number}`)
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            const data = res.data.data
+    request(
+        getConfig,
+        `/api/getResponses/${isStudent ? "getTextToMarkStudent": "getTextToMarkChecker" }?grade=${status.currentUser.grade}&number=${status.currentUser.number}`,
+        (data) => {
             hasText.value = true
             if(!isStudent && data.entityResults.length != 0) { // 有没有已经标注好的结果，没有就是0
                 hasAlreadyResult = true
@@ -42,18 +42,18 @@ const loadText = async() => {
                 // 仍然属于同一个任务，不需要重新加载标签
                 fl = false
             } else status.currentTaskId = data.taskId
-        } else {
-            MessagePlugin.error(res.data.msg)
-            router.push('/anno/type')
-        }
-    } else MessagePlugin.error("获取文本失败")
+        },
+        undefined, undefined,
+        () => router.push('/anno/type')
+    )
 }
 
 const loadLabels = async() => {
-    const res = await axios.get(`/api/getResponses/tasks/${status.currentTaskId}`)
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            for (var entity of res.data.data.entitys) {
+    request(
+        getConfig,
+        `/api/getResponses/tasks/${status.currentTaskId}`,
+        (data) => {
+            for (var entity of data.entitys) {
                 status.currentLabels.push({
                     type: entity.type,
                     shortcut: entity.shortcut,
@@ -61,7 +61,7 @@ const loadLabels = async() => {
                     id: entity.id,
                 })
             }
-            for (var rela of res.data.data.relations) {
+            for (var rela of data.relations) {
                 status.currentRelas.push({
                     id: rela.id,
                     type: rela.type,
@@ -70,8 +70,8 @@ const loadLabels = async() => {
                     bothway: rela.bothway,
                 })
             }
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error("获取标签失败")
+        }
+    )
 }
 
 const asyncComponent = ref(false)

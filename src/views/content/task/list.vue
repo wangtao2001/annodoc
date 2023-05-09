@@ -1,7 +1,7 @@
 <script setup lang='tsx'>
 import { Ref, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import {request, getConfig, putConfig, deleteConfig} from '@/methods/request'
 import { LabelInfo, TaskInfo, RelaInfo, TextSatatus } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { downloadLocal } from '@/methods/util'
@@ -10,11 +10,10 @@ import { mainStore } from '@/store'
 const store = mainStore()
 
 const loadItem = async (id: string)=> {
-    // 反正是全部再读一次
-    const res = await axios.get(`/api/getResponses/tasks/${id}`)
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            const data = res.data.data
+    request(
+        getConfig,
+        `/api/getResponses/tasks/${id}`,
+        (data) => {
             const entitys: LabelInfo[] = []
             const relations: RelaInfo[] = []
             if(data.deleted) {
@@ -48,21 +47,21 @@ const loadItem = async (id: string)=> {
                 relations: relations,
                 grade: data.grade,
             })
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取数据失败')
+        }
+    )
 }
 
 const loadData = async() => {
     allTasks.value = [] // 相当于刷新页面
-    const res = await axios.get('/api/getResponses/allTasks')
-    if (res.status == 200) { // 网络层
-        if (res.data.code == 20041) { // 应用层
-            const allIds: Array<string> = res.data.data
+    request(
+        getConfig,
+        '/api/getResponses/allTasks',
+        async (allIds) => {
             for (var id of allIds) {
                 await loadItem(id)
             }
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取数据失败')
+        }
+    )
     showDatas.value = allTasks.value.slice(0, pageSize)
     tableLoading.value = false
 }
@@ -125,14 +124,13 @@ const columns = [
 ]
 
 const deleteTask = async (id: string) => {
-    const res = await axios.delete(`/api/getResponses/deleteTask/${id}`)
-    console.log(res)
-    if (res.status == 200) {
-        if (res.data.code == 20031) {
-            MessagePlugin.success('删除成功')
-            loadData()
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('删除失败')
+    request(
+        deleteConfig,
+        `/api/getResponses/deleteTask/${id}`,
+        () => loadData(),
+        undefined,
+        "删除成功"
+    )
 }
 
 const tabs = [
@@ -155,17 +153,17 @@ const uploadDialog = ref(false)
 const releaseDialog = ref(false)
 
 const view = async (task: TaskInfo) => {
-    const res = await axios.get(`/api/getResponses/getMedicalNumber/${task.id}`)
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            const data = res.data.data
+    request(
+        getConfig,
+        `/api/getResponses/getMedicalNumber/${task.id}`,
+        (data) => {
             textSatatus.all = data.all
             textSatatus.finalized = data.finalized
             textSatatus.marked = data.marked
             textSatatus.marking = data.marking
             textSatatus.unmarked = data.unmarked
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取数据失败')
+        }
+    )
     currentTask = task
     viewDialog.value = true
 }
@@ -191,14 +189,16 @@ const modifyTaskPut = async ()=> {
         MessagePlugin.error('任务名称不能为空')
         return
     }
-    const res = await axios.put('/api/resultAccepts/modifyTask', modifyTaskData)
-    if (res.status == 200) {
-        if (res.data.code == 20021) {
-            MessagePlugin.success('修改成功')
+    request(
+        putConfig,
+        '/api/resultAccepts/modifyTask',
+        () => {
             modifyDialog.value = false
             loadData()
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('修改失败')
+        },
+        modifyTaskData,
+        '修改成功'
+    )
 }
 
 const uploadFile = (task: TaskInfo)=>{
@@ -208,27 +208,23 @@ const uploadFile = (task: TaskInfo)=>{
 
 const grade = ref('')
 const releaseTask = async ()=> {
-    const res = await axios.put('/api/resultAccepts/assignTask', {
-        id: currentTask.id,
-        grade: grade.value
-    })
-    if (res.status == 200) {
-        if (res.data.code == 20021) {
-            console.log("剩余：", res.data.data)
-            MessagePlugin.success('发布成功')
+    request(
+        putConfig,
+        '/api/resultAccepts/assignTask',
+        ()=> {
             releaseDialog.value = false
             loadData()
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('发布失败')
+        }, 
+        { id: currentTask.id, grade: grade.value },
+        '发布成功'
+    )
 }
 
-// 下载最终标注结果
 const downloadResult = async ()=> {
-    const res = await axios.get(`/api/getResponses/getFinalizedText/${currentTask.id}`)
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            const data = res.data.data
-            // 这里进行数据处理
+    request(
+        getConfig,
+        `/api/getResponses/getFinalizedText/${currentTask.id}`,
+        (data) => {
             for (var text of data) {
                 for (var enenty of text.entityResults){
                     delete enenty.textId
@@ -254,18 +250,18 @@ const downloadResult = async ()=> {
                 }
             }
             downloadLocal(JSON.stringify(data , null, '\t'), `${currentTask.taskName}.json`)
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取数据失败')
+        }
+    )
 }
 
 const colseTask = async () => {
-    const res = await axios.get(`/api/getResponses/endHomework/${closeTaskGrade.value}`)
-    if (res.status == 200) {
-        if (res.data.code == 20021) {
-            MessagePlugin.success("操作成功")
-            closeTaskDialog.value = false
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('失败')
+    request(
+        getConfig,
+        `/api/getResponses/endHomework/${closeTaskGrade.value}`,
+        () => closeTaskDialog.value = false,
+        undefined,
+        '操作成功'
+    )
 }
 
 const closeTaskDialog = ref(false)

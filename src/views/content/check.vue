@@ -1,5 +1,5 @@
 <script lang="tsx" setup>
-import axios from 'axios'
+import {request, getConfig, deleteConfig, postConfig} from '@/methods/request'
 import { reactive, ref, Ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 
@@ -19,25 +19,27 @@ const columns = [
 const data: Ref<Array<{
     number: string, name: string
 }>> = ref([])
-const loadData= async () => {
+
+const loadData = async () => {
     data.value = []
-    const res = await axios.get('/api/getResponses/allChecker');
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            data.value = res.data.data
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('请求失败')
+    request(
+        getConfig,
+        '/api/getResponses/allChecker',
+        (resData) => {
+            data.value = resData
+        }
+    )
 }
 
 const deleteCheck = async (data: any) => {
-    const res = await axios.delete(`/api/getResponses/deleteChecker/${data.number}`)
-    console.log(res)
-    if (res.status == 200) {
-        if (res.data.code == 20031) {
-            MessagePlugin.success('删除成功')
+    request(
+        deleteConfig,
+        `/api/getResponses/deleteChecker/${data.number}`,
+        () => {
             loadData()
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('删除失败')
+        },
+        undefined, "删除成功"
+    )
 }
 
 loadData()
@@ -52,15 +54,16 @@ const upNewChecker =  async ()=>{
         MessagePlugin.error('请填写完整信息')
         return
     }
-    const res = await axios.post('/api/resultAccepts/insertChecker', newChecker)
-    console.log(res)
-    if (res.status == 200) {
-        if (res.data.code == 20011) {
-            MessagePlugin.success('添加成功')
+    request(
+        postConfig,
+        '/api/resultAccepts/insertChecker',
+        () => {
             loadData()
             formVisable.value = false
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('添加失败')
+        },
+        newChecker,
+        "添加成功"
+    )
     newChecker.number = ''
     newChecker.name = ''
 }

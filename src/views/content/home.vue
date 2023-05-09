@@ -16,9 +16,8 @@
 <script lang="ts" setup>
 import { ref, Ref } from 'vue'
 import { statusStore } from '@/store'
-import axios from 'axios'
+import { request, getConfig } from '@/methods/request'
 import { StudentInfo } from '@/interface'
-import { MessagePlugin } from 'tdesign-vue-next'
 
 const status = statusStore()
 
@@ -33,26 +32,27 @@ const currentStudent: Ref<StudentInfo> = ref({
 })
 
 const loadInfo = async ()=> {
-    const res = await axios.get(`/api/getResponses/getByStudentNumber/${status.currentUser.number}`)
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            const data = res.data.data
+    request(
+        getConfig,
+        `/api/getResponses/getByStudentNumber/${status.currentUser.number}`,
+        (data) => {
             currentStudent.value.score = data.score
             currentStudent.value.name = data.name
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取数据失败')
+        }
+    )
 }
 
 const loadFinsh = async()=> {
-    const res = await axios.get(`/api/getResponses/getOneHomeworkCompleted/${status.currentUser.number}`)
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            const data = res.data.data
+    request(
+        getConfig,
+        `/api/getResponses/getOneHomeworkCompleted/${status.currentUser.number}`,
+        (data) => {
             all.value = data.all
             currentStudent.value.finish = data.finish
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取数据失败')
+        }
+    )
 }
+
 
 loadInfo()
 loadFinsh()

@@ -5,8 +5,9 @@ import { LabelInfo, RelaInfo, TaskInfo } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal } from '@/methods/util'
-import axios from 'axios'
 import  { mainStore } from '@/store'
+import {request, postConfig} from '@/methods/request'
+
 const router = useRouter()
 const store = mainStore()
 
@@ -189,14 +190,13 @@ const uploadData = async() => {
     if (task == null) {
         return
     }
-    const res = await axios.post('/api/resultAccepts/taskResults', task)
-    console.log(res)
-    if(res.status == 200) {
-        if (res.data.code == 20011) {
-            MessagePlugin.success('提交成功')
-            router.push('/task/list')
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('提交失败')
+    request(
+        postConfig,
+        '/api/resultAccepts/taskResults',
+        () => router.push('/task/list'),
+        task,
+        '提交成功'
+    )
 }
 
 // 工具函数
