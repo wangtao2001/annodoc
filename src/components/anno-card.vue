@@ -3,12 +3,12 @@ import { nextTick } from 'vue'
 import { labelSelect, resultsToLabeledDiv } from '@/methods'
 import { statusStore, mainStore } from '@/store'
 
-const status = statusStore()
+const current = statusStore()
 const store = mainStore()
 
 // 监听键盘事件
 document.onkeydown = (e) => {
-    status.currentLabels.forEach((label) => {
+    current.entityLabels.forEach((label) => {
         if (label.shortcut === e.key.toUpperCase()) { // 因为展示的快捷键（包括用户选择的）都是大写，但是也要能够监听小写
             labelSelect(label)
         }
@@ -16,7 +16,7 @@ document.onkeydown = (e) => {
 }
 
 //返回时刚刚标注的状态保持住，从store的状态来同步这个结果
-if (store.results.length != 0) {
+if (store.entityResults.length != 0) {
     const labeledDiv = resultsToLabeledDiv()
     labeledDiv.classList.add('anno-area')
     nextTick(() => {
@@ -30,12 +30,12 @@ if (store.results.length != 0) {
     <t-card header-bordered>
         <div class="container">
             <div class="anno-area">
-                {{ status.currentText }}
+                {{ current.text }}
             </div>
         </div>
         <template #actions>
             <div class="top">
-                <Label :disabled="false" v-for="label in status.currentLabels" :name="label.type" :keyword="label.shortcut"
+                <Label :disabled="false" v-for="label in current.entityLabels" :name="label.type" :keyword="label.shortcut"
                 :color="label.color" :id="label.id"></Label>
             </div>
         </template>

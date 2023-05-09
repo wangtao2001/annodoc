@@ -2,7 +2,7 @@
     <t-layout class="content">
         <div class="card">
             <div class="title">姓名：{{ currentStudent.name }}</div>
-            <div class="title">学号：{{ status.currentUser.number }}</div>  
+            <div class="title">学号：{{ current.user.number }}</div>  
         </div>
         <div class="card">
             <div class="title">完成情况：{{ currentStudent.finish }} / {{ all }}</div>
@@ -19,14 +19,14 @@ import { statusStore } from '@/store'
 import { request, getConfig } from '@/methods/request'
 import { StudentInfo } from '@/interface'
 
-const status = statusStore()
+const current = statusStore()
 
 const all = ref(0)
 
 const currentStudent: Ref<StudentInfo> = ref({
-    number: status.currentUser.number,
+    number: current.user.number,
     name: '',
-    grade: status.currentUser.grade,
+    grade: current.user.grade,
     score: 0,
     finish: 0
 })
@@ -34,7 +34,7 @@ const currentStudent: Ref<StudentInfo> = ref({
 const loadInfo = async ()=> {
     request(
         getConfig,
-        `/api/getResponses/getByStudentNumber/${status.currentUser.number}`,
+        `/api/getResponses/getByStudentNumber/${current.user.number}`,
         (data) => {
             currentStudent.value.score = data.score
             currentStudent.value.name = data.name
@@ -45,7 +45,7 @@ const loadInfo = async ()=> {
 const loadFinsh = async()=> {
     request(
         getConfig,
-        `/api/getResponses/getOneHomeworkCompleted/${status.currentUser.number}`,
+        `/api/getResponses/getOneHomeworkCompleted/${current.user.number}`,
         (data) => {
             all.value = data.all
             currentStudent.value.finish = data.finish

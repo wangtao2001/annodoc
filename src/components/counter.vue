@@ -3,7 +3,7 @@ import { request, getConfig } from '@/methods/request'
 import { ref } from 'vue'
 import { statusStore } from '@/store'
 
-const status = statusStore()
+const current = statusStore()
 
 const currentNum = ref(0)
 const allNum = ref(0)
@@ -11,7 +11,7 @@ const toCheckNum = ref(0)
 const getCurrentNums = async() => {
     request(
         getConfig,
-        `/api/getResponses/getOneHomeworkCompleted/${status.currentUser.number}`,
+        `/api/getResponses/getOneHomeworkCompleted/${current.user.number}`,
         (data) => {
             currentNum.value = data.finish+1
             allNum.value = data.all
@@ -26,12 +26,12 @@ const getToCheckNums = async () => {
     )
 }
 
-if (status.currentUser.role === 'student') getCurrentNums()
+if (current.user.role === 'student') getCurrentNums()
 else getToCheckNums()
 </script>
 
 <template>
-    <div class="num">{{status.currentUser.role === 'student' ? '当前：' + currentNum + '/' + allNum : '剩余未完成：' + toCheckNum }}</div>
+    <div class="num">{{current.user.role === 'student' ? '当前：' + currentNum + '/' + allNum : '剩余未完成：' + toCheckNum }}</div>
 </template>
 
 <style lang="less" scoped>

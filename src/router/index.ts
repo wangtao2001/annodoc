@@ -6,7 +6,7 @@ import 'nprogress/nprogress.css'
 NProgress.configure({ showSpinner: false })
 
 // 这样写是为了能够在路由守卫中使用store
-const status = statusStore(pinia)
+const current = statusStore(pinia)
 
 const routes: Array<RouteRecordRaw> = [{
     path: '/',
@@ -105,7 +105,7 @@ router.beforeEach((to, from, next) => {
     NProgress.start()
     // 只有管理员能访问
     if (to.name === 'task_list' || to.name === "task_new" || to.name === 'check' || to.name == 'student') {
-        if ( status.currentUser.role === 'admin') {
+        if ( current.user.role === 'admin') {
             next()
         } else {
             next({ name: 'home' })
@@ -113,7 +113,7 @@ router.beforeEach((to, from, next) => {
     } else
      // 只有学生能访
     if(to.name === 'home') {
-        if (status.currentUser.role === 'student') {
+        if (current.user.role === 'student') {
             next()
         } else {
             next({name: 'task_list'})

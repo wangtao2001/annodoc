@@ -1,4 +1,4 @@
-import { LabelInfo, Result } from "@/interface"
+import { EntityLabelInfo, EntityResult } from "@/interface"
 import { mainStore, statusStore } from '@/store'
 import { MessagePlugin } from 'tdesign-vue-next'
 import pubsub from 'pubsub-js'
@@ -6,10 +6,10 @@ import { v4 as uuidv4 } from 'uuid'
 import {labelIdToLabel} from './util'
 
 const store = mainStore()
-const status = statusStore()
+const current = statusStore()
 
 // 总方法
-export function labelSelect(label: LabelInfo) {
+export function labelSelect(label: EntityLabelInfo) {
     const s = window.getSelection()!
     if (s.rangeCount) {
         const rang = s.getRangeAt(0)
@@ -35,7 +35,7 @@ export function labelSelect(label: LabelInfo) {
                 // 这个序号必需要等到找到在pinia中的位置后才可以
                 // 要求results能够排序，那就不能简单的push，而是插入排序
                 // 还有一种方法就是push完了sort
-                const currentResult: Result = { // 待插入的信息
+                const currentResult: EntityResult = { // 待插入的信息
                     id: uuidv4(),
                     number: 0,
                     start: offset,
@@ -46,18 +46,18 @@ export function labelSelect(label: LabelInfo) {
                     span: span
                 }
                 // 1.1首端插入
-                if (store.results.length == 0) {
+                if (store.entityResults.length == 0) {
                     currentResult.number = 0 // 第一个
-                    store.results.push(currentResult)
+                    store.entityResults.push(currentResult)
                     insert = true
                 } else { // 1.2中间插入
                     var index = 0
-                    for (var result of store.results) { // 不再使用forEach循环
+                    for (var result of store.entityResults) { // 不再使用forEach循环
                         index += 1
                         if (result.start >= offset) {
                             currentResult.number = index - 1
                             // 中间插入的话就把它后面的序号全都+1
-                            for (var r of store.results) {
+                            for (var r of store.entityResults) {
                                 if (r.number >= currentResult.number) {
                                     r.number += 1 // (1)改动pinia中的
                                     piniaSyncLabelNumber(r) // (2)改动标签上的
@@ -74,7 +74,7 @@ export function labelSelect(label: LabelInfo) {
                             }
                             // (4)改动展示的关系数据
                             pubsub.publish("piniaToRelaView")
-                            store.results.splice(index-1, 0, currentResult)
+                            store.entityResults.splice(index-1, 0, currentResult)
                             insert = true
                             break
                         }
@@ -82,8 +82,8 @@ export function labelSelect(label: LabelInfo) {
                 }
                 // 1.3尾端插入
                 if (!insert) {
-                    currentResult.number = store.results.length
-                    store.results.push(currentResult)
+                    currentResult.number = store.entityResults.length
+                    store.entityResults.push(currentResult)
                 }
 
                 // 给每个标签前加一个序号!!!!
@@ -99,7 +99,7 @@ export function labelSelect(label: LabelInfo) {
         // 补一个补丁： 删除所有空选区
         // 当选区划过文字停在一个label一般上时，会产生一个空选区
         // 这其实是extractContents方法造成的，他在提取range中包含的内容时会把label完整的提取出来
-        for (var result of store.results) {
+        for (var result of store.entityResults) {
             if (result.span!.innerText.length == 0) {
                 result.span!.click()
                 break
@@ -109,7 +109,7 @@ export function labelSelect(label: LabelInfo) {
 }
 
 // 核心方法：创造一个span标签包裹标注的内容
-function createSpanAndInsert(rang: Range, label: LabelInfo): HTMLSpanElement {
+function createSpanAndInsert(rang: Range, label: EntityLabelInfo): HTMLSpanElement {
     const span: HTMLSpanElement = document.createElement("span")
     span.className = "onselect"
     span.style.backgroundColor = label.color // 选区的背景颜色
@@ -130,7 +130,7 @@ function deleteALabel(currentSpan: Element) {
     // 1对sotre也要更改
     var index = 0
     var tmp = 0 // 用于记录当前等待删除的标签的number
-    for (var result of store.results) {
+    for (var result of store.entityResults) {
         index+=1
         if (result.span == currentSpan) {
             tmp = result.number
@@ -149,12 +149,12 @@ function deleteALabel(currentSpan: Element) {
             }
             pubsub.publish("piniaToRelaView")
             // 删除
-            store.results.splice(index-1, 1)
+            store.entityResults.splice(index-1, 1)
             break
         }
     }
     // 2对序号的更改
-    for (var r of store.results) {
+    for (var r of store.entityResults) {
         if (r.number > tmp) {
             r.number -= 1
             piniaSyncLabelNumber(r)
@@ -165,7 +165,7 @@ function deleteALabel(currentSpan: Element) {
 }
 
 // 将pinia中的序号同步到标签上
-function piniaSyncLabelNumber(r: Result) {
+function piniaSyncLabelNumber(r: EntityResult) {
     const tmp = r.span!.firstChild as HTMLPreElement
     tmp.innerText = r.number.toString()
 }
@@ -173,12 +173,12 @@ function piniaSyncLabelNumber(r: Result) {
 // 从store.results产生一个标注过的div
 // 这里以后会有升级的方法，通过 start和end， 而不是已存的span
 export function resultsToLabeledDiv(): HTMLDivElement {
-    const text = status.currentText
+    const text = current.text
     const div = document.createElement('div')
     // 如果是完全手动标注，就会有一个span存进来，用span渲染会更快
     // 如果是审核员从已有的标注结果，就没有span，就需要从头渲染一个span出来
     var offest = 0
-    for (var r of store.results) {
+    for (var r of store.entityResults) {
         div.appendChild(document.createTextNode(text.substring(offest, r.start)))
         if (!('span' in r)) { 
             const span: HTMLSpanElement = document.createElement("span")

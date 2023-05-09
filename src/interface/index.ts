@@ -1,13 +1,13 @@
-// 标签信息
-export interface LabelInfo {
+// 实体标签信息
+export interface EntityLabelInfo {
     type: string, // 名称
     shortcut: string,
     color: string,
     id: string
 }
 
-// 关系信息
-export interface RelaInfo {
+// 关系标签信息
+export interface RelaLabelInfo {
     type: string, // 名称
     id: string,
     entity1: string,
@@ -18,8 +18,8 @@ export interface RelaInfo {
     bothway: boolean
 }
 
-// 标记结果
-export interface Result {
+// 实体标记结果
+export interface EntityResult {
     id: string, // 唯一标识
     number: number, // 序号，这二者都是唯一的
     start: number,
@@ -45,10 +45,10 @@ export interface RelaResult {
 // 下拉选择关系的配置项
 export interface RelaOption {
     content: string,
-    id: string | number // 对关系来说就是string(关系的id)对标签来说就是numebr(关系的number) 
+    id: string | number // 对关系来说就是string(关系的id)对实体来说就是numebr(关系的number) 
 }
 
-// 等待上传的信息
+// 等待上传的文件信息
 interface UploadInfo {
     index: number
     name: string,
@@ -64,7 +64,6 @@ export interface UplodaFiles {
 }
 
 // 任务的信息
-// 流程是，一旦创建了任务名称，就给他一个uuid，上传文件的时候带上这个uuid就行
 export interface TaskInfo {
     id: string,
     type: string,
@@ -72,8 +71,8 @@ export interface TaskInfo {
     description: string,
     createTime: string,
     modifyTime: string,
-    entitys: Array<LabelInfo>,
-    relations: Array<RelaInfo>,
+    entitys: Array<EntityLabelInfo>,
+    relations: Array<RelaLabelInfo>,
     grade: number, // 表示哪一级学生
 }
 
@@ -86,7 +85,7 @@ export interface StudentInfo {
     finish: number
 }
 
-// 标注的类型：医学文本、电子病历、医学图像...
+// 系统支持的标注类型
 export interface AnnoType {
     id: number,
     title: string,

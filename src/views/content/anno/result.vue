@@ -3,14 +3,14 @@ import { mainStore, statusStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { ref, Ref } from 'vue'
 import { downloadLocal } from '@/methods/util'
-import { Result, RelaResult } from '@/interface'
+import { EntityResult, RelaResult } from '@/interface'
 import { numberToResult, labelIdToLabel} from '@/methods/util'
 import {request, postConfig} from '@/methods/request'
 
 const router = useRouter()
 
 const store = mainStore()
-const status = statusStore()
+const current = statusStore()
 const columns = [
     { colKey: 'number', title: '编号'},
     { colKey: 'start', title: '起始'},
@@ -26,29 +26,29 @@ const realcColumns = [
     { colKey: 'relaName', title: '关系'},
 ]
 const pageSize: number = 6
-const data: Ref<Array<Result>> = ref(store.results.slice(0, pageSize)) // 默认首页是第一页 6个
+const data: Ref<Array<EntityResult>> = ref(store.entityResults.slice(0, pageSize)) // 默认首页是第一页 6个
 const relaData: Ref<Array<RelaResult>> = ref(store.relaResults.slice(0, pageSize))
 const change = (current: number) => {
     // 一个包含对象类型值的 ref 可以响应式地替换整个对象
-    data.value = store.results.slice((current - 1) * pageSize, current * pageSize)
+    data.value = store.entityResults.slice((current - 1) * pageSize, current * pageSize)
     relaData.value = store.relaResults.slice((current - 1) * pageSize, current * pageSize)
 }
 
 const showLabel = ref(true)
 
-const dataLength = ref(store.results.length) // 初始值
+const dataLength = ref(store.entityResults.length) // 初始值
 const tabChange = () => {
     showLabel.value = !showLabel.value
     if (showLabel.value) {
-        dataLength.value = store.results.length
+        dataLength.value = store.entityResults.length
     } else {
         dataLength.value = store.relaResults.length
     }
 }
 
 const resultFormat = () => {
-    const labels = store.results // 这一步是为了去除无效的span字段
-    const new_labels = labels.map((item: Result) => {
+    const labels = store.entityResults // 这一步是为了去除无效的span字段
+    const new_labels = labels.map((item: EntityResult) => {
         return {
             id: item.id,
             start: item.start,
@@ -65,11 +65,11 @@ const resultFormat = () => {
         }
     })
     return {
-        'number': status.currentUser.number,
-        'textId': status.currentTextId,
+        'number': current.user.number,
+        'textId': current.textId,
         'entitys': new_labels,
         'relations': new_rela,
-        'pass': status.currentUser.role === "student" ? 0: 2
+        'pass': current.user.role === "student" ? 0: 2
     }
 }
 
@@ -129,8 +129,8 @@ const uploadResult = async () => {
                 showPreviousAndNextBtn totalContent @current-change="change" />
             <div class="option">
                 <t-button variant="outline" @click="router.back()">返回</t-button>
-                <t-button :disabled="store.results.length != 0 ? false : true" @click="localPriview">本地预览</t-button>
-                <t-button :disabled="store.results.length != 0 ? false : true" @click="uploadResult">提交</t-button>
+                <t-button :disabled="store.entityResults.length != 0 ? false : true" @click="localPriview">本地预览</t-button>
+                <t-button :disabled="store.entityResults.length != 0 ? false : true" @click="uploadResult">提交</t-button>
             </div>
         </div>
     </div>

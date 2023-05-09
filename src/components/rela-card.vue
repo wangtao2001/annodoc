@@ -8,7 +8,7 @@ import pubsub from 'pubsub-js'
 import { MessagePlugin } from 'tdesign-vue-next'
 
 const store = mainStore()
-const status = statusStore()
+const current = statusStore()
 
 // 命名规则 rela1关系起点 rela2关系终点 allRela能够展示出来的关系 relas所有关系
 
@@ -104,7 +104,7 @@ const addRela = () => { // 打开对话框
     allRelaTitle.value = '选择关系'
     relaID.value = ""
     isreverse = false
-    for (var r of store.results) { // 重新装载
+    for (var r of store.entityResults) { // 重新装载
         rela1Options.push({
             content: r.number.toString() + ' ' + r.content,
             id: r.number
@@ -140,7 +140,7 @@ watch(ids, () => {
         const keyword2 = numberToResult(rela2Number.value)!.labelId
         allRelaOptions.length = 0
 
-        for (var r of status.currentRelas) {
+        for (var r of current.relaLabels) {
             if ((r.entity1 == keyword1 && r.entity2 == keyword2) || (r.entity1 == keyword2 && r.entity2 == keyword1)) {
                 if (!r.bothway && r.entity1 == keyword2) { // 反向了
                     isreverse = true
@@ -196,7 +196,7 @@ const deleteRela = (id: string) => {
             <t-dialog style="user-select: none;" v-model:visible="visibleModal" header="新增关系" mode="modal" draggable
                 :on-confirm="dialogConfim">
                 <template #body>
-                    <t-dropdown @click="rela1Choose" :options="rela1Options" :disabled="store.results.length == 0">
+                    <t-dropdown @click="rela1Choose" :options="rela1Options" :disabled="store.entityResults.length == 0">
                         <t-space>
                             <t-button variant="text">
                                 {{ rela1Title }}
@@ -204,7 +204,7 @@ const deleteRela = (id: string) => {
                             </t-button>
                         </t-space>
                     </t-dropdown>
-                    <t-dropdown @click="rela2Choose" :options="rela2Options" :disabled="store.results.length == 0">
+                    <t-dropdown @click="rela2Choose" :options="rela2Options" :disabled="store.entityResults.length == 0">
                         <t-space>
                             <t-button variant="text">
                                 {{ rela2Title }}

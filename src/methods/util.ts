@@ -1,10 +1,10 @@
-import { LabelInfo, Result, RelaInfo } from '@/interface'
+import { EntityLabelInfo, EntityResult, RelaLabelInfo } from '@/interface'
 import { mainStore, statusStore } from '@/store'
 const store = mainStore()
-const status = statusStore()
+const current = statusStore()
 
-export function numberToResult(number: number): Result | null {
-    for (var r of store.results) {
+export function numberToResult(number: number): EntityResult | null {
+    for (var r of store.entityResults) {
         if (number == r.number) {
             return r
         }
@@ -12,8 +12,8 @@ export function numberToResult(number: number): Result | null {
     return null
 }
 
-export function idToResult(id: string): Result | null {
-    for (var r of store.results) {
+export function idToResult(id: string): EntityResult | null {
+    for (var r of store.entityResults) {
         if (id == r.id) {
             return r
         }
@@ -21,8 +21,8 @@ export function idToResult(id: string): Result | null {
     return null
 }
 
-export function idToRela(id: string): RelaInfo | null {
-    for (var r of status.currentRelas) {
+export function idToRela(id: string): RelaLabelInfo | null {
+    for (var r of current.relaLabels) {
         if (r.id == id) {
             return r
         }
@@ -30,8 +30,8 @@ export function idToRela(id: string): RelaInfo | null {
     return null
 }
 
-export function numberToRela(number: string): RelaInfo | null {
-    for (var r of status.currentRelas) {
+export function numberToRela(number: string): RelaLabelInfo | null {
+    for (var r of current.relaLabels) {
         if (number == r.id) {
             return r
         }
@@ -39,8 +39,8 @@ export function numberToRela(number: string): RelaInfo | null {
     return null
 }
 
-export function labelIdToLabel(id: string): LabelInfo | null {
-    for (var l of status.currentLabels) {
+export function labelIdToLabel(id: string): EntityLabelInfo | null {
+    for (var l of current.entityLabels) {
         if (l.id == id) {
             return l
         }

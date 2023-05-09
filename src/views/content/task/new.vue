@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { useRouter } from 'vue-router'
 import { ref, Ref, reactive } from 'vue'
-import { LabelInfo, RelaInfo, TaskInfo } from '@/interface'
+import { EntityLabelInfo, RelaLabelInfo, TaskInfo } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal } from '@/methods/util'
@@ -154,8 +154,8 @@ const addRelaFrom = reactive({
     bothway: false
 })
 // 所有添加过的标签、关系
-const allLabels: Array<LabelInfo> = reactive([])
-const allRelas: Array<RelaInfo> = reactive([])
+const allLabels: Array<EntityLabelInfo> = reactive([])
+const allRelas: Array<RelaLabelInfo> = reactive([])
 
 const deletaLabel = (id: string) => {
     var i = 0

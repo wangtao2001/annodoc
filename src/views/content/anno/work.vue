@@ -9,7 +9,7 @@ import {labelIdToLabel, idToResult, idToRela} from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 
 const store = mainStore()
-const status = statusStore()
+const current = statusStore()
 const router = useRouter()
 
 
@@ -17,31 +17,31 @@ var entityResults: Array<any>
 var relationResults: Array<any>
 
 const hasText = ref(false) // 用来渲染页面, 避免没有任务时出现空页面
-const isStudent = status.currentUser.role === 'student'
+const isStudent = current.user.role === 'student'
 var hasAlreadyResult = false
 
 var fl = true
 const loadText = async() => {
     request(
         getConfig,
-        `/api/getResponses/${isStudent ? "getTextToMarkStudent": "getTextToMarkChecker" }?grade=${status.currentUser.grade}&number=${status.currentUser.number}`,
+        `/api/getResponses/${isStudent ? "getTextToMarkStudent": "getTextToMarkChecker" }?grade=${current.user.grade}&number=${current.user.number}`,
         (data) => {
             hasText.value = true
             if(!isStudent && data.entityResults.length != 0) { // 有没有已经标注好的结果，没有就是0
                 hasAlreadyResult = true
             }
-            status.currentText = isStudent ? data.text : data.originalText // 后端设计缺陷
-            status.currentTextId = data.textId
+            current.text = isStudent ? data.text : data.originalText // 后端设计缺陷
+            current.textId = data.textId
             if (hasAlreadyResult) {
                 // 将后端结果转换为Result 和 RelaResult
                 // 这里先不做，加载完实体和关系类型后在做
                 entityResults = data.entityResults
                 relationResults = data.relationResults
             }
-            if (data.taskId == status.currentTaskId) {
+            if (data.taskId == current.taskId) {
                 // 仍然属于同一个任务，不需要重新加载标签
                 fl = false
-            } else status.currentTaskId = data.taskId
+            } else current.taskId = data.taskId
         },
         undefined, undefined,
         () => router.push('/anno/type')
@@ -51,10 +51,10 @@ const loadText = async() => {
 const loadLabels = async() => {
     request(
         getConfig,
-        `/api/getResponses/tasks/${status.currentTaskId}`,
+        `/api/getResponses/tasks/${current.taskId}`,
         (data) => {
             for (var entity of data.entitys) {
-                status.currentLabels.push({
+                current.entityLabels.push({
                     type: entity.type,
                     shortcut: entity.shortcut,
                     color: entity.color,
@@ -62,7 +62,7 @@ const loadLabels = async() => {
                 })
             }
             for (var rela of data.relations) {
-                status.currentRelas.push({
+                current.relaLabels.push({
                     id: rela.id,
                     type: rela.type,
                     entity1: rela.entity1,
@@ -83,18 +83,18 @@ const init = async ()=> {
         // 先做实体
         // 这里需要重置id
         const entityIdToNew = new Map()
-        store.results.length = 0 // 先清空
+        store.entityResults.length = 0 // 先清空
         for(var i=0; i< entityResults.length; i++) {
             const c = entityResults[i]
             const newId = uuidv4()
             entityIdToNew.set(c.id, newId)
             c.id = newId
-            store.results.push({
+            store.entityResults.push({
                 id: c.id,
                 number: i,
                 start: c.start,
                 end: c.end,
-                content: status.currentText.slice(c.start, c.end),
+                content: current.text.slice(c.start, c.end),
                 labelId: c.typeId,
                 labelName: labelIdToLabel(c.typeId)!.type
             })
@@ -119,7 +119,7 @@ const init = async ()=> {
     }
     if (hasAlreadyResult) {
         MessagePlugin.info("请进行审核")
-    } else if (!hasAlreadyResult && status.currentUser.role !== 'student') {
+    } else if (!hasAlreadyResult && current.user.role !== 'student') {
         MessagePlugin.warning("请进行标注")
     }
     asyncComponent.value = true // 确保父组件这些配置项加载完成之后加载子组件
@@ -133,14 +133,14 @@ const cancel = () => {
     for (var span of allSpan) { // 全部取消
         span.replaceWith(span.childNodes[1])
     }
-    store.results.length = 0 // 清空store
+    store.entityResults.length = 0 // 清空store
     store.relaResults.length = 0
     // 清空relaView，组件通信，使用消息订阅发布
     pubsub.publish("cleanAll")
 }
 
 const returnType = () => {
-    store.results.length = 0
+    store.entityResults.length = 0
     store.relaResults.length = 0
     router.push('/anno/type')
 }

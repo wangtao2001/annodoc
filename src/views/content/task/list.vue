@@ -2,7 +2,7 @@
 import { Ref, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {request, getConfig, putConfig, deleteConfig} from '@/methods/request'
-import { LabelInfo, TaskInfo, RelaInfo, TextSatatus } from '@/interface'
+import { EntityLabelInfo, TaskInfo, RelaLabelInfo, TextSatatus } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { downloadLocal } from '@/methods/util'
 import { mainStore } from '@/store'
@@ -14,8 +14,8 @@ const loadItem = async (id: string)=> {
         getConfig,
         `/api/getResponses/tasks/${id}`,
         (data) => {
-            const entitys: LabelInfo[] = []
-            const relations: RelaInfo[] = []
+            const entitys: EntityLabelInfo[] = []
+            const relations: RelaLabelInfo[] = []
             if(data.deleted) {
                 return
             }

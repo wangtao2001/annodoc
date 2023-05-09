@@ -1,30 +1,29 @@
 import { defineStore } from 'pinia'
-import { Result, RelaResult, LabelInfo, RelaInfo, User } from '@/interface'
+import { EntityResult, RelaResult, EntityLabelInfo, RelaLabelInfo, User } from '@/interface'
 import {reactive, Ref ,ref} from 'vue'
 
 export const mainStore = defineStore('main', () => {
-    const results: Array<Result> = reactive([])
+    const entityResults: Array<EntityResult> = reactive([])
     const relaResults: Array<RelaResult> = reactive([])
     const createTaskId: Ref<string> = ref("")
 
     return {
-        results, relaResults, createTaskId
+        entityResults, relaResults, createTaskId
     }
 })
 
 export const statusStore = defineStore('current', () => {
-    const currentUser: Ref<User> = ref({
+    const user: Ref<User> = ref({
         number: "2020192462", grade: 19, role: "admin" 
     })
-
-    const currentTextId: Ref<string>= ref("")
-    const currentText: Ref<string> = ref("")
-    const currentTaskId: Ref<string> = ref("")
-    const currentLabels: Ref<Array<LabelInfo>> = ref([])
-    const currentRelas: Ref<Array<RelaInfo>> = ref([])
+    const textId: Ref<string>= ref("")
+    const text: Ref<string> = ref("")
+    const taskId: Ref<string> = ref("")
+    const entityLabels: Ref<Array<EntityLabelInfo>> = ref([])
+    const relaLabels: Ref<Array<RelaLabelInfo>> = ref([])
 
     return {
-        currentTextId, currentTaskId, currentLabels, currentRelas,
-        currentText, currentUser
+        textId, taskId, entityLabels, relaLabels,
+        text, user
     }
 })
