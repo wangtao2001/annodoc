@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { statusStore } from '@/store'
+import { UserRole } from '@/interface'
 import pinia from "@/store/pinia"
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
@@ -105,7 +106,7 @@ router.beforeEach((to, from, next) => {
     NProgress.start()
     // 只有管理员能访问
     if (to.name === 'task_list' || to.name === "task_new" || to.name === 'check' || to.name == 'student') {
-        if ( current.user.role === 'admin') {
+        if ( current.user.role == UserRole.teacher) {
             next()
         } else {
             next({ name: 'home' })
@@ -113,7 +114,7 @@ router.beforeEach((to, from, next) => {
     } else
      // 只有学生能访
     if(to.name === 'home') {
-        if (current.user.role === 'student') {
+        if (current.user.role == UserRole.student) {
             next()
         } else {
             next({name: 'task_list'})

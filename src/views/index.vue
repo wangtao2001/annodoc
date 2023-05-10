@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { statusStore } from '@/store'
 import { MessagePlugin } from 'tdesign-vue-next'
+import { UserRole } from '@/interface'
  
 const current = statusStore()
 
@@ -103,7 +104,7 @@ const logout = () => {
         >
             <div class="drawer">
                 <div class="center">
-                    <t-button variant="text" theme="default" @click="router.push('/'); closeMenu()" v-if="current.user.role === 'student'">
+                    <t-button variant="text" theme="default" @click="router.push('/'); closeMenu()" v-if="current.user.role == UserRole.student">
                         <template #icon>
                             <t-icon name="dashboard" />
                         </template>
@@ -113,21 +114,21 @@ const logout = () => {
                         <template #icon>
                             <t-icon name="edit-1" />
                         </template>
-                        {{ current.user.role == "student" ? "标注" : "标注审核" }}
+                        {{ current.user.role == UserRole.student ? "标注" : "标注审核" }}
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/task'); closeMenu()" v-if="current.user.role === 'admin'" value="task">
+                    <t-button variant="text" theme="default" @click="router.push('/task'); closeMenu()" v-if="current.user.role == UserRole.teacher " value="task">
                         <template #icon>
                             <t-icon name="server" />
                         </template>
                         任务管理
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/check'); closeMenu()" v-if="current.user.role === 'admin'">
+                    <t-button variant="text" theme="default" @click="router.push('/check'); closeMenu()" v-if="current.user.role == UserRole.teacher">
                         <template #icon>
                             <t-icon name="filter-clear" />
                         </template>
                         审核管理
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/student'); closeMenu()" v-if="current.user.role === 'admin'">
+                    <t-button variant="text" theme="default" @click="router.push('/student'); closeMenu()" v-if="current.user.role == UserRole.teacher">
                         <template #icon>
                             <t-icon name="user-circle" />
                         </template>
@@ -147,7 +148,7 @@ const logout = () => {
             <t-aside class="aside">
                 <t-menu theme="light" :default-value="currentItem" style="margin-right: 50px" router>
 
-                    <t-menu-item value="home" v-if="current.user.role === 'student'" to="/">
+                    <t-menu-item value="home" v-if="current.user.role == UserRole.student" to="/">
                         <template #icon>
                             <t-icon name="dashboard" />
                         </template>
@@ -157,21 +158,21 @@ const logout = () => {
                         <template #icon>
                             <t-icon name="edit-1" />
                         </template>
-                        {{ current.user.role == "student" ? "标注" : "标注审核" }}
+                        {{ current.user.role == UserRole.student ? "标注" : "标注审核" }}
                     </t-menu-item>
-                    <t-menu-item v-if="current.user.role === 'admin'" value="task" to="/task">
+                    <t-menu-item v-if="current.user.role == UserRole.teacher" value="task" to="/task">
                         <template #icon>
                             <t-icon name="server" />
                         </template>
                         任务管理
                     </t-menu-item>
-                    <t-menu-item v-if="current.user.role === 'admin'" value="check" to="/check">
+                    <t-menu-item v-if="current.user.role == UserRole.teacher" value="check" to="/check">
                         <template #icon>
                             <t-icon name="filter-clear" />
                         </template>
                         审核管理
                     </t-menu-item>
-                    <t-menu-item v-if="current.user.role === 'admin'" value="student" to="/student">
+                    <t-menu-item v-if="current.user.role == UserRole.teacher" value="student" to="/student">
                         <template #icon>
                             <t-icon name="user-circle" />
                         </template>

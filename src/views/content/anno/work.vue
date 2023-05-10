@@ -7,6 +7,7 @@ import { ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import {labelIdToLabel, idToResult, idToRela} from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
+import { UserRole } from '@/interface'
 
 const store = mainStore()
 const current = statusStore()
@@ -17,12 +18,13 @@ var entityResults: Array<any>
 var relationResults: Array<any>
 
 const hasText = ref(false) // 用来渲染页面, 避免没有任务时出现空页面
-const isStudent = current.user.role === 'student'
+const isStudent = current.user.role == UserRole.student
 var hasAlreadyResult = false
 
 var fl = true
+var hasTask = true
 const loadText = async() => {
-    request(
+    await request(
         getConfig,
         `/api/getResponses/${isStudent ? "getTextToMarkStudent": "getTextToMarkChecker" }?grade=${current.user.grade}&number=${current.user.number}`,
         (data) => {
@@ -44,12 +46,12 @@ const loadText = async() => {
             } else current.taskId = data.taskId
         },
         undefined, undefined,
-        () => router.push('/anno/type')
+        () => {router.push('/anno/type'); hasTask = false}
     )
 }
 
 const loadLabels = async() => {
-    request(
+    await request(
         getConfig,
         `/api/getResponses/tasks/${current.taskId}`,
         (data) => {
@@ -77,7 +79,7 @@ const loadLabels = async() => {
 const asyncComponent = ref(false)
 const init = async ()=> {
     await loadText()
-    if (fl) await loadLabels()
+    if (hasTask && fl) await loadLabels()
      // 等实体关系标签加载结束
     if (hasAlreadyResult) {
         // 先做实体
@@ -107,7 +109,7 @@ const init = async ()=> {
             c.entityResult1 = entityIdToNew.get(c.entityResult1)
             c.entityResult2 = entityIdToNew.get(c.entityResult2)
             store.relaResults.push({
-                id: uuidv4(), // 关心更改id不需要记录
+                id: uuidv4(), // 关系更改id不需要记录
                 startContent: idToResult(c.entityResult1)!.content,
                 startNumber: idToResult(c.entityResult1)!.number,
                 endContent: idToResult(c.entityResult2)!.content,
@@ -119,7 +121,7 @@ const init = async ()=> {
     }
     if (hasAlreadyResult) {
         MessagePlugin.info("请进行审核")
-    } else if (!hasAlreadyResult && current.user.role !== 'student') {
+    } else if (hasTask && !hasAlreadyResult && current.user.role != UserRole.student ) {
         MessagePlugin.warning("请进行标注")
     }
     asyncComponent.value = true // 确保父组件这些配置项加载完成之后加载子组件

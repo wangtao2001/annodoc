@@ -10,7 +10,7 @@ import { mainStore } from '@/store'
 const store = mainStore()
 
 const loadItem = async (id: string)=> {
-    request(
+    await request(
         getConfig,
         `/api/getResponses/tasks/${id}`,
         (data) => {

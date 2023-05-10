@@ -60,7 +60,7 @@ const loadData = async (grade: number | string) =>  {
 }
 
 const loadItem = async (number: number | string)=> {
-    request(
+    await request(
         getConfig,
         `/api/getResponses/getByStudentNumber/${number}`,
         (data) => {

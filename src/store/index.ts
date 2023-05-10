@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { EntityResult, RelaResult, EntityLabelInfo, RelaLabelInfo, User } from '@/interface'
+import { EntityResult, RelaResult, EntityLabelInfo, RelaLabelInfo, User, UserRole } from '@/interface'
 import {reactive, Ref ,ref} from 'vue'
 
 export const mainStore = defineStore('main', () => {
@@ -14,7 +14,7 @@ export const mainStore = defineStore('main', () => {
 
 export const statusStore = defineStore('current', () => {
     const user: Ref<User> = ref({
-        number: "2020192462", grade: 19, role: "admin" 
+        number: "2020192462", grade: 19, role: UserRole.checker
     })
     const textId: Ref<string>= ref("")
     const text: Ref<string> = ref("")

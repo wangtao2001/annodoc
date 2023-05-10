@@ -107,5 +107,9 @@ export interface TextSatatus {
 export interface User {
     number: string,
     grade: number,
-    role: string
+    role: UserRole
+}
+
+export enum UserRole {
+    student, teacher, checker
 }

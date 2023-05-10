@@ -3,7 +3,7 @@ import { mainStore, statusStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { ref, Ref } from 'vue'
 import { downloadLocal } from '@/methods/util'
-import { EntityResult, RelaResult } from '@/interface'
+import { EntityResult, RelaResult, UserRole } from '@/interface'
 import { numberToResult, labelIdToLabel} from '@/methods/util'
 import {request, postConfig} from '@/methods/request'
 
@@ -69,7 +69,7 @@ const resultFormat = () => {
         'textId': current.textId,
         'entitys': new_labels,
         'relations': new_rela,
-        'pass': current.user.role === "student" ? 0: 2
+        'pass': current.user.role == UserRole.student ? 0: 2
     }
 }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { request, getConfig } from '@/methods/request'
 import { ref } from 'vue'
+import { UserRole } from '@/interface'
 import { statusStore } from '@/store'
 
 const current = statusStore()
@@ -26,12 +27,12 @@ const getToCheckNums = async () => {
     )
 }
 
-if (current.user.role === 'student') getCurrentNums()
+if (current.user.role == UserRole.student) getCurrentNums()
 else getToCheckNums()
 </script>
 
 <template>
-    <div class="num">{{current.user.role === 'student' ? '当前：' + currentNum + '/' + allNum : '剩余未完成：' + toCheckNum }}</div>
+    <div class="num">{{current.user.role == UserRole.student ? '当前：' + currentNum + '/' + allNum : '剩余未完成：' + toCheckNum }}</div>
 </template>
 
 <style lang="less" scoped>
