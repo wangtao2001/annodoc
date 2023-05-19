@@ -15,14 +15,15 @@ const annoType: Array<AnnoType> = [
         content: '',
         link: '/anno/work?type=text',
         disabled: false
-    }, {
-        id: 1,
-        title: '电子病历',
-        img: recordIcon, // require是webpack的做法
-        content: '',
-        link: '/anno/work?type=record',
-        disabled: true
     }
+    //, {
+    //     id: 1,
+    //     title: '电子病历',
+    //     img: recordIcon, // require是webpack的做法
+    //     content: '',
+    //     link: '/anno/work?type=record',
+    //     disabled: true
+    // }
 ]
 
 const anno = (type: AnnoType)=> {

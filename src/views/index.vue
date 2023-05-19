@@ -126,7 +126,7 @@ const logout = () => {
                         <template #icon>
                             <t-icon name="filter-clear" />
                         </template>
-                        审核管理
+                        审核员管理
                     </t-button>
                     <t-button variant="text" theme="default" @click="router.push('/student'); closeMenu()" v-if="current.user.role == UserRole.teacher">
                         <template #icon>
@@ -170,7 +170,7 @@ const logout = () => {
                         <template #icon>
                             <t-icon name="filter-clear" />
                         </template>
-                        审核管理
+                        审核员管理
                     </t-menu-item>
                     <t-menu-item v-if="current.user.role == UserRole.teacher" value="student" to="/student">
                         <template #icon>

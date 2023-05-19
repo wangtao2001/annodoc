@@ -10,8 +10,8 @@ export interface EntityLabelInfo {
 export interface RelaLabelInfo {
     type: string, // 名称
     id: string,
-    entity1: string,
-    entity2: string, // 实体标签的id
+    entity1: EntityLabelInfo["id"],
+    entity2: EntityLabelInfo["id"], // 实体标签的id
     // 关系可以是单向的也可以是双向的，这里给一个标识符
     // 如果是双向关系，无论是选择的是A->B还是B->A后端都要判对
     // 如果是单向关系，前端用户无论怎么选择都可以，在提交后端时自动调整，以期标注减少难度
@@ -25,8 +25,8 @@ export interface EntityResult {
     start: number,
     end: number,
     content: string,
-    labelId: string,
-    labelName: string,
+    labelId: EntityLabelInfo["id"],
+    labelName: EntityLabelInfo["type"],
     // 为了删除and重构标签的时候快速定位
     span?: HTMLSpanElement
 }
@@ -34,12 +34,12 @@ export interface EntityResult {
 // 关系标记结果
 export interface RelaResult {
     id: string
-    startContent: string,
-    startNumber: number,
-    endNumber: number,
-    endContent: string,
-    relaId: string,
-    relaName: string,
+    startContent: EntityResult["content"],
+    startNumber: EntityResult["number"],
+    endNumber: EntityResult["number"],
+    endContent: EntityResult["content"],
+    relaId: RelaLabelInfo["id"],
+    relaName: RelaLabelInfo["type"],
 }
 
 // 下拉选择关系的配置项
@@ -107,7 +107,8 @@ export interface TextSatatus {
 export interface User {
     number: string,
     grade: number,
-    role: UserRole
+    role: UserRole,
+    login: boolean
 }
 
 export enum UserRole {

@@ -53,17 +53,17 @@ const loadItem = async (id: string)=> {
 
 const loadData = async() => {
     allTasks.value = [] // 相当于刷新页面
-    request(
+    await request(
         getConfig,
         '/api/getResponses/allTasks',
         async (allIds) => {
             for (var id of allIds) {
                 await loadItem(id)
             }
-        }
+            showDatas.value = allTasks.value.slice(0, pageSize)
+            tableLoading.value = false
+        }  
     )
-    showDatas.value = allTasks.value.slice(0, pageSize)
-    tableLoading.value = false
 }
 
 const pageSize: number = 6 // 每页显示的任务数
@@ -73,11 +73,11 @@ const change = (current: number) => {
     showDatas.value = allTasks.value.slice((current - 1) * pageSize, current * pageSize)
 }
 
+const tableLoading = ref(true)
 loadData()
 
 const router = useRouter()
 
-const tableLoading = ref(true)
 const columns = [
     { colKey: 'type', title: '类型', width: '40' },
     { colKey: 'id', title: 'ID', width: '50', ellipsis:true },

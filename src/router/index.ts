@@ -103,6 +103,11 @@ const router = createRouter({
 
 // 权限控制
 router.beforeEach((to, from, next) => {
+    // 这里判断是否登录
+    if (!current.user.login) {
+        window.location.href = "http://id.cpu.edu.cn/sso/login"
+        // 这里之后做什么还不知道
+    }
     NProgress.start()
     // 只有管理员能访问
     if (to.name === 'task_list' || to.name === "task_new" || to.name === 'check' || to.name == 'student') {

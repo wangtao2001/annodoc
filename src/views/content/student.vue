@@ -120,7 +120,7 @@ onMounted(()=> {
     })
 })
 
-const uploadStudent = async (data: Array<{name: string,number: string}>) => {
+const uploadStudent = async (data: Array<{name: string,number: string, grade: number}>) => {
     request(
         postConfig,
         '/api/resultAccepts/batchAddStudent',
@@ -145,7 +145,11 @@ const upNewStudent =  async ()=>{
         MessagePlugin.error('请填写完整信息')
         return
     }
-    uploadStudent([toRaw(newStudent)])
+    uploadStudent([{
+        name: newStudent.name,
+        number: newStudent.number,
+        grade: Number(displayGrade.value)
+    }])
     newStudent.number = ''
     newStudent.name = ''
 }

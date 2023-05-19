@@ -13,9 +13,17 @@ export const mainStore = defineStore('main', () => {
 })
 
 export const statusStore = defineStore('current', () => {
+    // 对user的初始化在这里
+    // token使用localStoge存在浏览器中 let token = localStorage.getItem('Authorization')
     const user: Ref<User> = ref({
-        number: "2020192462", grade: 19, role: UserRole.checker
+        number: "", grade: 0, role: UserRole.student, login: false
     })
+    // 通过taoken向后端请求当前登录信息并在这里重写
+    user.value.number = "2020192462"
+    user.value.grade = 19
+    user.value.role = UserRole.teacher
+    user.value.login = true
+    
     const textId: Ref<string>= ref("")
     const text: Ref<string> = ref("")
     const taskId: Ref<string> = ref("")
