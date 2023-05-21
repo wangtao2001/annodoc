@@ -40,7 +40,6 @@ export async function request(
     } else res = await config.method(url, data)
 
     if (res.status == 200) {
-        console.log(res.data)
         if (res.data.code == config.statusCode) {
             if (successMessage !== undefined) {
                 MessagePlugin.success(successMessage)

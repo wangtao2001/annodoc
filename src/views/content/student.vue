@@ -40,7 +40,23 @@ const pageSize = 6
 const viewStudents: Ref<Array<StudentInfo>> = ref([]) // 实际展示出来的，为了分页和搜索
 var tempView : Array<StudentInfo>// 缓存
 
-const displayGrade = ref("19") // 默认19级
+const allGrades: Ref<Array<{id: number, grade: string}>> = ref([])
+const getAllGrades = async () => {
+    request(
+        getConfig,
+        '/api/getResponses/getAllGrades',
+        (data) => {
+            allGrades.value = data
+            displayGrade.value = data[0].grade
+            allStudents.value = [] // loadData前的必须操作
+            loadData(data[0].grade)
+        }
+    )
+}
+
+getAllGrades()
+
+const displayGrade = ref("") // 默认19级
 
 const loadData = async (grade: number | string) =>  {
     request(
@@ -76,8 +92,6 @@ const loadItem = async (number: number | string)=> {
         }
     )
 }
-
-loadData(displayGrade.value)
 
 
 const openInput = ()=> {
@@ -183,15 +197,43 @@ const searchChange = (value: string)=> {
     }
     viewStudents.value = t
 }
+
+const gradeVisible = ref(false)
+
+const deleteGrade= async (id: number)  => {
+    request(
+        deleteConfig,
+        `/api/getResponses/deleteGrade/${id}`,
+        () => {
+            getAllGrades()
+        },
+        undefined,
+        "删除成功"
+    )
+}
+
+const newGrade = ref("")
+
+const insertGrade = async () => {
+    request(
+        postConfig,
+        "/api/resultAccepts/insertGrade",
+        () => {
+            newGrade.value = ""
+            getAllGrades()
+        },
+        {grade: newGrade.value},
+        "添加成功"
+    )
+}
 </script>
 
 <template>
     <t-layout>
         <div class="s select">
             <t-select class="grade" @change="changeGrade" v-model="displayGrade">
-                <t-option label="2019级" value="19" />
-                <t-option label="2020级" value="20" />
-                </t-select>
+                <t-option v-for="d in allGrades" :key="d.id" :label="d.grade" :value="d.grade" />
+            </t-select>
             <t-input class="search" @change="searchChange" v-model="searchValue" placeholder="请输入学号" :maxlength="10" show-limit-number clearable>
                 <template #suffixIcon>
                     <t-icon name="search" />
@@ -238,7 +280,30 @@ const searchChange = (value: string)=> {
                 从文件添加
             </t-button>
             <input type="file" style="display: none;" id="file-input" accept=".xls,.xlsx" />
-            <t-button @click="formVisable = true">手动添加</t-button>
+            <t-button style="margin-right: 10px;" @click="formVisable = true">手动添加</t-button>
+            <t-button @click="gradeVisible = true">年级管理</t-button>
+            <t-dialog
+                v-model:visible="gradeVisible"
+                header="年级管理"
+                attach="body"
+                closeOnEscKeydown
+                closeOnOverlayClick
+                :footer="false"
+            >
+            <div class="grade-dialog">
+                <div class="grade-item"  v-for="grade in allGrades" :key="grade.id">
+                    <div>{{ grade.grade }}</div>
+                    <!--数据库没有设置task的外键-->
+                    <t-popconfirm @confirm="deleteGrade(grade.id)" theme="danger" content="同时会删该年级学生">
+                        <t-link theme="danger" > 删除 </t-link>
+                    </t-popconfirm>
+                </div>
+                <div class="grade-input">
+                    <t-input :maxlength="5" v-model="newGrade" show-limit-number clearable ></t-input>
+                    <t-button @click="insertGrade">添加</t-button>
+                </div>
+            </div>
+            </t-dialog>
         </div>
         <div v-else class="s" v-if="searchValue.length != 0">
             <t-button variant="outline" theme="default" @click="clearSearch" >清空搜索</t-button>
@@ -254,7 +319,7 @@ const searchChange = (value: string)=> {
     }
 
     .select {
-        width: 40%;
+        width: 500px;
         display: flex;
         flex-direction: row;
         margin-top: 40px;
@@ -282,6 +347,24 @@ const searchChange = (value: string)=> {
             button {
                 margin-right: 10px;
             }
+        }
+    }
+
+    .grade-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin: 5px 0;
+    }
+
+    .grade-input {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: row;
+
+        button {
+            margin-left: 15px;
         }
     }
 

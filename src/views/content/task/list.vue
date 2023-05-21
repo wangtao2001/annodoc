@@ -106,7 +106,7 @@ const columns = [
                             <div>
                                 <>{
                                     row.grade == 0?
-                                    <t-link theme="warning" onClick={()=>{releaseDialog.value = true; currentTask = row}} > 发布 </t-link>: ''
+                                    <t-link theme="warning" onClick={()=>{getAllGrades() ;releaseDialog.value = true; currentTask = row}} > 发布 </t-link>: ''
                                 }
                                 </>
                                 <t-link theme="primary" onClick={()=> {uploadFile(row)}} > 继续上传文件 </t-link>
@@ -182,6 +182,7 @@ const modify = (task: TaskInfo) => {
     modifyTaskData.description = task.description
     modifyTaskData.grade = task.grade
     modifyDialog.value = true
+    getAllGrades()
 }
 const modifyTaskPut = async ()=> {
     modifyTaskData.modifyTime = new Date().toLocaleString()
@@ -262,12 +263,25 @@ const colseTask = async () => {
         undefined,
         '操作成功'
     )
+    closeTaskDialog.value = false
 }
 
 const closeTaskDialog = ref(false)
 const closeTaskGrade = ref("")
 
 const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
+
+// 全部年级
+const allGrades: Ref<Array<{id: number, grade: string}>> = ref([])
+const getAllGrades = async () => {
+    request(
+        getConfig,
+        '/api/getResponses/getAllGrades',
+        (data) => {
+            allGrades.value = data
+        }
+    )
+}
 </script>
 
 <template>
@@ -294,7 +308,7 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
                                 <div class="option">
                                     <t-link underline @click="view(d)" theme="success">查看</t-link>
                                     <t-link underline @click="modify(d)" theme="primary">修改</t-link>
-                                    <t-link underline theme="warning" v-if="d.grade == 0" @click="releaseDialog = true; currentTask = d" > 发布 </t-link>
+                                    <t-link underline theme="warning" v-if="d.grade == 0" @click="getAllGrades() ;releaseDialog = true; currentTask = d" > 发布 </t-link>
                                     <t-link underline theme="primary" @click="uploadFile(d)" > 继续上传文件 </t-link>
                                     <t-popconfirm @confirm="deleteTask(d.id)" theme="danger" content="确认删除吗">
                                         <t-link underline theme="danger" > 删除 </t-link>
@@ -310,7 +324,7 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
                     showPreviousAndNextBtn totalContent @current-change="change"  />
                 <div class="option">
                     <t-button class="new" style="margin-right: 10px;" @click="createTask">创建任务</t-button>
-                    <t-button theme="danger" @click="closeTaskDialog = true" >提前结束任务</t-button>
+                    <t-button theme="danger" @click="getAllGrades() ;closeTaskDialog = true" >提前结束任务</t-button>
                 </div>
             </div>
         </div>
@@ -322,7 +336,9 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
             >
             <t-form :label-align="labelAalign">
                 <t-form-item label="选择年级" name="grade">
-                    <t-input v-model="closeTaskGrade" show-limit-number clearable  />
+                    <t-select class="grade" v-model="closeTaskGrade">
+                        <t-option v-for="d in allGrades" :key="d.id" :label="d.grade" :value="d.grade" />
+                    </t-select>
                 </t-form-item>
             </t-form>
         </t-dialog>
@@ -370,7 +386,10 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
                     <t-input v-model="modifyTaskData.taskName" :maxlength="20" show-limit-number clearable />
                 </t-form-item>
                 <t-form-item label="发布年级" name="grade" v-if="modifyTaskData.grade !=0">
-                    <t-input v-model="modifyTaskData.grade" show-limit-number clearable  />
+                    <!-- <t-input v-model="modifyTaskData.grade" show-limit-number clearable  /> -->
+                    <t-select class="grade" v-model="modifyTaskData.grade">
+                        <t-option v-for="d in allGrades" :key="d.id" :label="d.grade" :value="d.grade" />
+                    </t-select>
                 </t-form-item>
                 <t-form-item label="项目描述" name="desc">
                     <t-textarea v-model="modifyTaskData.description" placeholder="简单描述项目，长度限制为100" :maxcharacter="100"
@@ -398,7 +417,10 @@ const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
             >
             <t-form :label-align="labelAalign">
                 <t-form-item label="发布年级">
-                    <t-input v-model="grade" show-limit-number clearable />
+                    <!-- <t-input v-model="grade" show-limit-number clearable /> -->
+                    <t-select class="grade" v-model="grade">
+                        <t-option v-for="d in allGrades" :key="d.id" :label="d.grade" :value="d.grade" />
+                    </t-select>
                 </t-form-item>
             </t-form>
         </t-dialog>
