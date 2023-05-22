@@ -63,6 +63,11 @@ const routes: Array<RouteRecordRaw> = [{
             name: 'student',
         },
         {
+            path: '/option',
+            component: () => import('@/views/content/option.vue'),
+            name: 'option',
+        },
+        {
             path: '/task',
             component: () => import('@/views/content/task.vue'),
             name: 'task',

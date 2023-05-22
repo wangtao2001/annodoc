@@ -134,6 +134,12 @@ const logout = () => {
                         </template>
                         学生管理
                     </t-button>
+                    <t-button variant="text" theme="default" @click="router.push('/option'); closeMenu()" v-if="current.user.role == UserRole.teacher">
+                        <template #icon>
+                            <t-icon name="setting" />
+                        </template>
+                        全局设置
+                    </t-button>
                     <t-button class="color" @click="modeChange()" theme="default">
                         {{ lightMode ? '深色模式' : '浅色模式' }}
                     </t-button>
@@ -178,6 +184,12 @@ const logout = () => {
                         </template>
                         学生管理
                     </t-menu-item>
+                    <t-menu-item v-if="current.user.role == UserRole.teacher" value="option" to="/option">
+                        <template #icon>
+                            <t-icon name="setting" />
+                        </template>
+                        全局设置
+                    </t-menu-item>
                 </t-menu>
             </t-aside>
             <t-layout>
@@ -188,7 +200,7 @@ const logout = () => {
                         Date().getFullYear()
                 }}
                     China Pharmaceutical University. All Rights
-                    Reserved</t-footer>
+                    Reserved.</t-footer>
             </t-layout>
         </t-layout>
         </t-layout>
