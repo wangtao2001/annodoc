@@ -1,10 +1,10 @@
 <script setup lang="tsx">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { statusStore } from '@/store'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { UserRole } from '@/interface'
-import { SearchIcon,NotificationFilledIcon, UserCircleIcon, ChevronDownIcon, HomeIcon, CloseIcon,
+import { SearchIcon,NotificationFilledIcon, UserCircleIcon, ChevronDownIcon, HomeIcon, CloseIcon, ChartBubbleIcon,
     DashboardIcon, Edit1Icon, ServerIcon, FilterClearIcon, SettingIcon, FormatVerticalAlignRightIcon
 } from 'tdesign-icons-vue-next' // 这里能否auto-import?
  
@@ -17,7 +17,7 @@ const toHome = () => {
 // 本来想用onMounted，但是setup的执行时机比mounted早
 const route = useRoute() // 获取当前路由信息
 const router = useRouter()
-const currentItem = route.path.split('/')[1] // 例如'/anno/work'只要anno，这样就要求路由的路径与muen-item的value相同
+const currentItem = ref(route.path.split('/')[1]) // 例如'/anno/work'只要anno，这样就要求路由的路径与muen-item的value相同
 
 const lightMode = ref(true)
 
@@ -46,7 +46,7 @@ const closeMenu = () => {
 }
 
 const dropdownOption = [
-    {'content': '退出登录', value: -1}
+    {content: '退出登录', value: -1}
 ]
 
 const dropdownClick = (row: any) => {
@@ -58,6 +58,53 @@ const dropdownClick = (row: any) => {
 const logout = () => {
     window.location.href = 'http://id.cpu.edu.cn/sso/logout?service=https://anno.cpu.edu.cn'
     MessagePlugin.warning("正在退出, 即将返回登录页")
+}
+
+const userRolesSelect :Array<{content: string, value: number}> = []
+for (var r of current.userRoles) {
+    if(r == UserRole.student) {
+        userRolesSelect.push({
+            content: current.user.grade, value: 0
+        })
+    } else if (r == UserRole.checker) {
+        userRolesSelect.push({
+            content: "审核员", value: 1
+        })
+    } else {
+        userRolesSelect.push({
+            content: "管理员", value: 2
+        })
+    }
+}
+const currentRoleName = computed(()=> {
+    if (current.user.role == UserRole.student) {
+        return current.user.grade
+    } else if (current.user.role == UserRole.teacher) {
+        return "管理员"
+    }
+    return "审核员"
+})
+const userRoleChange = (row: any) =>{
+    console.log(row)
+    var changedRole = UserRole.student
+    if (row.value == 2) {
+        changedRole = UserRole.teacher
+    } else if (row.value == 1) {
+        changedRole = UserRole.checker
+    }
+    if (changedRole != current.user.role) {
+        current.user.role = changedRole
+        // 重新进入路由
+        if (changedRole == UserRole.student && route.name != 'home' && route.name != 'anno_work' && route.name != 'anno_type' && route.name != 'anno_result') {
+            router.push('/home')  
+        } else if (changedRole == UserRole.checker && route.name != 'anno_work' && route.name != 'anno_type' && route.name != 'anno_result') {
+            router.push('/anno')
+        } else if (changedRole == UserRole.teacher && route.name == 'home') {
+            router.push('/anno')
+        }
+    }
+    currentItem.value = route.path.split('/')[1]
+    menuVisible.value = false
 }
 
 </script>
@@ -74,6 +121,15 @@ const logout = () => {
                 <template #operations>
                     <SearchIcon class="t-menu__operations-icon s" />
                     <NotificationFilledIcon class="t-menu__operations-icon s" />
+                    <t-dropdown class="s"  @click="userRoleChange" :options="userRolesSelect">
+                        <t-space>
+                            <t-button variant="text">
+                            <template #icon><ChartBubbleIcon size="16" /></template>
+                            {{ currentRoleName}}
+                            <template #suffix><ChevronDownIcon size="16" /></template>
+                            </t-button>
+                        </t-space>
+                    </t-dropdown>
                     <t-dropdown class="s"  @click="dropdownClick" :options="dropdownOption">
                         <t-space>
                             <t-button variant="text">
@@ -96,41 +152,41 @@ const logout = () => {
             show-in-attached-element
             placement="top"
             :footer="false"
-            
+            size="70%"
         >
             <div class="drawer">
                 <div class="center">
-                    <t-button variant="text" theme="default" @click="router.push('/'); closeMenu()" v-if="current.user.role == UserRole.student">
+                    <t-button variant="text" value="home" theme="default" @click="router.push('/'); closeMenu()" v-if="current.user.role == UserRole.student">
                         <template #icon>
                             <DashboardIcon/>
                         </template>
                         首页
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/anno'); closeMenu()">
+                    <t-button variant="text" value="anno" theme="default" @click="router.push('/anno'); closeMenu()">
                         <template #icon>
                             <Edit1Icon/>
                         </template>
                         {{ current.user.role == UserRole.student ? "标注" : "标注审核" }}
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/task'); closeMenu()" v-if="current.user.role == UserRole.teacher " value="task">
+                    <t-button variant="text" value="task" theme="default" @click="router.push('/task'); closeMenu()" v-if="current.user.role == UserRole.teacher">
                         <template #icon>
                             <ServerIcon/>
                         </template>
                         任务管理
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/check'); closeMenu()" v-if="current.user.role == UserRole.teacher">
+                    <t-button variant="text" value="check" theme="default" @click="router.push('/check'); closeMenu()" v-if="current.user.role == UserRole.teacher">
                         <template #icon>
                             <FilterClearIcon />
                         </template>
                         审核员管理
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/student'); closeMenu()" v-if="current.user.role == UserRole.teacher">
+                    <t-button variant="text" value="student" theme="default" @click="router.push('/student'); closeMenu()" v-if="current.user.role == UserRole.teacher">
                         <template #icon>
                             <UserCircleIcon />
                         </template>
                         学生管理
                     </t-button>
-                    <t-button variant="text" theme="default" @click="router.push('/option'); closeMenu()" v-if="current.user.role == UserRole.teacher">
+                    <t-button variant="text" value="option" theme="default" @click="router.push('/option'); closeMenu()" v-if="current.user.role == UserRole.teacher">
                         <template #icon>
                             <SettingIcon />
                         </template>
@@ -138,6 +194,10 @@ const logout = () => {
                     </t-button>
                     <t-button class="color" @click="modeChange()" theme="default">
                         {{ lightMode ? '深色模式' : '浅色模式' }}
+                    </t-button>
+                    <t-button v-for="r in userRolesSelect" @click="userRoleChange(r)" variant="text" theme="default">
+                        <template #icon><ChartBubbleIcon size="16" /></template>
+                        {{ r.content }}
                     </t-button>
                     <t-button @click="logout" variant="text" theme="default">
                         <template #icon><UserCircleIcon size="16" /></template>

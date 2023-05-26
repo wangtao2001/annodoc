@@ -143,7 +143,6 @@ router.beforeEach(async (to, from, next) => {
             }
         )
     }
-    console.log("路由跳转")
     if (!current.user.login && to.name != 'permission') {
         next({name: 'permission'})
     } else
