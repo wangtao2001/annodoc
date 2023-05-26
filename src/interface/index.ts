@@ -80,7 +80,7 @@ export interface TaskInfo {
 export interface StudentInfo {
     number: string,
     name: string,
-    grade: number,
+    grade: string,
     score: number,
     finish: number
 }
@@ -106,7 +106,7 @@ export interface TextSatatus {
 
 export interface User {
     number: string,
-    grade: number,
+    grade: string,
     role: UserRole,
     login: boolean
 }

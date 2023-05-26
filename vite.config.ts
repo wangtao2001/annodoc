@@ -32,7 +32,7 @@ export default defineConfig({
     // 生产环境不存在跨域问题，因为前端和后端是部署在同一个服务器上的
     proxy:{
       '/api': {
-        target: 'http://127.0.0.1:8083',
+        target: 'http://anno.cpu.edu.cn',
         changeOrigin: true
       }
     }

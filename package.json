@@ -13,6 +13,7 @@
     "nprogress": "^0.2.0",
     "pinia": "^2.0.30",
     "pubsub-js": "^1.9.4",
+    "tdesign-icons-vue-next": "^0.1.11",
     "tdesign-vue-next": "^1.0.6",
     "uuid": "^9.0.0",
     "vue": "^3.2.45",

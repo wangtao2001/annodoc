@@ -38,7 +38,6 @@ export async function request(
     if (config == getConfig || config == deleteConfig) {
         res = await config.method(url)
     } else res = await config.method(url, data)
-
     if (res.status == 200) {
         if (res.data.code == config.statusCode) {
             if (successMessage !== undefined) {

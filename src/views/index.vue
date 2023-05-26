@@ -4,6 +4,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { statusStore } from '@/store'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { UserRole } from '@/interface'
+import { SearchIcon,NotificationFilledIcon, UserCircleIcon, ChevronDownIcon, HomeIcon, CloseIcon,
+    DashboardIcon, Edit1Icon, ServerIcon, FilterClearIcon, SettingIcon, FormatVerticalAlignRightIcon
+} from 'tdesign-icons-vue-next' // 这里能否auto-import?
  
 const current = statusStore()
 
@@ -38,34 +41,25 @@ if(local === 'false') {
 }
 
 const menuVisible = ref(false)
-const menuButtonIcon = ref("format-vertical-align-right")
-const openMenu = ()=> {
-    if (menuVisible.value) {
-        closeMenu()
-    } else {
-        menuVisible.value = true
-        menuButtonIcon.value = "close"
-    }
-}
-
 const closeMenu = () => {
     menuVisible.value = false
-    menuButtonIcon.value = "format-vertical-align-right"
 }
 
 const dropdownOption = [
-    {'content': '退出登录', value: 0}
+    {'content': '退出登录', value: -1}
 ]
 
 const dropdownClick = (row: any) => {
-    if (row.value === 0) {
+    if (row.value === -1) {
         logout()
     }
 }
 
 const logout = () => {
-    MessagePlugin.success("已退出登录")
+    window.location.href = 'http://id.cpu.edu.cn/sso/logout?service=https://anno.cpu.edu.cn'
+    MessagePlugin.warning("正在退出, 即将返回登录页")
 }
+
 </script>
 
 <template>
@@ -78,19 +72,21 @@ const logout = () => {
                 <t-menu-item class="s" style="margin-right: 5px;"> 工作区 </t-menu-item>
                 <t-button class="s"  theme="default" variant="text" @click="modeChange" value="item2">{{ lightMode ? '深色模式' : '浅色模式' }}</t-button>
                 <template #operations>
-                    <t-icon class="t-menu__operations-icon s" name="search" />
-                    <t-icon class="t-menu__operations-icon s" name="notification-filled" />
+                    <SearchIcon class="t-menu__operations-icon s" />
+                    <NotificationFilledIcon class="t-menu__operations-icon s" />
                     <t-dropdown class="s"  @click="dropdownClick" :options="dropdownOption">
                         <t-space>
                             <t-button variant="text">
-                            <template #icon><t-icon name="user-circle" size="16" /></template>
+                            <template #icon><UserCircleIcon size="16" /></template>
                             {{ current.user.number }}
-                            <template #suffix> <t-icon name="chevron-down" size="16" /></template>
+                            <template #suffix><ChevronDownIcon size="16" /></template>
                             </t-button>
                         </t-space>
                     </t-dropdown>
-                    <t-icon @click="toHome" class="t-menu__operations-icon s" name="home" />
-                    <t-icon @click="openMenu" class="menu-button" :name="menuButtonIcon" />
+                    <HomeIcon @click="toHome" class="t-menu__operations-icon s"   />
+                    
+                    <FormatVerticalAlignRightIcon v-if="!menuVisible" @click="menuVisible = true" class="menu-button"  />
+                    <CloseIcon v-else  @click="closeMenu" class="menu-button" />
                 </template>
             </t-head-menu>
         </t-header>
@@ -106,37 +102,37 @@ const logout = () => {
                 <div class="center">
                     <t-button variant="text" theme="default" @click="router.push('/'); closeMenu()" v-if="current.user.role == UserRole.student">
                         <template #icon>
-                            <t-icon name="dashboard" />
+                            <DashboardIcon/>
                         </template>
                         首页
                     </t-button>
                     <t-button variant="text" theme="default" @click="router.push('/anno'); closeMenu()">
                         <template #icon>
-                            <t-icon name="edit-1" />
+                            <Edit1Icon/>
                         </template>
                         {{ current.user.role == UserRole.student ? "标注" : "标注审核" }}
                     </t-button>
                     <t-button variant="text" theme="default" @click="router.push('/task'); closeMenu()" v-if="current.user.role == UserRole.teacher " value="task">
                         <template #icon>
-                            <t-icon name="server" />
+                            <ServerIcon/>
                         </template>
                         任务管理
                     </t-button>
                     <t-button variant="text" theme="default" @click="router.push('/check'); closeMenu()" v-if="current.user.role == UserRole.teacher">
                         <template #icon>
-                            <t-icon name="filter-clear" />
+                            <FilterClearIcon />
                         </template>
                         审核员管理
                     </t-button>
                     <t-button variant="text" theme="default" @click="router.push('/student'); closeMenu()" v-if="current.user.role == UserRole.teacher">
                         <template #icon>
-                            <t-icon name="user-circle" />
+                            <UserCircleIcon />
                         </template>
                         学生管理
                     </t-button>
                     <t-button variant="text" theme="default" @click="router.push('/option'); closeMenu()" v-if="current.user.role == UserRole.teacher">
                         <template #icon>
-                            <t-icon name="setting" />
+                            <SettingIcon />
                         </template>
                         全局设置
                     </t-button>
@@ -144,7 +140,7 @@ const logout = () => {
                         {{ lightMode ? '深色模式' : '浅色模式' }}
                     </t-button>
                     <t-button @click="logout" variant="text" theme="default">
-                        <template #icon><t-icon name="user-circle" size="16" /></template>
+                        <template #icon><UserCircleIcon size="16" /></template>
                         退出登录
                     </t-button>
                 </div>
@@ -156,37 +152,37 @@ const logout = () => {
 
                     <t-menu-item value="home" v-if="current.user.role == UserRole.student" to="/">
                         <template #icon>
-                            <t-icon name="dashboard" />
+                            <DashboardIcon />
                         </template>
                         首页
                     </t-menu-item>
                     <t-menu-item value="anno" to="/anno">
                         <template #icon>
-                            <t-icon name="edit-1" />
+                            <Edit1Icon />
                         </template>
                         {{ current.user.role == UserRole.student ? "标注" : "标注审核" }}
                     </t-menu-item>
                     <t-menu-item v-if="current.user.role == UserRole.teacher" value="task" to="/task">
                         <template #icon>
-                            <t-icon name="server" />
+                            <ServerIcon />
                         </template>
                         任务管理
                     </t-menu-item>
                     <t-menu-item v-if="current.user.role == UserRole.teacher" value="check" to="/check">
                         <template #icon>
-                            <t-icon name="filter-clear" />
+                            <FilterClearIcon />
                         </template>
                         审核员管理
                     </t-menu-item>
                     <t-menu-item v-if="current.user.role == UserRole.teacher" value="student" to="/student">
                         <template #icon>
-                            <t-icon name="user-circle" />
+                            <UserCircleIcon />
                         </template>
                         学生管理
                     </t-menu-item>
                     <t-menu-item v-if="current.user.role == UserRole.teacher" value="option" to="/option">
                         <template #icon>
-                            <t-icon name="setting" />
+                            <SettingIcon />
                         </template>
                         全局设置
                     </t-menu-item>
