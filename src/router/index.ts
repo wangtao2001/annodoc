@@ -116,11 +116,7 @@ const router = createRouter({
 
 // 权限控制
 router.beforeEach(async (to, from, next) => {
-    // 性能优化 封装
-    const res = await axios.get("/api/auth/login")
-    if (res.data.code == '70020') {
-        window.location.href = res.data.data
-    }
+    NProgress.start()
 
     if (current.user.number.length == 0) { // 还没发过请求，什么都没有
         await request(
@@ -142,13 +138,12 @@ router.beforeEach(async (to, from, next) => {
                     current.user.login = false
                 } else {
                     current.user.login = true
-                    current.user.role = current.userRoles[0]
+                    current.user.role = current.userRoles[1]
                 }
             }
         )
     }
-
-    NProgress.start()
+    console.log("路由跳转")
     if (!current.user.login && to.name != 'permission') {
         next({name: 'permission'})
     } else
