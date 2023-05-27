@@ -1,8 +1,17 @@
 <template>
     <div class="content">
         <img src="@/assets/403.png" />
+        <t-link @click="logout" theme="warning">退出登录</t-link>
     </div>
 </template>
+
+<script setup lang="ts">
+import { MessagePlugin } from 'tdesign-vue-next'
+const logout = () => {
+    window.location.href = 'http://id.cpu.edu.cn/sso/logout?service=https://anno.cpu.edu.cn'
+    MessagePlugin.warning("正在退出, 即将返回登录页")
+}
+</script>
 
 <style scoped lang="less">
 .content {
@@ -10,6 +19,7 @@
     height: 100vh;
     display: flex;
     justify-content: center;
+    flex-direction: column;
     align-items: center;
 
     img {

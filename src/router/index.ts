@@ -6,6 +6,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import {request, getConfig} from '@/methods/request'
 import axios from 'axios'
+import { MessagePlugin } from 'tdesign-vue-next'
 NProgress.configure({ showSpinner: false })
 
 // 这样写是为了能够在路由守卫中使用store
@@ -118,30 +119,31 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
     NProgress.start()
 
-    if (current.user.number.length == 0) { // 还没发过请求，什么都没有
-        await request(
-            getConfig,
-            "/api/getResponses/getUser",
-            (data) => {
-                if (data.checker) {
-                    current.userRoles.push(UserRole.checker)
-                }
-                if (data.manager) {
-                    current.userRoles.push(UserRole.teacher)
-                }
-                if(data.grade.length != 0) {
-                    current.userRoles.push(UserRole.student)
-                }
-                current.user.number = data.number
-                current.user.grade = data.grade
-                if (current.userRoles.length == 0) {
-                    current.user.login = false
-                } else {
-                    current.user.login = true
-                    current.user.role = current.userRoles[1]
-                }
-            }
-        )
+    if (current.user.number.length == 0) { // 使用原生请求，因为状态码不一样，和main.ts中一样
+        const res = await axios.get('/api/getResponses/getUser')
+        if (res.data.code == '70030' || res.data.code == '70040') {
+            MessagePlugin.error("身份验证失败, 请重新登录")
+            window.location.href = 'http://id.cpu.edu.cn/sso/logout?service=https://anno.cpu.edu.cn'
+            return
+        }
+        const data = res.data.data
+        if (data.checker) {
+            current.userRoles.push(UserRole.checker)
+        }
+        if (data.manager) {
+            current.userRoles.push(UserRole.teacher)
+        }
+        if(data.grade.length != 0) {
+            current.userRoles.push(UserRole.student)
+        }
+        current.user.number = data.number
+        current.user.grade = data.grade
+        if (current.userRoles.length == 0) {
+            current.user.login = false
+        } else {
+            current.user.login = true
+            current.user.role = current.userRoles[1]
+        }
     }
     if (!current.user.login && to.name != 'permission') {
         next({name: 'permission'})
