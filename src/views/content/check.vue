@@ -1,5 +1,5 @@
 <script lang="tsx" setup>
-import {request, getConfig, deleteConfig, postConfig} from '@/methods/request'
+import {request, getConfig, postConfig} from '@/methods/request'
 import { reactive, ref, Ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { UserRole } from '@/interface'
@@ -67,13 +67,13 @@ const deleteCheck = async (data: any) => {
     // 删除也是做两遍
     if (data.role == UserRole.teacher) {
         request(
-            deleteConfig,
+            getConfig,
             `/api/getResponses/deleteManager/${data.number}`,
             () => {}
         )
     }
     request(
-        deleteConfig,
+        getConfig,
         `/api/getResponses/deleteChecker/${data.number}`,
         () => {
             loadData()

@@ -85,7 +85,6 @@ const currentRoleName = computed(()=> {
     return "审核员"
 })
 const userRoleChange = (row: any) =>{
-    console.log(row)
     var changedRole = UserRole.student
     if (row.value == 2) {
         changedRole = UserRole.teacher

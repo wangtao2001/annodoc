@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import {getConfig, putConfig, request} from '@/methods/request'
+import {getConfig, postConfig, request} from '@/methods/request'
 import {ref, Ref} from 'vue'
 
 const optionsNameDict = new Map<string, string>()
@@ -27,7 +27,7 @@ const modify = () => {
         disModify.value = false
     } else {
         request(
-            putConfig,
+            postConfig,
             "/api/resultAccepts/updateOption",
             () => {
                 getAllOptions(),

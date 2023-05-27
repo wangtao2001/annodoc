@@ -1,7 +1,7 @@
 <script setup lang='tsx'>
 import { Ref, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import {request, getConfig, putConfig, deleteConfig} from '@/methods/request'
+import {request, getConfig, postConfig} from '@/methods/request'
 import { EntityLabelInfo, TaskInfo, RelaLabelInfo, TextSatatus } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { downloadLocal } from '@/methods/util'
@@ -125,7 +125,7 @@ const columns = [
 
 const deleteTask = async (id: string) => {
     request(
-        deleteConfig,
+        getConfig,
         `/api/getResponses/deleteTask/${id}`,
         () => loadData(),
         undefined,
@@ -191,7 +191,7 @@ const modifyTaskPut = async ()=> {
         return
     }
     request(
-        putConfig,
+        postConfig,
         '/api/resultAccepts/modifyTask',
         () => {
             modifyDialog.value = false
@@ -210,7 +210,7 @@ const uploadFile = (task: TaskInfo)=>{
 const grade = ref('')
 const releaseTask = async ()=> {
     request(
-        putConfig,
+        postConfig,
         '/api/resultAccepts/assignTask',
         ()=> {
             releaseDialog.value = false

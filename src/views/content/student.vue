@@ -4,7 +4,7 @@ import { MessagePlugin } from 'tdesign-vue-next'
 import { StudentInfo } from '@/interface'
 import * as xlsx from "xlsx"
 import { NotifyPlugin } from 'tdesign-vue-next'
-import {request, getConfig, deleteConfig, postConfig} from '@/methods/request'
+import {request, getConfig, postConfig} from '@/methods/request'
 
 const columns = [
     { colKey: 'number', title: '学号'},
@@ -23,7 +23,7 @@ const columns = [
 
 const deleteStudent = async (row: StudentInfo) => {
     request(
-        deleteConfig,
+        getConfig,
         `/api/getResponses/deleteStudent/${row.number}`,
         () => {
             allStudents.value = []
@@ -202,7 +202,7 @@ const gradeVisible = ref(false)
 
 const deleteGrade= async (id: number)  => {
     request(
-        deleteConfig,
+        getConfig,
         `/api/getResponses/deleteGrade/${id}`,
         () => {
             getAllGrades()

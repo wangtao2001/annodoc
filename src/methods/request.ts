@@ -3,27 +3,17 @@ import { MessagePlugin } from 'tdesign-vue-next'
 
 interface RequestConfig {
     method: Function
-    statusCode: string
+    statusCode1: string, statusCode2: string
 }
   
 export const getConfig: RequestConfig = {
     method: axios.get,
-    statusCode: "20041",
+    statusCode1: "20041", statusCode2: "20031"
 }
   
 export const postConfig: RequestConfig = {
     method: axios.post,
-    statusCode: "20011",
-}
-  
-export const deleteConfig: RequestConfig = {
-    method: axios.delete,
-    statusCode: "20031",
-}
-
-export const putConfig: RequestConfig = {
-    method: axios.put,
-    statusCode: "20021",
+    statusCode1: "20011", statusCode2: "20021"
 }
 
 export async function request(
@@ -35,11 +25,11 @@ export async function request(
     errorOption?: () => void
 ) {
     var res
-    if (config == getConfig || config == deleteConfig) {
+    if (config == getConfig) {
         res = await config.method(url)
     } else res = await config.method(url, data)
     if (res.status == 200) {
-        if (res.data.code == config.statusCode) {
+        if (res.data.code == config.statusCode1 || res.data.code == config.statusCode2) {
             if (successMessage !== undefined) {
                 MessagePlugin.success(successMessage)
             }
