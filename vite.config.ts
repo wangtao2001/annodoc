@@ -2,10 +2,24 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vue_jsx from '@vitejs/plugin-vue-jsx' 
 import path from "path"
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { TDesignResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), vue_jsx()],
+  plugins: [vue(), vue_jsx(), 
+    AutoImport({
+      resolvers: [TDesignResolver({
+        library: 'vue-next'
+      })],
+    }),
+    Components({
+      resolvers: [TDesignResolver({
+        library: 'vue-next'
+      })],
+    })  
+  ],
   resolve: {
     alias: {
       '@': path.resolve('./src') // @代替src
@@ -18,7 +32,7 @@ export default defineConfig({
     // 生产环境不存在跨域问题，因为前端和后端是部署在同一个服务器上的
     proxy:{
       '/api': {
-        target: 'http://43.142.68.89',
+        target: 'http://anno.cpu.edu.cn',
         changeOrigin: true
       }
     }

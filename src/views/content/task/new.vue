@@ -1,15 +1,15 @@
 <script setup lang='ts'>
 import { useRouter } from 'vue-router'
-import { ref, Ref, reactive, watch, nextTick } from 'vue'
-import upload from '@/components/upload.vue'
-import { LabelInfo, RelaInfo, taskInfo } from '@/interface'
+import { ref, Ref, reactive } from 'vue'
+import { EntityLabelInfo, RelaLabelInfo, TaskInfo } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
-import Label from '@/components/label.vue'
-import Rela from '@/components/real.vue'
 import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal } from '@/methods/util'
-import axios from 'axios'
 import  { mainStore } from '@/store'
+import {request, postConfig} from '@/methods/request'
+import pubsub from 'pubsub-js'
+import { AddIcon} from 'tdesign-icons-vue-next'
+
 const router = useRouter()
 const store = mainStore()
 
@@ -31,7 +31,7 @@ const pre = () => {
 const nextText = ref('下一步')
 
 // 生成设置的配置文件
-const newTask = () :taskInfo | null=>{
+const newTask = () :TaskInfo | null=>{
     if (allLabels.length == 0) {
         MessagePlugin.error('请添加实体')
         return null
@@ -76,6 +76,7 @@ const next = () => {
     }
 }
 
+const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
 // page 0
 // 表单
 const basicInfo = reactive({
@@ -155,8 +156,8 @@ const addRelaFrom = reactive({
     bothway: false
 })
 // 所有添加过的标签、关系
-const allLabels: Array<LabelInfo> = reactive([])
-const allRelas: Array<RelaInfo> = reactive([])
+const allLabels: Array<EntityLabelInfo> = reactive([])
+const allRelas: Array<RelaLabelInfo> = reactive([])
 
 const deletaLabel = (id: string) => {
     var i = 0
@@ -191,14 +192,18 @@ const uploadData = async() => {
     if (task == null) {
         return
     }
-    const res = await axios.post('/api/resultAccepts/taskResults', task)
-    console.log(res)
-    if(res.status == 200) {
-        if (res.data.code == 20011) {
-            MessagePlugin.success('提交成功')
+    request(
+        postConfig,
+        '/api/resultAccepts/taskResults',
+        () => {
+            // 提醒task_list更新数据
+            // 因为做了页面数据缓存故不能使用路由传参
             router.push('/task/list')
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('提交失败')
+            pubsub.publish("new_task_id", task.id)
+        },
+        task,
+        '提交成功'
+    )
 }
 
 // 工具函数
@@ -216,7 +221,7 @@ const labelIdToName = (id: string): string => {
 <template>
     <div class="root">
         <div class="container">
-            <t-form v-if="step == 0" label-align="left">
+            <t-form v-if="step == 0" :label-align="labelAalign">
                 <t-form-item label="项目类型" name="type">
                     <t-select v-model="basicInfo.type">
                         <t-option label="医学文本" value="医学文本" />
@@ -231,8 +236,7 @@ const labelIdToName = (id: string): string => {
                         :autosize="{ minRows: 5, maxRows: 10 }" clearable />
                 </t-form-item>
             </t-form>
-            <t-form v-if="step == 1" label-align="left">
-                <!--先把样式写出来，文件控制以后再说-->
+            <t-form v-if="step == 1" :label-align="labelAalign">
                 <t-form-item label="上传数据文件">
                     <div class="file">
                         <!--这个上传功能自己写-->
@@ -243,7 +247,7 @@ const labelIdToName = (id: string): string => {
                     </div>
                 </t-form-item>
             </t-form>
-            <t-form v-if="step == 2" label-align="left">
+            <t-form v-if="step == 2" :label-align="labelAalign">
                 <t-form-item label="实体配置">
                     <div class="label s">
                         <div class="con">
@@ -255,7 +259,7 @@ const labelIdToName = (id: string): string => {
                             </t-popconfirm>
                         </div>
                         <div class="add" @click="labelAddVisibleOpen">
-                            <t-icon name="add" />
+                            <AddIcon />
                             添加实体
                         </div>
                     </div>
@@ -272,7 +276,7 @@ const labelIdToName = (id: string): string => {
                             </t-popconfirm>
                         </div>
                         <div class="add" @click="relaAddVisible = true">
-                            <t-icon name="add" />
+                            <AddIcon />
                             添加关系
                         </div>
                     </div>
@@ -290,7 +294,7 @@ const labelIdToName = (id: string): string => {
     <t-dialog style="user-select: none" v-model:visible="labelAddVisible" mode="modal" draggable
         :on-confirm="labelAddConfim">
         <div>
-            <t-form label-align="left">
+            <t-form :label-align="labelAalign">
                 <t-form-item label="实体名称">
                     <t-input v-model="addLabelFrom.name" :maxlength="10" show-limit-number clearable />
                 </t-form-item>
@@ -300,7 +304,7 @@ const labelIdToName = (id: string): string => {
                     </t-select>
                 </t-form-item>
                 <t-form-item label="标签配色">
-                    <t-color-picker v-model="addLabelFrom.color" :swatchColors="null" :format="['RGB']"
+                    <t-color-picker v-model="addLabelFrom.color" :swatchColors="null"
                         :colorModes="['monochrome']" :show-primary-color-preview="false" />
                 </t-form-item>
             </t-form>
@@ -308,7 +312,7 @@ const labelIdToName = (id: string): string => {
     </t-dialog>
     <t-dialog style="user-select: none" v-model:visible="relaAddVisible" mode="modal" draggable :on-confirm="relaAddConfim">
         <div>
-            <t-form label-align="left">
+            <t-form :label-align="labelAalign">
                 <t-form-item label="关系名称">
                     <t-input v-model="addRelaFrom.name" :maxlength="10" show-limit-number clearable />
                 </t-form-item>
@@ -378,6 +382,22 @@ const labelIdToName = (id: string): string => {
         button {
             margin-right: 10px;
         }
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .root {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .container {
+        width: 100%;
+        margin: 0;
+    }
+
+    .file {
+        width: 100%;
     }
 }
 </style>

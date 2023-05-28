@@ -2,10 +2,17 @@ import { createApp } from 'vue'
 import './style/index.less'
 import App from './App.vue'
 import router from './router'
-import TDesign from 'tdesign-vue-next'
 import pinia from '@/store/pinia'
-// 考虑到产物大小可以按需引入或者通过插件引入
+import 'tdesign-vue-next/es/style/index.css'
+import axios  from 'axios'
 
-createApp(App).use(pinia).use(router).use(TDesign).mount("#app")
+const init = async() => {
+    axios.defaults.withCredentials = true // 请求携带cookie
+    const res = await axios.get("/api/auth/login")
+    if (res.data.code == '70020') {
+        window.location.href = res.data.data
+    }
+    createApp(App).use(pinia).use(router).mount("#app")
+}
 
-// 适配横屏，最小宽度960
+init()

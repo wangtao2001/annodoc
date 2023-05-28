@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router'
-import  counter from '@/components/counter.vue'
-import { statusStore } from '@/store'
 
-const status = statusStore()
 const route = useRoute()
 </script>
 
@@ -23,7 +20,7 @@ const route = useRoute()
 
 <style lang="less" scoped>
 .bread {
-    margin: 20px 0 50px 20px;
+    margin: 20px 20px 50px 20px;
     user-select: none;
     display: flex;
     flex-direction: row;
@@ -32,6 +29,12 @@ const route = useRoute()
     .b {
         display: flex;
         flex-direction: row;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .b {
+        flex-direction: column !important;
     }
 }
 </style>

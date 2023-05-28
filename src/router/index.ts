@@ -1,8 +1,16 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { statusStore } from '@/store'
+import { UserRole } from '@/interface'
 import pinia from "@/store/pinia"
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+import {request, getConfig} from '@/methods/request'
+import axios from 'axios'
+import { MessagePlugin } from 'tdesign-vue-next'
+NProgress.configure({ showSpinner: false })
+
 // 这样写是为了能够在路由守卫中使用store
-const status = statusStore(pinia)
+const current = statusStore(pinia)
 
 const routes: Array<RouteRecordRaw> = [{
     path: '/',
@@ -58,6 +66,11 @@ const routes: Array<RouteRecordRaw> = [{
             name: 'student',
         },
         {
+            path: '/option',
+            component: () => import('@/views/content/option.vue'),
+            name: 'option',
+        },
+        {
             path: '/task',
             component: () => import('@/views/content/task.vue'),
             name: 'task',
@@ -81,7 +94,20 @@ const routes: Array<RouteRecordRaw> = [{
                 },
             ]
         },
-    ]
+    ],
+}, 
+{
+    "path": "/404",
+    "name": "notfound",
+    component: ()=>  import('@/views/404.vue')
+}, {
+    "path": "/403",
+    "name": "permission",
+    component: ()=>  import('@/views/403.vue')
+},
+{
+    path: "/:pathMath(.*)", // 此处需特别注意置于最底部
+    redirect: "/404"
 }]
 
 const router = createRouter({
@@ -89,17 +115,62 @@ const router = createRouter({
     routes
 })
 
-// 权限控制，目前针对 task check两个地址
-router.beforeEach((to, from, next) => {
-    if (to.name === 'task_list' || to.name === "task_new" || to.name === 'check' || to.name == 'student') {
-        if ( status.currnetRole === 'admin') {
+// 权限控制
+router.beforeEach(async (to, from, next) => {
+    NProgress.start()
+
+    if (current.user.number.length == 0) { // 使用原生请求，因为状态码不一样，和main.ts中一样
+        const res = await axios.get('/api/getResponses/getUser')
+        if (res.data.code == '70030' || res.data.code == '70040') {
+            MessagePlugin.error("身份验证失败, 请重新登录")
+            window.location.href = 'http://id.cpu.edu.cn/sso/logout?service=https://anno.cpu.edu.cn'
+            return
+        }
+        const data = res.data.data
+        if (data.checker) {
+            current.userRoles.push(UserRole.checker)
+        }
+        if (data.manager) {
+            current.userRoles.push(UserRole.teacher)
+        }
+        if(data.grade.length != 0) {
+            current.userRoles.push(UserRole.student)
+        }
+        current.user.number = data.number
+        current.user.grade = data.grade
+        if (current.userRoles.length == 0) {
+            current.user.login = false
+        } else {
+            current.user.login = true
+            current.user.role = current.userRoles[1]
+        }
+    }
+    if (!current.user.login && to.name != 'permission') {
+        next({name: 'permission'})
+    } else
+    // 只有管理员能访问
+    if (to.name === 'task_list' || to.name === "task_new" || to.name === 'check' || to.name == 'student' || to.name == 'option') {
+        if ( current.user.role == UserRole.teacher) {
             next()
         } else {
-            next({ name: 'home' })
+            next({ name: 'anno' })
         }
-    } else {
+    } else
+     // 只有学生能访
+    if(to.name === 'home') {
+        if (current.user.role == UserRole.student) {
+            next()
+        } else {
+            next({name: 'anno'})
+        }
+    }
+    else {
         next()
     }
 })
+
+router.afterEach(() => {
+    NProgress.done()
+  })
 
 export default router

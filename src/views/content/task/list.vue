@@ -1,23 +1,30 @@
 <script setup lang='tsx'>
 import { Ref, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
-import { LabelInfo, taskInfo, RelaInfo, textSatatus } from '@/interface'
+import {request, getConfig, postConfig} from '@/methods/request'
+import { EntityLabelInfo, TaskInfo, RelaLabelInfo, TextSatatus } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { downloadLocal } from '@/methods/util'
-import upload from '@/components/upload.vue'
 import { mainStore } from '@/store'
+import pubsub from 'pubsub-js'
+
+pubsub.subscribe("new_task_id", async (msg, data)=> {
+    await loadItem(data)
+    change(1) // 返回到第一项页展示数据
+})
 
 const store = mainStore()
 
+// 获取新创建的new_task_id并loadItem
+console.log()
+
 const loadItem = async (id: string)=> {
-    // 反正是全部再读一次
-    const res = await axios.get(`/api/getResponses/tasks/${id}`)
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            const data = res.data.data
-            const entitys: LabelInfo[] = []
-            const relations: RelaInfo[] = []
+    await request(
+        getConfig,
+        `/api/getResponses/tasks/${id}`,
+        (data) => {
+            const entitys: EntityLabelInfo[] = []
+            const relations: RelaLabelInfo[] = []
             if(data.deleted) {
                 return
             }
@@ -49,41 +56,41 @@ const loadItem = async (id: string)=> {
                 relations: relations,
                 grade: data.grade,
             })
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取数据失败')
+        }
+    )
 }
 
 const loadData = async() => {
     allTasks.value = [] // 相当于刷新页面
-    const res = await axios.get('/api/getResponses/allTasks')
-    if (res.status == 200) { // 网络层
-        if (res.data.code == 20041) { // 应用层
-            const allIds: Array<string> = res.data.data
+    await request(
+        getConfig,
+        '/api/getResponses/allTasks',
+        async (allIds) => {
             for (var id of allIds) {
                 await loadItem(id)
             }
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取数据失败')
-    showDatas.value = allTasks.value.slice(0, pageSize)
-    tableLoading.value = false
+            showDatas.value = allTasks.value.slice(0, pageSize)
+            tableLoading.value = false
+        }  
+    )
 }
 
 const pageSize: number = 6 // 每页显示的任务数
-const allTasks: Ref<Array<taskInfo>> = ref([])  // 所有任务的信息
-const showDatas: Ref<Array<taskInfo>> = ref([]) // 当前页的任务信息
+const allTasks: Ref<Array<TaskInfo>> = ref([])  // 所有任务的信息
+const showDatas: Ref<Array<TaskInfo>> = ref([]) // 当前页的任务信息
 const change = (current: number) => {
     showDatas.value = allTasks.value.slice((current - 1) * pageSize, current * pageSize)
 }
 
+const tableLoading = ref(true)
 loadData()
 
 const router = useRouter()
 
-const tableLoading = ref(true)
 const columns = [
     { colKey: 'type', title: '类型', width: '40' },
     { colKey: 'id', title: 'ID', width: '50', ellipsis:true },
-    { title: '名称', width: '60', ellipsis:true, cell: (h: any, { row }: { row: taskInfo }) => {
+    { title: '名称', width: '60', ellipsis:true, cell: (h: any, { row }: { row: TaskInfo }) => {
         return (
             <div class='task_name'>
                 <>{
@@ -97,8 +104,8 @@ const columns = [
     } },
     { colKey: 'description', title: '描述', width: '60', ellipsis:true  },
     // { colKey: 'createTime', title: "创建时间", width: '80' },
-    { colKey: 'modifyTime', title: '修改时间', width: '80' },
-    { title: '操作', width: '50', cell: (h: any, { row }: { row: taskInfo }) => {
+    { colKey: 'modifyTime', title: '修改时间', width: '55' },
+    { title: '操作', width: '50', cell: (h: any, { row }: { row: TaskInfo }) => {
         return (
             <div>
                 <t-link onClick={()=>{view(row)}} theme="success">查看</t-link>
@@ -108,11 +115,13 @@ const columns = [
                             <div>
                                 <>{
                                     row.grade == 0?
-                                    <t-link theme="warning" onClick={()=>{releaseDialog.value = true; currentTask = row}} > 发布 </t-link>: ''
+                                    <t-link theme="warning" onClick={()=>{getAllGrades() ;releaseDialog.value = true; currentTask = row}} > 发布 </t-link>: ''
                                 }
                                 </>
                                 <t-link theme="primary" onClick={()=> {uploadFile(row)}} > 继续上传文件 </t-link>
-                                <t-link theme="danger" onClick={()=>{deleteTask(row.id)}} > 删除 </t-link>
+                                <t-popconfirm on-confirm={()=>{deleteTask(row.id)}} theme="danger" content="确认删除吗">
+                                    <t-link theme="danger" > 删除 </t-link>
+                                </t-popconfirm>
                             </div>
                         )
                     }}>
@@ -124,14 +133,13 @@ const columns = [
 ]
 
 const deleteTask = async (id: string) => {
-    const res = await axios.delete(`/api/getResponses/deleteTask/${id}`)
-    console.log(res)
-    if (res.status == 200) {
-        if (res.data.code == 20031) {
-            MessagePlugin.success('删除成功')
-            loadData()
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('删除失败')
+    request(
+        getConfig,
+        `/api/getResponses/deleteTask/${id}`,
+        () => loadData(),
+        undefined,
+        "删除成功"
+    )
 }
 
 const tabs = [
@@ -144,8 +152,8 @@ const createTask = () => {
     router.push('/task/new')
 }
 
-var currentTask: taskInfo
-const textSatatus: textSatatus = reactive({
+var currentTask: TaskInfo
+const textSatatus: TextSatatus = reactive({
     all:0, finalized:0, marked:0, unmarked:0, marking: 0
 })
 const viewDialog = ref(false)
@@ -153,18 +161,18 @@ const modifyDialog = ref(false)
 const uploadDialog = ref(false)
 const releaseDialog = ref(false)
 
-const view = async (task: taskInfo) => {
-    const res = await axios.get(`/api/getResponses/getMedicalNumber/${task.id}`)
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            const data = res.data.data
+const view = async (task: TaskInfo) => {
+    request(
+        getConfig,
+        `/api/getResponses/getMedicalNumber/${task.id}`,
+        (data) => {
             textSatatus.all = data.all
             textSatatus.finalized = data.finalized
             textSatatus.marked = data.marked
             textSatatus.marking = data.marking
             textSatatus.unmarked = data.unmarked
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取数据失败')
+        }
+    )
     currentTask = task
     viewDialog.value = true
 }
@@ -176,13 +184,14 @@ const modifyTaskData = reactive({ // 修改任务的数据
     modifyTime: '',
     grade: 0
 })
-const modify = (task: taskInfo) => {
+const modify = (task: TaskInfo) => {
     modifyTaskData.id = task.id
     modifyTaskData.type = task.type
     modifyTaskData.taskName = task.taskName
     modifyTaskData.description = task.description
     modifyTaskData.grade = task.grade
     modifyDialog.value = true
+    getAllGrades()
 }
 const modifyTaskPut = async ()=> {
     modifyTaskData.modifyTime = new Date().toLocaleString()
@@ -190,44 +199,42 @@ const modifyTaskPut = async ()=> {
         MessagePlugin.error('任务名称不能为空')
         return
     }
-    const res = await axios.put('/api/resultAccepts/modifyTask', modifyTaskData)
-    if (res.status == 200) {
-        if (res.data.code == 20021) {
-            MessagePlugin.success('修改成功')
+    request(
+        postConfig,
+        '/api/resultAccepts/modifyTask',
+        () => {
             modifyDialog.value = false
             loadData()
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('修改失败')
+        },
+        modifyTaskData,
+        '修改成功'
+    )
 }
 
-const uploadFile = (task: taskInfo)=>{
+const uploadFile = (task: TaskInfo)=>{
     uploadDialog.value = true
     store.createTaskId = task.id // ipload组件使用的是store中存储的
 }
 
 const grade = ref('')
 const releaseTask = async ()=> {
-    const res = await axios.put('/api/resultAccepts/assignTask', {
-        id: currentTask.id,
-        grade: grade.value
-    })
-    if (res.status == 200) {
-        if (res.data.code == 20021) {
-            console.log("剩余：", res.data.data)
-            MessagePlugin.success('发布成功')
+    request(
+        postConfig,
+        '/api/resultAccepts/assignTask',
+        ()=> {
             releaseDialog.value = false
             loadData()
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('发布失败')
+        }, 
+        { id: currentTask.id, grade: grade.value },
+        '发布成功'
+    )
 }
 
-// 下载最终标注结果
 const downloadResult = async ()=> {
-    const res = await axios.get(`/api/getResponses/getFinalizedText/${currentTask.id}`)
-    if (res.status == 200) {
-        if (res.data.code == 20041) {
-            const data = res.data.data
-            // 这里进行数据处理
+    request(
+        getConfig,
+        `/api/getResponses/getFinalizedText/${currentTask.id}`,
+        (data) => {
             for (var text of data) {
                 for (var enenty of text.entityResults){
                     delete enenty.textId
@@ -253,22 +260,37 @@ const downloadResult = async ()=> {
                 }
             }
             downloadLocal(JSON.stringify(data , null, '\t'), `${currentTask.taskName}.json`)
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('获取数据失败')
+        }
+    )
 }
 
 const colseTask = async () => {
-    const res = await axios.get(`/api/getResponses/endHomework/${closeTaskGrade.value}`)
-    if (res.status == 200) {
-        if (res.data.code == 20021) {
-            MessagePlugin.success("操作成功")
-            closeTaskDialog.value = false
-        } else MessagePlugin.error(res.data.msg)
-    } else MessagePlugin.error('失败')
+    request(
+        getConfig,
+        `/api/getResponses/endHomework/${closeTaskGrade.value}`,
+        () => closeTaskDialog.value = false,
+        undefined,
+        '操作成功'
+    )
+    closeTaskDialog.value = false
 }
 
 const closeTaskDialog = ref(false)
 const closeTaskGrade = ref("")
+
+const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
+
+// 全部年级
+const allGrades: Ref<Array<{id: number, grade: string}>> = ref([])
+const getAllGrades = async () => {
+    request(
+        getConfig,
+        '/api/getResponses/getAllGrades',
+        (data) => {
+            allGrades.value = data
+        }
+    )
+}
 </script>
 
 <template>
@@ -278,15 +300,41 @@ const closeTaskGrade = ref("")
                 <t-tab-panel v-for="tab in tabs" :value="tab.value" :label="tab.title">
                     <!--这个过滤器这样写有问题-->
                     <t-base-table :loading="tableLoading" class="table" :data="showDatas.filter(task => tab.title == '全部'? true : task.type == tab.title)" stripe bordered row-key="index" :columns="columns"></t-base-table>
+                    <div class="list">
+                        <div class="list-item" v-for="d in showDatas.filter(task => tab.title == '全部'? true : task.type == tab.title) " :key="d.id">
+                            <div class="left">
+                                <div class="title">
+                                    {{ d.type + '/' + d.taskName }}
+                                    <t-tag v-if="d.grade == 0" theme="warning" variant="light">未发布</t-tag>
+                                    <t-tag v-else theme="success" variant="light">已发布</t-tag>
+                                </div>
+                                <div class="desc">
+                                    {{ d.description }}
+                                </div>
+                                <div class="time">
+                                    {{ '最后修改时间：' + d.modifyTime }}
+                                </div>
+                                <div class="option">
+                                    <t-link underline @click="view(d)" theme="success">查看</t-link>
+                                    <t-link underline @click="modify(d)" theme="primary">修改</t-link>
+                                    <t-link underline theme="warning" v-if="d.grade == 0" @click="getAllGrades() ;releaseDialog = true; currentTask = d" > 发布 </t-link>
+                                    <t-link underline theme="primary" @click="uploadFile(d)" > 继续上传文件 </t-link>
+                                    <t-popconfirm @confirm="deleteTask(d.id)" theme="danger" content="确认删除吗">
+                                        <t-link underline theme="danger" > 删除 </t-link>
+                                    </t-popconfirm>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </t-tab-panel>
             </t-tabs>
             <div class="bottom">
-                <div>
-                    <t-button class="new" style="margin-right: 10px;" @click="createTask">创建任务</t-button>
-                    <t-button theme="danger" @click="closeTaskDialog = true" >提前结束任务</t-button>
-                </div>
                 <t-pagination class="page" :total="allTasks.length" showPageNumber :showPageSize="false" :pageSize="pageSize"
                     showPreviousAndNextBtn totalContent @current-change="change"  />
+                <div class="option">
+                    <t-button class="new" style="margin-right: 10px;" @click="createTask">创建任务</t-button>
+                    <t-button theme="danger" @click="getAllGrades() ;closeTaskDialog = true" >提前结束任务</t-button>
+                </div>
             </div>
         </div>
         <t-dialog
@@ -295,9 +343,11 @@ const closeTaskGrade = ref("")
             header="提前结束任务"
             @confirm="colseTask"
             >
-            <t-form label-align="left">
+            <t-form :label-align="labelAalign">
                 <t-form-item label="选择年级" name="grade">
-                    <t-input v-model="closeTaskGrade" show-limit-number clearable  />
+                    <t-select class="grade" v-model="closeTaskGrade">
+                        <t-option v-for="d in allGrades" :key="d.id" :label="d.grade" :value="d.grade" />
+                    </t-select>
                 </t-form-item>
             </t-form>
         </t-dialog>
@@ -331,7 +381,7 @@ const closeTaskGrade = ref("")
             header="修改任务信息"
             @confirm="modifyTaskPut"
             >
-            <t-form label-align="left">
+            <t-form :label-align="labelAalign">
                 <t-form-item label="项目id" name="id">
                     <t-input v-model="modifyTaskData.id" disabled />
                 </t-form-item>
@@ -345,7 +395,10 @@ const closeTaskGrade = ref("")
                     <t-input v-model="modifyTaskData.taskName" :maxlength="20" show-limit-number clearable />
                 </t-form-item>
                 <t-form-item label="发布年级" name="grade" v-if="modifyTaskData.grade !=0">
-                    <t-input v-model="modifyTaskData.grade" show-limit-number clearable  />
+                    <!-- <t-input v-model="modifyTaskData.grade" show-limit-number clearable  /> -->
+                    <t-select class="grade" v-model="modifyTaskData.grade">
+                        <t-option v-for="d in allGrades" :key="d.id" :label="d.grade" :value="d.grade" />
+                    </t-select>
                 </t-form-item>
                 <t-form-item label="项目描述" name="desc">
                     <t-textarea v-model="modifyTaskData.description" placeholder="简单描述项目，长度限制为100" :maxcharacter="100"
@@ -371,9 +424,12 @@ const closeTaskGrade = ref("")
             header="发布任务"
             @confirm="releaseTask"
             >
-            <t-form label-align="left">
+            <t-form :label-align="labelAalign">
                 <t-form-item label="发布年级">
-                    <t-input v-model="grade" show-limit-number clearable />
+                    <!-- <t-input v-model="grade" show-limit-number clearable /> -->
+                    <t-select class="grade" v-model="grade">
+                        <t-option v-for="d in allGrades" :key="d.id" :label="d.grade" :value="d.grade" />
+                    </t-select>
                 </t-form-item>
             </t-form>
         </t-dialog>
@@ -421,4 +477,56 @@ const closeTaskGrade = ref("")
     }
 
 }
+
+.list {
+    display: none;
+}
+
+@media screen and (max-width: 900px) {
+    .root {
+        justify-content: center;
+        padding: 0 20px;
+    }
+
+    .container {
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    .bottom {
+        flex-direction: column !important;
+
+        .option {
+            flex-direction: column !important;
+        }
+
+        .page {
+                width: auto;
+            }
+    }
+
+    .table {
+        display: none;
+    }
+
+    .list {
+        display: block;
+        border: 1px solid var( --common-border);
+        padding: 20px 20px;
+        margin: 20px 0;
+
+        .title {
+            font-weight: 600;
+        }
+
+        .time {
+            color: #999;
+        }
+    }
+
+    .list-item:nth-child(n + 2) {
+            margin-top: 10px;
+    }
+}
+
 </style>

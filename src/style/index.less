@@ -34,6 +34,12 @@ body {
     font-weight: normal !important;
 }
 
+.t-card__header {
+    @media screen and (max-width: 900px) {
+        padding: 10px !important;
+    }
+}
+
 .t-link {
     margin: 2px !important;
 }
@@ -86,12 +92,19 @@ body {
     }
 }
 
+.checker_name {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
 :root {
     --reading-text-color: #191919;
     --base-bgc: #fff;
     --rela-border: #e5e5e5;
     --real-con: #595959;
     --common-border: #ddd;
+    --counter-bgc: #f3f3f3;
 }
 
 :root[theme-mode="dark"] {
@@ -100,4 +113,9 @@ body {
     --rela-border: #000;
     --real-con: #fff;
     --common-border: #5e5e5e;
+    --counter-bgc: #2c2c2c;
+}
+
+#nprogress .bar {
+    background-color: #0052d9 !important;
 }

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, watch, computed, reactive } from 'vue'
 import { mainStore, statusStore } from '@/store'
-import { relaOption } from '@/interface'
-import { resultNumberToLabelId, resultNumberToContent, relaNumberToContent } from '@/methods/util'
+import { RelaOption } from '@/interface'
+import { numberToResult, numberToRela } from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 import pubsub from 'pubsub-js'
 import { MessagePlugin } from 'tdesign-vue-next'
-import {RelaInfo} from '@/interface'
+import {SlashIcon, ArrowRightIcon, AddIcon, ChevronDownIcon} from 'tdesign-icons-vue-next'
 
 const store = mainStore()
-const status = statusStore()
+const current = statusStore()
 
 // 命名规则 rela1关系起点 rela2关系终点 allRela能够展示出来的关系 relas所有关系
 
@@ -57,17 +57,17 @@ const dialogConfim = () => { // 点击确定对话框关闭
         const data = {
             id: uuidv4(),
             startNumber: rela1Number.value,
-            startContent: resultNumberToContent(rela1Number.value),
+            startContent: numberToResult(rela1Number.value)!.content,
             endNumber: rela2Number.value,
-            endContent: resultNumberToContent(rela2Number.value),
+            endContent: numberToResult(rela2Number.value)!.content,
             relaId: relaID.value,
-            relaName: relaNumberToContent(relaID.value)
+            relaName: numberToRela(relaID.value)!.type
         }
         if (isreverse) {
             data.startNumber = rela2Number.value
             data.endNumber = rela1Number.value
-            data.startContent = resultNumberToContent(rela2Number.value)
-            data.endContent = resultNumberToContent(rela2Number.value)
+            data.startContent = numberToResult(rela2Number.value)!.content
+            data.endContent = numberToResult(rela2Number.value)!.content
         }
         if (data.startNumber == data.endNumber) { // 起点终点不能是一个
             MessagePlugin.error('关系起点与终点重复')
@@ -91,7 +91,7 @@ const dialogConfim = () => { // 点击确定对话框关闭
     }
 }
 
-const rela1Options: Array<relaOption> = [] // 关系起点的选择的内容
+const rela1Options: Array<RelaOption> = [] // 关系起点的选择的内容
 const rela2Options = rela1Options // 关系终点选择的内容
 
 
@@ -105,7 +105,7 @@ const addRela = () => { // 打开对话框
     allRelaTitle.value = '选择关系'
     relaID.value = ""
     isreverse = false
-    for (var r of store.results) { // 重新装载
+    for (var r of store.entityResults) { // 重新装载
         rela1Options.push({
             content: r.number.toString() + ' ' + r.content,
             id: r.number
@@ -115,19 +115,19 @@ const addRela = () => { // 打开对话框
 
 const rela1Title = ref("选择关系起点") // 关系起点的title
 const rela1Number = ref(-1) // 关系起点选择的id
-const rela1Choose = (data: relaOption) => {
+const rela1Choose = (data: RelaOption) => {
     rela1Title.value = data.content
     rela1Number.value = data.id as number
 }
 
 const rela2Title = ref("选择关系起点") // 关系起点的title
 const rela2Number = ref(-1) // 关系起点选择的Number
-const rela2Choose = (data: relaOption) => {
+const rela2Choose = (data: RelaOption) => {
     rela2Title.value = data.content
     rela2Number.value = data.id as number
 }
 
-const allRelaOptions: Array<relaOption> = [] // 关系选择的内容
+const allRelaOptions: Array<RelaOption> = [] // 关系选择的内容
 // 这里面的内容需要根据选择的关系起点和终点来展示，比如选择了两个疾病，就只能展示并发症这一种
 const allRelaDisabled = ref(true) // 在没有选择起点和终点时这个选择是禁用的
 // 监听起点和终点有没有选择
@@ -137,11 +137,11 @@ const ids = computed(() => { //合到一起便于侦听
 watch(ids, () => {
     if (rela1Number.value != -1 && rela2Number.value != -1) {
         // 两个都选择了才取消选择关系的禁用
-        const keyword1 = resultNumberToLabelId(rela1Number.value)
-        const keyword2 = resultNumberToLabelId(rela2Number.value)
+        const keyword1 = numberToResult(rela1Number.value)!.labelId
+        const keyword2 = numberToResult(rela2Number.value)!.labelId
         allRelaOptions.length = 0
 
-        for (var r of status.currentRelas) {
+        for (var r of current.relaLabels) {
             if ((r.entity1 == keyword1 && r.entity2 == keyword2) || (r.entity1 == keyword2 && r.entity2 == keyword1)) {
                 if (!r.bothway && r.entity1 == keyword2) { // 反向了
                     isreverse = true
@@ -158,7 +158,7 @@ watch(ids, () => {
 
 const allRelaTitle = ref("选择关系") // 关系的title
 const relaID = ref("") // 关系的id
-const allRelaChoose = (data: relaOption) => {
+const allRelaChoose = (data: RelaOption) => {
     allRelaTitle.value = data.content
     relaID.value = data.id as string
 }
@@ -183,33 +183,33 @@ const deleteRela = (id: string) => {
             <div class="list" v-for="r in relaView" :key="r.id">
                 <div class="info">
                     {{ r.start }}
-                    <t-icon name="slash" />
+                    <SlashIcon />
                     {{ r.end }}
-                    <t-icon name="arrow-right" />
+                    <ArrowRightIcon />
                     {{ r.rela }}
                 </div>
                 <t-link theme="danger" @click="deleteRela(r.id)" hover="color"> 删除 </t-link>
             </div>
             <t-button class="add-rela" @click="addRela" theme="primary">
-                <template #icon><t-icon name="add" /></template>
+                <template #icon><AddIcon /></template>
                 新增关系
             </t-button>
             <t-dialog style="user-select: none;" v-model:visible="visibleModal" header="新增关系" mode="modal" draggable
                 :on-confirm="dialogConfim">
                 <template #body>
-                    <t-dropdown @click="rela1Choose" :options="rela1Options" :disabled="store.results.length == 0">
+                    <t-dropdown @click="rela1Choose" :options="rela1Options" :disabled="store.entityResults.length == 0">
                         <t-space>
                             <t-button variant="text">
                                 {{ rela1Title }}
-                                <template #suffix> <t-icon name="chevron-down" size="16" /></template>
+                                <template #suffix> <ChevronDownIcon size="16" /></template>
                             </t-button>
                         </t-space>
                     </t-dropdown>
-                    <t-dropdown @click="rela2Choose" :options="rela2Options" :disabled="store.results.length == 0">
+                    <t-dropdown @click="rela2Choose" :options="rela2Options" :disabled="store.entityResults.length == 0">
                         <t-space>
                             <t-button variant="text">
                                 {{ rela2Title }}
-                                <template #suffix> <t-icon name="chevron-down" size="16" /></template>
+                                <template #suffix> <ChevronDownIcon size="16" /></template>
                             </t-button>
                         </t-space>
                     </t-dropdown>
@@ -217,7 +217,7 @@ const deleteRela = (id: string) => {
                         <t-space>
                             <t-button variant="text">
                                 {{ allRelaTitle }}
-                                <template #suffix> <t-icon name="chevron-down" size="16" /></template>
+                                <template #suffix> <ChevronDownIcon size="16" /></template>
                             </t-button>
                         </t-space>
                     </t-dropdown>
@@ -229,9 +229,9 @@ const deleteRela = (id: string) => {
 
 <style scoped lang="less">
 .rela-area {
+    width: 180px;
     .add-rela {
         width: 100%;
-        padding: 0 40px;
     }
 }
 
@@ -241,5 +241,11 @@ const deleteRela = (id: string) => {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+@media screen and (max-width: 900px) { 
+    .rela-area {
+        width: 100%;
+    }
 }
 </style>

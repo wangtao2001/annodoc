@@ -2,12 +2,12 @@
 import textIcon from '@/assets/1.png'
 import recordIcon from '@/assets/2.png'
 import { useRouter } from 'vue-router'
-import {annoType} from '@/interface'
+import { AnnoType } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 
 const router = useRouter()
 
-const annoType: Array<annoType> = [
+const annoType: Array<AnnoType> = [
     {
         id: 0,
         title: '医学文本',
@@ -15,17 +15,18 @@ const annoType: Array<annoType> = [
         content: '',
         link: '/anno/work?type=text',
         disabled: false
-    }, {
-        id: 1,
-        title: '电子病历',
-        img: recordIcon, // require是webpack的做法
-        content: '',
-        link: '/anno/work?type=record',
-        disabled: true
     }
+    //, {
+    //     id: 1,
+    //     title: '电子病历',
+    //     img: recordIcon, // require是webpack的做法
+    //     content: '',
+    //     link: '/anno/work?type=record',
+    //     disabled: true
+    // }
 ]
 
-const anno = (type: annoType)=> {
+const anno = (type: AnnoType)=> {
     if(type.disabled) {
         MessagePlugin.error('暂无任务')
     } else router.push(type.link)
@@ -66,6 +67,7 @@ const anno = (type: annoType)=> {
 
         .label {
             margin-right: 40px;
+            margin-bottom: 10px;
         }
 
         .tasks {
@@ -75,7 +77,7 @@ const anno = (type: annoType)=> {
             .card {
                 padding: 15px;
                 border: 1px solid var(--common-border);
-                margin: 0 5px;
+                margin: 5px 5px 5px 0;
 
                 .top {
                     display: flex;
@@ -101,6 +103,12 @@ const anno = (type: annoType)=> {
                 }
             }
         }
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .container, .tasks {
+        flex-direction: column !important;
     }
 }
 </style>

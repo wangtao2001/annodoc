@@ -1,78 +1,51 @@
-import { LabelInfo } from '@/interface'
+import { EntityLabelInfo, EntityResult, RelaLabelInfo } from '@/interface'
 import { mainStore, statusStore } from '@/store'
 const store = mainStore()
-const status = statusStore()
+const current = statusStore()
 
-export function resultNumberToContent(number: number): string {
-    for (var r of store.results) {
+export function numberToResult(number: number): EntityResult | null {
+    for (var r of store.entityResults) {
         if (number == r.number) {
-            return r.content
-        }
-    }
-    return ""
-}
-
-export function resultIdToContent(id: string): string {
-    for (var r of store.results) {
-        if (id == r.id) {
-            return r.content
-        }
-    }
-    return ""
-}
-
-export function resultIdToNumber(id: string): number {
-    for (var r of store.results) {
-        if (id == r.id) {
-            return r.number
-        }
-    }
-    return 0
-}
-
-export function relaNumberToContent(number: string): string {
-    for (var r of status.currentRelas) {
-        if (number == r.id) {
-            return r.type
-        }
-    }
-    return ""
-}
-
-export function resultNumberToLabelId(number: number): string {
-    for (var r of store.results) {
-        if (number == r.number) {
-            return r.labelId
-        }
-    }
-    return ""
-}
-
-export function resultNumberToId(number: number): string {
-    for (var r of store.results) {
-        if (number == r.number) {
-            return r.id
-        }
-    }
-    return ""
-}
-
-export function labelIdToLabel(id: string): LabelInfo | null {
-    for (var l of status.currentLabels) {
-        if (l.id == id) {
-            return l
+            return r
         }
     }
     return null
 }
 
-export function relaLabelToName(id: string): string {
-    for (var r of status.currentRelas) {
-        if (r.id == id) {
-            return r.type
+export function idToResult(id: string): EntityResult | null {
+    for (var r of store.entityResults) {
+        if (id == r.id) {
+            return r
         }
     }
-    return ""
+    return null
+}
+
+export function idToRela(id: string): RelaLabelInfo | null {
+    for (var r of current.relaLabels) {
+        if (r.id == id) {
+            return r
+        }
+    }
+    return null
+}
+
+export function numberToRela(number: string): RelaLabelInfo | null {
+    for (var r of current.relaLabels) {
+        if (number == r.id) {
+            return r
+        }
+    }
+    return null
+}
+
+export function labelIdToLabel(id: string): EntityLabelInfo | null {
+    for (var l of current.entityLabels) {
+        if (l.id == id) {
+            return l
+        }
+    }
+    return null
 }
 
 export function fileListToArray(fileList: FileList): Array<File> {

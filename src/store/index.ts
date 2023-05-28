@@ -1,31 +1,33 @@
 import { defineStore } from 'pinia'
-import { Result, RelaResult, LabelInfo, RelaInfo } from '@/interface'
+import { EntityResult, RelaResult, EntityLabelInfo, RelaLabelInfo, User, UserRole } from '@/interface'
 import {reactive, Ref ,ref} from 'vue'
 
 export const mainStore = defineStore('main', () => {
-    const results: Array<Result> = reactive([])
+    const entityResults: Array<EntityResult> = reactive([])
     const relaResults: Array<RelaResult> = reactive([])
     const createTaskId: Ref<string> = ref("")
 
     return {
-        results, relaResults, createTaskId
+        entityResults, relaResults, createTaskId
     }
 })
+
 
 export const statusStore = defineStore('current', () => {
-    const currentNumebr: Ref<string> = ref("2020192462") // 模拟登录的学号
-    const currentGrade: Ref<number> = ref(19)   // 模拟登录的年级 
-    const currnetRole: Ref<string> = ref("admin") // 用以做权限控制 student  | admin | checker
+    const user: Ref<User> = ref({
+        number: "", grade: "", role: UserRole.student, login: false
+    })
+    const userRoles: Ref<Array<UserRole>> = ref([])
 
-    const currentTextId: Ref<string>= ref("")
-    const currentText: Ref<string> = ref("")
-    const currentTaskId: Ref<string> = ref("")
-    const currentLabels: Ref<Array<LabelInfo>> = ref([])
-    const currentRelas: Ref<Array<RelaInfo>> = ref([])
+    
+    const textId: Ref<string>= ref("")
+    const text: Ref<string> = ref("")
+    const taskId: Ref<string> = ref("")
+    const entityLabels: Ref<Array<EntityLabelInfo>> = ref([])
+    const relaLabels: Ref<Array<RelaLabelInfo>> = ref([])
 
     return {
-        currentNumebr, currentTextId, currentTaskId, currentGrade, currentLabels, currentRelas,
-        currentText, currnetRole
+        textId, taskId, entityLabels, relaLabels,
+        text, user, userRoles
     }
 })
-

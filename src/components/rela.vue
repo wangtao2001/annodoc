@@ -24,7 +24,7 @@ const props = defineProps({
         <div class="rela-name">{{ name }}</div>
         <div class="con">
             <div class="start">{{ startName }}</div>
-            <t-icon v-if="$props.bothway" name="chevron-left" />
+            <t-icon v-if="props.bothway" name="chevron-left" />
             <t-icon name="chevron-right" />
             <div class="end">{{ endName }}</div>
         </div>
