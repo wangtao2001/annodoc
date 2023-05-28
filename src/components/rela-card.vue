@@ -6,6 +6,7 @@ import { numberToResult, numberToRela } from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 import pubsub from 'pubsub-js'
 import { MessagePlugin } from 'tdesign-vue-next'
+import {SlashIcon, ArrowRightIcon, AddIcon, ChevronDownIcon} from 'tdesign-icons-vue-next'
 
 const store = mainStore()
 const current = statusStore()
@@ -182,15 +183,15 @@ const deleteRela = (id: string) => {
             <div class="list" v-for="r in relaView" :key="r.id">
                 <div class="info">
                     {{ r.start }}
-                    <t-icon name="slash" />
+                    <SlashIcon />
                     {{ r.end }}
-                    <t-icon name="arrow-right" />
+                    <ArrowRightIcon />
                     {{ r.rela }}
                 </div>
                 <t-link theme="danger" @click="deleteRela(r.id)" hover="color"> 删除 </t-link>
             </div>
             <t-button class="add-rela" @click="addRela" theme="primary">
-                <template #icon><t-icon name="add" /></template>
+                <template #icon><AddIcon /></template>
                 新增关系
             </t-button>
             <t-dialog style="user-select: none;" v-model:visible="visibleModal" header="新增关系" mode="modal" draggable
@@ -200,7 +201,7 @@ const deleteRela = (id: string) => {
                         <t-space>
                             <t-button variant="text">
                                 {{ rela1Title }}
-                                <template #suffix> <t-icon name="chevron-down" size="16" /></template>
+                                <template #suffix> <ChevronDownIcon size="16" /></template>
                             </t-button>
                         </t-space>
                     </t-dropdown>
@@ -208,7 +209,7 @@ const deleteRela = (id: string) => {
                         <t-space>
                             <t-button variant="text">
                                 {{ rela2Title }}
-                                <template #suffix> <t-icon name="chevron-down" size="16" /></template>
+                                <template #suffix> <ChevronDownIcon size="16" /></template>
                             </t-button>
                         </t-space>
                     </t-dropdown>
@@ -216,7 +217,7 @@ const deleteRela = (id: string) => {
                         <t-space>
                             <t-button variant="text">
                                 {{ allRelaTitle }}
-                                <template #suffix> <t-icon name="chevron-down" size="16" /></template>
+                                <template #suffix> <ChevronDownIcon size="16" /></template>
                             </t-button>
                         </t-space>
                     </t-dropdown>

@@ -6,8 +6,17 @@ import { EntityLabelInfo, TaskInfo, RelaLabelInfo, TextSatatus } from '@/interfa
 import { MessagePlugin } from 'tdesign-vue-next'
 import { downloadLocal } from '@/methods/util'
 import { mainStore } from '@/store'
+import pubsub from 'pubsub-js'
+
+pubsub.subscribe("new_task_id", async (msg, data)=> {
+    await loadItem(data)
+    change(1) // 返回到第一项页展示数据
+})
 
 const store = mainStore()
+
+// 获取新创建的new_task_id并loadItem
+console.log()
 
 const loadItem = async (id: string)=> {
     await request(

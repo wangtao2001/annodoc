@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal } from '@/methods/util'
 import  { mainStore } from '@/store'
 import {request, postConfig} from '@/methods/request'
+import pubsub from 'pubsub-js'
+import { AddIcon} from 'tdesign-icons-vue-next'
 
 const router = useRouter()
 const store = mainStore()
@@ -193,7 +195,12 @@ const uploadData = async() => {
     request(
         postConfig,
         '/api/resultAccepts/taskResults',
-        () => router.push('/task/list'),
+        () => {
+            // 提醒task_list更新数据
+            // 因为做了页面数据缓存故不能使用路由传参
+            router.push('/task/list')
+            pubsub.publish("new_task_id", task.id)
+        },
         task,
         '提交成功'
     )
@@ -252,7 +259,7 @@ const labelIdToName = (id: string): string => {
                             </t-popconfirm>
                         </div>
                         <div class="add" @click="labelAddVisibleOpen">
-                            <t-icon name="add" />
+                            <AddIcon />
                             添加实体
                         </div>
                     </div>
@@ -269,7 +276,7 @@ const labelIdToName = (id: string): string => {
                             </t-popconfirm>
                         </div>
                         <div class="add" @click="relaAddVisible = true">
-                            <t-icon name="add" />
+                            <AddIcon />
                             添加关系
                         </div>
                     </div>

@@ -248,8 +248,12 @@ const userRoleChange = (row: any) =>{
                 </t-menu>
             </t-aside>
             <t-layout>
-                <RouterView class="content" />
-
+                <RouterView class="content" v-slot="{ Component }">
+                    <!--也可以加到路由元信息中-->
+                    <keep-alive :include="['home', 'check', 'student', 'option', 'task']">
+                        <component :is="Component"/>
+                    </keep-alive>
+                </RouterView>
                 <t-footer class="copy" style="user-select: none; display: flex; justify-content: center;">Copyright @ 2023-{{
                     new
                         Date().getFullYear()

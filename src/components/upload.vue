@@ -6,6 +6,7 @@ import { UplodaFiles } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { mainStore } from '@/store'
 import axios from 'axios'
+import {ArrowUpIcon} from 'tdesign-icons-vue-next'
 
 const store = mainStore()
 
@@ -184,7 +185,7 @@ const deleteByList = (d: UplodaFiles)=>{
 <template>
     <input type="file" style="display: none;" id="file-input" accept=".txt" :multiple="props.multiple" />
     <t-button class="up-button" variant="outline" @click="openInput">
-        <template #icon><t-icon name="arrow-up" /></template>
+        <template #icon><ArrowUpIcon /></template>
         {{ beforeUploadFiles.length == 0 ? '选择文件' : '继续选择' }}
     </t-button>
     <!--这里选择v-show的原因是为了input标签任然在dom中-->
