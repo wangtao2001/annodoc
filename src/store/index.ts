@@ -3,8 +3,8 @@ import { EntityResult, RelaResult, EntityLabelInfo, RelaLabelInfo, User, UserRol
 import {reactive, Ref ,ref} from 'vue'
 
 export const mainStore = defineStore('main', () => {
-    const entityResults: Array<EntityResult> = reactive([])
-    const relaResults: Array<RelaResult> = reactive([])
+    const entityResults: Ref<Array<EntityResult>> = ref([])
+    const relaResults: Ref<Array<RelaResult>> = ref([])
     const createTaskId: Ref<string> = ref("")
 
     return {

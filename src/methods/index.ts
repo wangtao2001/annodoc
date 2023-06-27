@@ -161,7 +161,13 @@ function deleteALabel(currentSpan: Element) {
         }
     }
     // 3用文字替换span标签
-    currentSpan.replaceWith(currentSpan.childNodes[1])
+    var c: string = ""
+    currentSpan.childNodes.forEach((node, index) => {
+        if (index >= 1) {
+           c += node.textContent!
+        }
+    })
+    currentSpan.replaceWith(c) // 这里应该是除了i之外的所有标签
 }
 
 // 将pinia中的序号同步到标签上
