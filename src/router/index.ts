@@ -42,7 +42,7 @@ const routes: Array<RouteRecordRaw> = [{
                     component: ()=> import('@/views/content/anno/corpus.vue'),
                     name: 'corpus_work',
                     meta: {
-                        breadcrumbLevel: 2 // 在面包屑导航中的级别，用来动态匹配面包屑
+                        breadcrumbLevel: 2
                     }
                 },
                 {

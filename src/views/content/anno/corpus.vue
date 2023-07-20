@@ -22,7 +22,7 @@ const next = async () => {
     console.log(radioValue.value)
     // 提交信息
     await request(
-        postConfig, `/api/corpus/accept/${isStudent ? '': 'approveChecker'}`,
+        postConfig, `/api/corpus/accept/${isStudent ? 'approveStudent': 'approveChecker'}`,
         (data) => {
             console.log(data)
         },
@@ -30,12 +30,13 @@ const next = async () => {
         "提交成功"
     )
     // 路由跳转
+    window.open('/anno/corpus', "_self")
 }
 
 
 const init = async () => {
     await request(
-        getConfig, `/api/corpus/getResponses/${isStudent ? '': 'getCorpusChecker'}?number=${state.user.number}&currentCorpusId=${corpus.currentCorpusId}`,
+        getConfig, `/api/corpus/getResponses/${isStudent ? 'getCorpusStudent': 'getCorpusChecker'}?number=${state.user.number}&currentCorpusId=${corpus.currentCorpusId}`,
         (res) => {
             data.value.text = res.text // 解构信息
             data.value.question = res.pair.question
@@ -101,7 +102,7 @@ init()
             }
 
             .radio-group {
-                margin-top: 50px;
+                margin-top: 30px;
                 width: 100%;
                 justify-content: flex-end;
             }
@@ -130,5 +131,18 @@ init()
 
 button {
     user-select: none;
+}
+
+@media screen and (max-width: 900px) {
+    .card {
+        flex-direction: column !important;
+
+        .text {
+            width: 100% !important;
+            margin: 0 !important;
+            margin-bottom: 10px !important;
+        }
+    }
+
 }
 </style>

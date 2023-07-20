@@ -30,7 +30,6 @@ declare module '@vue/runtime-core' {
     TFormItem: typeof import('tdesign-vue-next')['FormItem']
     THeader: typeof import('tdesign-vue-next')['Header']
     THeadMenu: typeof import('tdesign-vue-next')['HeadMenu']
-    TIcon: typeof import('tdesign-vue-next')['Icon']
     TInput: typeof import('tdesign-vue-next')['Input']
     TLayout: typeof import('tdesign-vue-next')['Layout']
     TLink: typeof import('tdesign-vue-next')['Link']
