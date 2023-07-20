@@ -3,8 +3,8 @@ import { EntityResult, RelaResult, EntityLabelInfo, RelaLabelInfo, User, UserRol
 import {reactive, Ref ,ref} from 'vue'
 
 export const mainStore = defineStore('main', () => {
-    const entityResults: Ref<Array<EntityResult>> = ref([])
-    const relaResults: Ref<Array<RelaResult>> = ref([])
+    const entityResults: Array<EntityResult> = reactive([])
+    const relaResults: Array<RelaResult> = reactive([])
     const createTaskId: Ref<string> = ref("")
 
     return {
@@ -15,9 +15,9 @@ export const mainStore = defineStore('main', () => {
 
 export const statusStore = defineStore('current', () => {
     const user: Ref<User> = ref({
-        number: "", grade: "", role: UserRole.student, login: false
+        number: "2020192462", grade: "2019", role: UserRole.student, login: true
     })
-    const userRoles: Ref<Array<UserRole>> = ref([])
+    const userRoles: Ref<Array<UserRole>> = ref([UserRole.student, UserRole.teacher])
 
     
     const textId: Ref<string>= ref("")
@@ -29,5 +29,13 @@ export const statusStore = defineStore('current', () => {
     return {
         textId, taskId, entityLabels, relaLabels,
         text, user, userRoles
+    }
+})
+
+export const corpusState = defineStore('corpus', () => {
+    const currentCorpusId = ref("")
+
+    return {
+        currentCorpusId
     }
 })

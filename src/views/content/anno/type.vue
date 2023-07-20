@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import textIcon from '@/assets/1.png'
-import recordIcon from '@/assets/2.png'
+import recordIcon from '@/assets/3.png'
 import { useRouter } from 'vue-router'
 import { AnnoType } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
@@ -13,17 +13,17 @@ const annoType: Array<AnnoType> = [
         title: '医学文本',
         img: textIcon,
         content: '',
-        link: '/anno/work?type=text',
+        link: '/anno/work',
         disabled: false
     }
-    //, {
-    //     id: 1,
-    //     title: '电子病历',
-    //     img: recordIcon, // require是webpack的做法
-    //     content: '',
-    //     link: '/anno/work?type=record',
-    //     disabled: true
-    // }
+    , {
+        id: 1,
+        title: '问句采纳',
+        img: recordIcon, // require是webpack的做法
+        content: '',
+        link: '/anno/corpus',
+        disabled: false
+    }
 ]
 
 const anno = (type: AnnoType)=> {
