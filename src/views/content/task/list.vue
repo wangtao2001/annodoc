@@ -145,7 +145,7 @@ const deleteTask = async (id: string) => {
 const tabs = [
     { value: 1, title: '全部' },
     { value: 2, title: '医学文本' },
-    { value: 3, title: '电子病历' }
+    { value: 3, title: '问句采纳' }
 ]
 
 const createTask = () => {
@@ -388,7 +388,6 @@ const getAllGrades = async () => {
                 <t-form-item label="项目类型" name="type">
                     <t-select v-model="modifyTaskData.type">
                         <t-option label="医学文本" value="医学文本" />
-                        <t-option label="电子病历" value="电子病历" :disabled="true" />
                     </t-select>
                 </t-form-item>
                 <t-form-item label="项目名称" name="name">

@@ -59,6 +59,10 @@ onMounted(() => {
 
 // 不管是拖拽上传还是点击按钮，都需要往beforeUploadFiles中添加文件组和其对应的信息
 const beforeUploadFilesPush = (s: Array<File>) => {
+    // 对s进行遍历进行预处理
+    s.forEach((file) => {
+        file = props.preload(file)
+    })
     beforeUploadFiles.push({
                 info: {
                     index: beforeUploadFiles.length,
@@ -78,7 +82,16 @@ const openInput = () => {
 }
 
 const props = defineProps({
-    multiple: Boolean // 多文件
+    multiple: Boolean, // 多文件
+    url: {
+        type: String, required: true
+    },
+    fileType:{
+        type: String, required: true
+    },
+    preload: {
+        type: Function, required: true // 可以传空函数
+    }
 })
 
 const beforeUploadFiles: Array<UplodaFiles> = reactive([]) // 等待上传的文件列表和其所对应的信息
@@ -140,7 +153,7 @@ const uploadFile =  async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('taskId', store.createTaskId)
-    const response = await axios.post('/api/fileOperation/fileUpload', formData, {
+    const response = await axios.post(props.url, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
@@ -154,7 +167,7 @@ const upload = async () => {
             continue
         }
         files.info.status = 3
-        for (var file of files.files) {
+        for (var file of files.files) { // 这里是单文件上传，以后可以改成多文件
             const data = await uploadFile(file).catch((err)=> {
                 files.info.status = 3
                 // 这里也应该有错误处理
@@ -183,7 +196,7 @@ const deleteByList = (d: UplodaFiles)=>{
 </script>
 
 <template>
-    <input type="file" style="display: none;" id="file-input" accept=".txt" :multiple="props.multiple" />
+    <input type="file" style="display: none;" id="file-input" :accept="props.fileType" :multiple="props.multiple" />
     <t-button class="up-button" variant="outline" @click="openInput">
         <template #icon><ArrowUpIcon /></template>
         {{ beforeUploadFiles.length == 0 ? '选择文件' : '继续选择' }}
