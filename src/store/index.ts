@@ -15,9 +15,9 @@ export const mainStore = defineStore('main', () => {
 
 export const statusStore = defineStore('current', () => {
     const user: Ref<User> = ref({
-        number: "2020192462", grade: "2019", role: UserRole.student, login: true
+        number: "", grade: "", role: UserRole.student, login: false
     })
-    const userRoles: Ref<Array<UserRole>> = ref([UserRole.student, UserRole.teacher])
+    const userRoles: Ref<Array<UserRole>> = ref([])
 
     
     const textId: Ref<string>= ref("")
