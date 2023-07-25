@@ -38,6 +38,14 @@ const routes: Array<RouteRecordRaw> = [{
                     }
                 },
                 {
+                    path: '/anno/corpus',
+                    component: ()=> import('@/views/content/anno/corpus.vue'),
+                    name: 'corpus_work',
+                    meta: {
+                        breadcrumbLevel: 2
+                    }
+                },
+                {
                     path: '/anno/type',
                     component: ()=> import('@/views/content/anno/type.vue'),
                     name: 'anno_type',
@@ -133,8 +141,10 @@ router.beforeEach(async (to, from, next) => {
         if (data.manager) {
             current.userRoles.push(UserRole.teacher)
         }
-        if(data.grade.length != 0) {
-            current.userRoles.push(UserRole.student)
+        if (data.grade ) {
+            if( data.grade.length != 0) {
+                current.userRoles.push(UserRole.student)
+            }
         }
         current.user.number = data.number
         current.user.grade = data.grade
@@ -142,7 +152,7 @@ router.beforeEach(async (to, from, next) => {
             current.user.login = false
         } else {
             current.user.login = true
-            current.user.role = current.userRoles[1]
+            current.user.role = current.userRoles[0] // 我都快气死了
         }
     }
     if (!current.user.login && to.name != 'permission') {

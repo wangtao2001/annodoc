@@ -120,13 +120,13 @@ onMounted(()=> {
             const newData: Array<{
                 name: string,
                 number: string,
-                grade: number
+                grade: string
             }> = []
             data.forEach((d: any)=> {
                 newData.push({
                     number: d.number.toString(), // 保证上传的文件有这两列
                     name: d.name,
-                    grade: Number(displayGrade.value)
+                    grade: displayGrade.value
                 })
             })
             uploadStudent(newData)
@@ -134,7 +134,7 @@ onMounted(()=> {
     })
 })
 
-const uploadStudent = async (data: Array<{name: string,number: string, grade: number}>) => {
+const uploadStudent = async (data: Array<{name: string,number: string, grade: string}>) => {
     request(
         postConfig,
         '/api/resultAccepts/batchAddStudent',
@@ -152,7 +152,7 @@ const formVisable = ref(false)
 const newStudent = reactive({
     number: '',
     name: '',
-    grade: Number(displayGrade.value)
+    grade: displayGrade.value
 })
 const upNewStudent =  async ()=>{
     if (newStudent.number == '' || newStudent.name == '') {
@@ -162,7 +162,7 @@ const upNewStudent =  async ()=>{
     uploadStudent([{
         name: newStudent.name,
         number: newStudent.number,
-        grade: Number(displayGrade.value)
+        grade: displayGrade.value
     }])
     newStudent.number = ''
     newStudent.name = ''
@@ -215,6 +215,10 @@ const deleteGrade= async (id: number)  => {
 const newGrade = ref("")
 
 const insertGrade = async () => {
+    if (newGrade.value.length == 0) {
+        MessagePlugin.error('请填写完整信息')
+        return
+    }
     request(
         postConfig,
         "/api/resultAccepts/insertGrade",

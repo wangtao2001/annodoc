@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { statusStore } from '@/store'
 import { MessagePlugin } from 'tdesign-vue-next'
@@ -61,28 +61,15 @@ const logout = () => {
 }
 
 const userRolesSelect :Array<{content: string, value: number}> = []
-for (var r of current.userRoles) {
-    if(r == UserRole.student) {
-        userRolesSelect.push({
-            content: current.user.grade, value: 0
-        })
-    } else if (r == UserRole.checker) {
-        userRolesSelect.push({
-            content: "审核员", value: 1
-        })
-    } else {
-        userRolesSelect.push({
-            content: "管理员", value: 2
-        })
-    }
-}
 const currentRoleName = computed(()=> {
     if (current.user.role == UserRole.student) {
         return current.user.grade
     } else if (current.user.role == UserRole.teacher) {
         return "管理员"
+    } else if (current.user.role == UserRole.checker) {
+        return "审核员"
     }
-    return "审核员"
+    
 })
 const userRoleChange = (row: any) =>{
     var changedRole = UserRole.student
@@ -104,6 +91,24 @@ const userRoleChange = (row: any) =>{
     }
     currentItem.value = route.path.split('/')[1]
     menuVisible.value = false
+}
+// 能这样写是因为在进入路由器按已经获取到了身份信息
+if (current.userRoles.length !=0) {
+        for (var r of current.userRoles) {
+        if(r == UserRole.student) {
+            userRolesSelect.push({
+                content: current.user.grade, value: 0
+            })
+        } else if (r == UserRole.checker) {
+            userRolesSelect.push({
+                content: "审核员", value: 1
+            })
+        } else {
+            userRolesSelect.push({
+                content: "管理员", value: 2
+            })
+        }
+    }
 }
 
 </script>

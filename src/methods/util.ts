@@ -86,3 +86,31 @@ export function downloadLocal(data: string, name: string) {
     document.body.appendChild(link)
     link.click()
 }
+
+export function corpusDemo() {
+    return [
+        {   
+            "text": "这是第1段文字",
+            "pairs": [
+            {
+                "question": "这是第1个问题",
+                "answer": "这是第1个问题的答案"
+            },
+            {
+                "question": "这是第2个问题",
+                "answer": "这是第2个问题的答案" 
+            },
+            {
+                "question": "这是第3个问题",
+                "answer": "这是第3个问题的答案"
+            }]
+        }, {
+            "text": "这是第2段文字",
+            "pairs": [
+            {
+                "question": "这是第1个问题",
+                "answer": "这是第1个问题的答案"
+            }]
+        }
+    ]
+}

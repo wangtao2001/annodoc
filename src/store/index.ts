@@ -31,3 +31,11 @@ export const statusStore = defineStore('current', () => {
         text, user, userRoles
     }
 })
+
+export const corpusState = defineStore('corpus', () => {
+    const currentCorpusId = ref("")
+
+    return {
+        currentCorpusId
+    }
+})
