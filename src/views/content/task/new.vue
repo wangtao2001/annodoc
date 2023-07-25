@@ -43,30 +43,6 @@ const demoFile = ()=> {
     const jsonString = JSON.stringify(corpusDemo(  ) , null, '\t')
     downloadLocal(jsonString, "示例.json")
 }
-// 对语料json文件进行预处理，使之符合数据存储的要求
-const corpusFilePreload = (file: File) => {
-    const render = new FileReader()
-    // 读取文件内容
-    render.readAsText(file)
-    render.onload = () => {
-        const data = JSON.parse(render.result as string)
-        data.forEach((corpus: any) => {
-            corpus._id= uuidv4()
-            corpus.taskId = store.createTaskId
-            corpus.pairs.forEach((pair: any)=> {
-                pair._id = uuidv4()
-                pair.approve = 0
-                pair.markTimes = 0
-                pair.distributedTimes = 0
-            })
-        })
-        // 将data写回File对象并返回
-        return new File([JSON.stringify(data, null, '\t')], file.name, {type: file.type})
-    }
-    render.onerror = ()=> {
-        return file
-    }
-}
 
 const step: Ref<number> = ref(0)
 
@@ -304,7 +280,7 @@ const labelIdToName = (id: string): string => {
                 <t-form-item label="上传数据文件">
                     <div class="file">
                         <!--这个上传功能自己写-->
-                        <upload :url="uploadurl" :fileType="fileType" :preload="isCreateCorpus?corpusFilePreload:()=>{}" :multiple="true" />
+                        <upload :url="uploadurl" :fileType="fileType" :multiple="true" />
                         <p style="color: #999;">
                             支持多选, 扩展名 {{ fileType }}, UTF-8编码方式
                         </p>
@@ -347,7 +323,7 @@ const labelIdToName = (id: string): string => {
                 </t-form-item>
             </t-form>
             <div class="op">
-                <t-button @click="next" v-if="!isCreateCorpus">{{ nextText }}</t-button>
+                <t-button @click="next" v-if="step != 1 || (step == 1 && !isCreateCorpus)">{{ nextText }}</t-button>
                 <t-button @click="uploadData" v-if="step == maxPage" >提交</t-button>
                 <!--这2个提交按钮只在第二页展示-->
                 <t-button @click="uploadCorpusData" v-if="step == maxPage-1 && isCreateCorpus" >提交</t-button>

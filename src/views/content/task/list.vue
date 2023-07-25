@@ -162,17 +162,23 @@ const uploadDialog = ref(false)
 const releaseDialog = ref(false)
 
 const view = async (task: TaskInfo) => {
+    var url = ""
+    if (task.type == "医学文本") {
+        url = `/api/getResponses/getMedicalNumber/${task.id}`
+    } else if (task.type == "问句采纳") {
+        url = `/api/corpus/getResponses/getMarkedStatus/${task.id}`
+    }
     request(
         getConfig,
-        `/api/getResponses/getMedicalNumber/${task.id}`,
+        url,
         (data) => {
             textSatatus.all = data.all
             textSatatus.finalized = data.finalized
             textSatatus.marked = data.marked
             textSatatus.marking = data.marking
             textSatatus.unmarked = data.unmarked
-        }
-    )
+            }
+        )
     currentTask = task
     viewDialog.value = true
 }
@@ -231,6 +237,7 @@ const releaseTask = async ()=> {
 }
 
 const downloadResult = async ()=> {
+    if (currentTask.type == '医学文本') {
     request(
         getConfig,
         `/api/getResponses/getFinalizedText/${currentTask.id}`,
@@ -261,7 +268,29 @@ const downloadResult = async ()=> {
             }
             downloadLocal(JSON.stringify(data , null, '\t'), `${currentTask.taskName}.json`)
         }
-    )
+    )}
+    else if (currentTask.type = '问句采纳') {
+        request(
+            getConfig,
+            `/api/corpus/getResponses/getFinish/${currentTask.id}`,
+            (data) => {
+                // 去掉多余字段
+                // 并且判断 approve是否等于3
+                for (var cor of data) {
+                    delete cor.id
+                    delete cor.taskId
+                    for (var par of cor.pairs) {
+                        delete par.id
+                        delete par.markTimes
+                        delete par.distributedTimes
+                        if (par.approve == 3) par.approve = true 
+                        else par.approve = false
+                    }
+                }
+                downloadLocal(JSON.stringify(data , null, '\t'), `${currentTask.taskName}.json`)
+            }
+        )
+    }
 }
 
 const colseTask = async () => {
@@ -355,15 +384,17 @@ const getAllGrades = async () => {
             v-model:visible="viewDialog"
             :footer="false"
             :closeBtn="false"
-            header="文本标注进度"
+            header="标注进度"
             >
             <div class="progess">
                 <p>总文本数：{{ textSatatus.all }}</p>
                 <div v-if="textSatatus.all != 0">
                     <p>已审核：{{ textSatatus.finalized }}</p>
                     <t-progress theme="line" color="#2ba471" :percentage=" Math.floor(textSatatus.finalized / textSatatus.all * 100)" />
-                    <p>已完成：{{ textSatatus.marked }}</p>
-                    <t-progress theme="line" :percentage=" Math.floor(textSatatus.marked / textSatatus.all * 100)" />
+                    <div v-if="textSatatus.marked != -1">
+                        <p>已完成：{{ textSatatus.marked }}</p>
+                        <t-progress theme="line" :percentage=" Math.floor(textSatatus.marked / textSatatus.all * 100)" />
+                    </div>
                     <p>未标注：{{ textSatatus.unmarked }}</p>
                     <t-progress theme="line" color="#e37318" :percentage=" Math.floor(textSatatus.unmarked / textSatatus.all * 100)" />
                     <p>标注中：{{ textSatatus.marking }}</p>

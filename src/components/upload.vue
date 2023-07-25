@@ -59,10 +59,8 @@ onMounted(() => {
 
 // 不管是拖拽上传还是点击按钮，都需要往beforeUploadFiles中添加文件组和其对应的信息
 const beforeUploadFilesPush = (s: Array<File>) => {
-    // 对s进行遍历进行预处理
-    s.forEach((file) => {
-        file = props.preload(file)
-    })
+    // 对文件进行预处理
+    // 读取文件内容
     beforeUploadFiles.push({
                 info: {
                     index: beforeUploadFiles.length,
@@ -88,9 +86,6 @@ const props = defineProps({
     },
     fileType:{
         type: String, required: true
-    },
-    preload: {
-        type: Function, required: true // 可以传空函数
     }
 })
 
