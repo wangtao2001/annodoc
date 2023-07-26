@@ -56,6 +56,7 @@ const loadItem = async (id: string)=> {
                 relations: relations,
                 grade: data.grade,
             })
+            console.log(allTasks.value)
         }
     )
 }
@@ -94,7 +95,7 @@ const columns = [
         return (
             <div class='task_name'>
                 <>{
-                    row.grade == 0? 
+                    row.grade == 0 || row.grade == null? 
                 <t-tag theme="warning" variant="light">未发布</t-tag> :
                 <t-tag theme="success" variant="light">已发布</t-tag>
                 }</>
@@ -334,7 +335,7 @@ const getAllGrades = async () => {
                             <div class="left">
                                 <div class="title">
                                     {{ d.type + '/' + d.taskName }}
-                                    <t-tag v-if="d.grade == 0" theme="warning" variant="light">未发布</t-tag>
+                                    <t-tag v-if="d.grade == 0 || d.grade == null" theme="warning" variant="light">未发布</t-tag>
                                     <t-tag v-else theme="success" variant="light">已发布</t-tag>
                                 </div>
                                 <div class="desc">

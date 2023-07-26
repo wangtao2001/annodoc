@@ -36,7 +36,7 @@ const next = async () => {
 
 const init = async () => {
     await request(
-        getConfig, `/api/corpus/getResponses/${isStudent ? 'getCorpusStudent': 'getCorpusChecker'}?number=${state.user.number}&currentCorpusId=${corpus.currentCorpusId}`,
+        getConfig, `/api/corpus/getResponses/${isStudent ? 'getCorpusStudent': 'getCorpusChecker'}?number=${state.user.number}&currentCorpusId=${corpus.currentCorpusId}&grade=${state.user.grade}`,
         (res) => {
             data.value.text = res.text // 解构信息
             data.value.question = res.pair.question
