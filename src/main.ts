@@ -17,10 +17,8 @@ const init = async() => {
     })
 
     const res = await axios.get("/api/auth/login")
-    if (res.data.code == '70020') {
-        window.location.href = res.data.data
-    }
-    createApp(App).use(pinia).use(router).mount("#app")
+    if (res.data.code == '70020') window.location.href = res.data.data
+    else createApp(App).use(pinia).use(router).mount("#app")
 }
 
 init()
