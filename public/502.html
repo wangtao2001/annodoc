@@ -22,19 +22,34 @@
         }
         
         .content {
-          justify-self: flex-end;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
           padding: 50px 20px;
+        }
+
+        .title {
+          font-size: 20px;
+          margin-bottom: 10px;
+        }
+
+        .detail {
+          color: #a6a6a6;
         }
         
         a {
-          text-decoration: none;
+          color: #a6a6a6;
         }
     </style>
   </head>
   <body>
     <div class="pic">
-        <img src="/502.png" alt="logo" width="200px" height="200px">
+        <img src="/public/502.png" alt="logo" width="200px" height="200px">
     </div>
-    <div class="content">此服务临时不可用，如有问题请联系<a href=http://lic.cpu.edu.cn>中国药科大学图书与信息中心</a></div>
+    <div class="content">
+      <div class="title">此服务临时不可用</div>
+      <div class="detail">如有问题请稍后再试或联系 <a href=http://lic.cpu.edu.cn>中国药科大学图书与信息中心</a></div>
+    </div>
   </body>
 </html>
