@@ -11,6 +11,8 @@ const isStudent = state.user.role == UserRole.student
 
 const data = ref({
     text: "",
+    title: "",
+    chapter: "",
     question: "",
     answer: ""
 })
@@ -39,6 +41,8 @@ const init = async () => {
         getConfig, `/api/corpus/getResponses/${isStudent ? 'getCorpusStudent': 'getCorpusChecker'}?number=${state.user.number}&currentCorpusId=${corpus.currentCorpusId}&grade=${state.user.grade}`,
         (res) => {
             data.value.text = res.text // 解构信息
+            data.value.title = res.title
+            data.value.chapter = res.chapter
             data.value.question = res.pair.question
             data.value.answer = res.pair.answer
             corpus.currentCorpusId = res.id // corpusId后面会继续使用就存到pinia中了
@@ -54,7 +58,10 @@ init()
 <template>
     <div class="root">
         <div class="card">
-            <t-card bordered class="text"><span>{{ data.text }}</span></t-card>
+            <t-card bordered class="text">
+                <div class="info">{{ data.title + "  " + data.chapter }}</div>
+                <div>{{ data.text }}</div>
+            </t-card>
             <t-card bordered class="qa">
                 <div class="q"><span>问句：</span>{{ data.question }}</div>
                 <div class="a"><span>回答：</span>{{ data.answer }}</div>
@@ -93,6 +100,11 @@ init()
             margin-right: 20px;
             display: flex;
             align-items: center;
+
+            .info {
+                margin-bottom: 10px;
+                color: #747474;
+            }
         }
 
         .qa {

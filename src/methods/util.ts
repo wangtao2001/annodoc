@@ -91,6 +91,8 @@ export function corpusDemo() {
     return [
         {   
             "text": "这是第1段文字",
+            "title": "文字标题",
+            "chapter": "章节标题",
             "pairs": [
             {
                 "question": "这是第1个问题",
@@ -106,6 +108,8 @@ export function corpusDemo() {
             }]
         }, {
             "text": "这是第2段文字",
+            "title": "文字标题",
+            "chapter": "章节标题",
             "pairs": [
             {
                 "question": "这是第1个问题",
