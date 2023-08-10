@@ -119,7 +119,10 @@ const columns = [
                                     <t-link theme="warning" onClick={()=>{getAllGrades() ;releaseDialog.value = true; currentTask = row}} > 发布 </t-link>: ''
                                 }
                                 </>
-                                <t-link theme="primary" onClick={()=> {uploadFile(row)}} > 继续上传文件 </t-link>
+                                {
+                                    row.type != '问句采纳'?
+                                    <t-link theme="primary" onClick={()=> {uploadFile(row)}} > 继续上传文件 </t-link>: ''
+                                }
                                 <t-popconfirm on-confirm={()=>{deleteTask(row.id)}} theme="danger" content="确认删除吗">
                                     <t-link theme="danger" > 删除 </t-link>
                                 </t-popconfirm>
@@ -348,7 +351,7 @@ const getAllGrades = async () => {
                                     <t-link underline @click="view(d)" theme="success">查看</t-link>
                                     <t-link underline @click="modify(d)" theme="primary">修改</t-link>
                                     <t-link underline theme="warning" v-if="d.grade == 0" @click="getAllGrades() ;releaseDialog = true; currentTask = d" > 发布 </t-link>
-                                    <t-link underline theme="primary" @click="uploadFile(d)" > 继续上传文件 </t-link>
+                                    <t-link underline theme="primary" @click="uploadFile(d)" v-if="d.type != '问句采纳'" > 继续上传文件 </t-link>
                                     <t-popconfirm @confirm="deleteTask(d.id)" theme="danger" content="确认删除吗">
                                         <t-link underline theme="danger" > 删除 </t-link>
                                     </t-popconfirm>

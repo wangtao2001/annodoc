@@ -22,7 +22,7 @@ const getCurrentNums = async() => {
 const getToCheckNums = async () => {
     request(
         getConfig,
-        '/api/getResponses/getToBeDone',
+        `/api/getResponses/getToBeDone/${current.user.number}`,
         (data)=> toCheckNum.value = data
     )
 }
@@ -32,7 +32,7 @@ else getToCheckNums()
 </script>
 
 <template>
-    <div class="num">{{current.user.role == UserRole.student ? '当前：' + currentNum + '/' + allNum : '剩余未完成：' + toCheckNum }}</div>
+    <div class="num">{{current.user.role == UserRole.student ? '当前：' + currentNum + '/' + allNum : '已完成：' + toCheckNum }}</div>
 </template>
 
 <style lang="less" scoped>
