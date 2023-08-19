@@ -1,6 +1,7 @@
 <template>
     <div class="content">
         <img src="@/assets/403.png" />
+        <div>您可能没有访问此平台的权限</div>
         <t-link @click="logout" theme="warning">退出登录</t-link>
     </div>
 </template>
@@ -21,6 +22,7 @@ const logout = () => {
     justify-content: center;
     flex-direction: column;
     align-items: center;
+    user-select: none;
 
     img {
         max-width: 60%;
