@@ -27,12 +27,12 @@ const getToCheckNums = async () => {
     )
 }
 
-if (current.user.role == UserRole.student) getCurrentNums()
-else getToCheckNums()
+if (current.user.role == UserRole.checker) getToCheckNums()
 </script>
 
 <template>
-    <div class="num">{{current.user.role == UserRole.student ? '当前：' + currentNum + '/' + allNum : '已完成：' + toCheckNum }}</div>
+    <!--只对审核查看-->
+    <div class="num">{{ '已完成：' + toCheckNum }}</div>
 </template>
 
 <style lang="less" scoped>

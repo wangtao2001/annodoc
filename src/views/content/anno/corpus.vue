@@ -40,7 +40,7 @@ const init = async () => {
     await request(
         getConfig, `/api/corpus/getResponses/${isStudent ? 'getCorpusStudent': 'getCorpusChecker'}?number=${state.user.number}&currentCorpusId=${corpus.currentCorpusId}&grade=${state.user.grade}`,
         (res) => {
-            data.value.text = res.text // 解构信息
+            data.value.text = res.text.replace(/\\n/g, '<br>') // 换行
             data.value.title = res.title
             data.value.chapter = res.chapter
             data.value.question = res.pair.question
@@ -60,7 +60,7 @@ init()
         <div class="card">
             <t-card bordered class="text">
                 <div class="info">{{ data.title + "  " + data.chapter }}</div>
-                <div>{{ data.text }}</div>
+                <div v-html="data.text"></div>
             </t-card>
             <t-card bordered class="qa">
                 <div class="q"><span>问句：</span>{{ data.question }}</div>
@@ -96,7 +96,7 @@ init()
         width: 90%;
 
         .text {
-            width: 60%;
+            width: 50%;
             margin-right: 20px;
             display: flex;
             align-items: center;
@@ -108,7 +108,7 @@ init()
         }
 
         .qa {
-            flex-grow: 1;
+            width: 50%;
             .q, .a {
                 margin: 10px 0;
             }
@@ -153,6 +153,11 @@ button {
             width: 100% !important;
             margin: 0 !important;
             margin-bottom: 10px !important;
+        }
+
+        .qa {
+            width: 100% !important;
+            margin: 0 !important;
         }
     }
 
