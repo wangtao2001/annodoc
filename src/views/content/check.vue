@@ -19,6 +19,7 @@ const columns = [
             </div>
         )
     }},
+    { colKey: 'done', title: '完成数量'},
     {title: '操作', cell: (h: any, { row }: { row: any }) => {
         return (
             <t-popconfirm  on-confirm={()=>{deleteCheck(row)}} theme="danger" content="确认删除吗">
@@ -29,7 +30,7 @@ const columns = [
 ]
 
 const allChecker: Ref<Array<{
-    number: string, name: string, role: UserRole
+    number: string, name: string, role: UserRole, done: number
 }>> = ref([])
 
 const loadData = async () => {
@@ -42,7 +43,8 @@ const loadData = async () => {
                 allChecker.value.push({
                     number: row.number,
                     name: row.name,
-                    role: UserRole.checker
+                    role: UserRole.checker,
+                    done: row.toBeDone // 完成数量
                 })
             }
         }
@@ -174,7 +176,7 @@ const newRole = ref('checker')
 <style lang="less" scoped>
 .table {
     margin: 50px 40px 0 40px;
-    width: 350px;
+    width: 400px !important;
     user-select: none;
 }
 

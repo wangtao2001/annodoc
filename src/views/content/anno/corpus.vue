@@ -53,6 +53,10 @@ const init = async () => {
 }
 
 init()
+let hasTip: boolean = false
+if (data.value.question.indexOf("问") == -1) {
+    hasTip = true
+}
 </script>
 
 <template>
@@ -63,8 +67,8 @@ init()
                 <div v-html="data.text"></div>
             </t-card>
             <t-card bordered class="qa">
-                <div class="q"><span>问句：</span>{{ data.question }}</div>
-                <div class="a"><span>回答：</span>{{ data.answer }}</div>
+                <div class="q"><span v-if="!hasTip">问句：</span>{{ data.question }}</div>
+                <div class="a"><span v-if="!hasTip">回答：</span>{{ data.answer }}</div>
                 <t-radio-group class="radio-group" v-model:value="radioValue">
                     <t-radio value=0>不采纳</t-radio>
                     <t-radio value=1>采纳</t-radio>

@@ -6,7 +6,7 @@ import { UplodaFiles } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { mainStore } from '@/store'
 import axios from 'axios'
-import {ArrowUpIcon} from 'tdesign-icons-vue-next'
+import { ArrowUpIcon } from 'tdesign-icons-vue-next'
 
 const store = mainStore()
 
@@ -36,7 +36,7 @@ onMounted(() => {
         // 获取拖拽进来的文件
         if (e.dataTransfer != null) {
             const files = e.dataTransfer.files
-            for (var i=0; i< files.length; i++) {
+            for (var i = 0; i < files.length; i++) {
                 if (files[i].type != 'text/plain') {
                     MessagePlugin.error("请检查文件类型")
                     return
@@ -62,15 +62,15 @@ const beforeUploadFilesPush = (s: Array<File>) => {
     // 对文件进行预处理
     // 读取文件内容
     beforeUploadFiles.push({
-                info: {
-                    index: beforeUploadFiles.length,
-                    name: s.length == 1? `${s[0].name}` :`${s[0].name} 等${s.length}个文件`,
-                    size: fileSizeSum(s),
-                    status: 2,
-                    uploaded: 0
-                },
-                files: s
-            })
+        info: {
+            index: beforeUploadFiles.length,
+            name: s.length == 1 ? `${s[0].name}` : `${s[0].name} 等${s.length}个文件`,
+            size: fileSizeSum(s),
+            status: 2,
+            uploaded: 0
+        },
+        files: s
+    })
 }
 
 // 通过按钮打开input标签
@@ -84,7 +84,7 @@ const props = defineProps({
     url: {
         type: String, required: true
     },
-    fileType:{
+    fileType: {
         type: String, required: true
     }
 })
@@ -118,22 +118,22 @@ const columns = [
             // 通过status数字控制
             // 等待上传、上传成功或失败是展示文字，上传中则是变化的进度（转圈圈）
             return (<>
-                    {
-                        row.info.status == 3 
+                {
+                    row.info.status == 3
                         ? <t-loading text={Math.floor(row.info.uploaded / row.files.length * 100) + '%'} size="small"></t-loading>
                         : <t-tag shape="round" theme={statusNameListMap[row.info.status].theme} variant="light-outline">
                             {statusNameListMap[row.info.status].icon}
                             {statusNameListMap[row.info.status].label}
                         </t-tag>
-                    }
-                </>)
+                }
+            </>)
         }
     },
     {
         title: '操作', width: '50', cell: (h: any, { row }: { row: UplodaFiles }) => {
             return (
                 <t-link theme="primary" onClick={() => {
-                    if(row.info.status == 3) {
+                    if (row.info.status == 3) {
                         MessagePlugin.error("文件正在上传中")
                         return
                     }
@@ -144,7 +144,7 @@ const columns = [
     },
 ]
 // 文件上传
-const uploadFile =  async (file: File) => {
+const uploadFile = async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('taskId', store.createTaskId)
@@ -163,12 +163,12 @@ const upload = async () => {
         }
         files.info.status = 3
         for (var file of files.files) { // 这里是单文件上传，以后可以改成多文件
-            const data = await uploadFile(file).catch((err)=> {
+            const data = await uploadFile(file).catch((err) => {
                 files.info.status = 3
                 // 这里也应该有错误处理
             })
             if (data.code == 40011) {
-                files.info.uploaded ++
+                files.info.uploaded++
             } else {
                 files.info.status = 3
                 break // 这里的错误处理有问题，某一个文件上传失败，这一组前面的也作废了，再次上传会导致重复的问题
@@ -180,7 +180,7 @@ const upload = async () => {
     }
 }
 
-const deleteByList = (d: UplodaFiles)=>{
+const deleteByList = (d: UplodaFiles) => {
     if (d.info.status == 3) {
         MessagePlugin.error('文件正在上传中')
         return
@@ -193,7 +193,9 @@ const deleteByList = (d: UplodaFiles)=>{
 <template>
     <input type="file" style="display: none;" id="file-input" :accept="props.fileType" :multiple="props.multiple" />
     <t-button class="up-button" variant="outline" @click="openInput">
-        <template #icon><ArrowUpIcon /></template>
+        <template #icon>
+            <ArrowUpIcon />
+        </template>
         {{ beforeUploadFiles.length == 0 ? '选择文件' : '继续选择' }}
     </t-button>
     <!--这里选择v-show的原因是为了input标签任然在dom中-->
@@ -201,25 +203,27 @@ const deleteByList = (d: UplodaFiles)=>{
         点击上方“选择文件”或将文件拖拽到此区域
     </div>
     <div v-if="!uploadArea" class="table-area">
-        <t-base-table size="small" class="table" row-key="index" :data="beforeUploadFiles" :columns="columns"></t-base-table>
+        <t-base-table size="small" class="table" row-key="index" :data="beforeUploadFiles"
+            :columns="columns"></t-base-table>
         <div class="list">
             <div class="list-item" v-for="d in beforeUploadFiles" :key="d.info.index">
                 <div class="top">
                     <div class="name">{{ d.info.name }}</div>
                     <div class="status">
-                    <t-loading v-if="d.info.status == 3 " :text="Math.floor(d.info.uploaded / d.files.length * 100) + '%'" size="small"></t-loading>
-                    <t-tag v-else shape="round" :theme="statusNameListMap[d.info.status].theme" variant="light-outline">
-                        {{statusNameListMap[d.info.status].label}}
-                        <template #icon>
-                            <CheckCircleFilledIcon v-if="d.info.status == 0" />
-                            <CloseCircleFilledIcon v-else-if="d.info.status == 1" />
-                            <ErrorCircleFilledIcon v-else />    
-                        </template>
-                    </t-tag>
+                        <t-loading v-if="d.info.status == 3"
+                            :text="Math.floor(d.info.uploaded / d.files.length * 100) + '%'" size="small"></t-loading>
+                        <t-tag v-else shape="round" :theme="statusNameListMap[d.info.status].theme" variant="light-outline">
+                            {{ statusNameListMap[d.info.status].label }}
+                            <template #icon>
+                                <CheckCircleFilledIcon v-if="d.info.status == 0" />
+                                <CloseCircleFilledIcon v-else-if="d.info.status == 1" />
+                                <ErrorCircleFilledIcon v-else />
+                            </template>
+                        </t-tag>
                     </div>
                 </div>
                 <t-link theme="primary" @click="deleteByList(d)">删除</t-link>
-                </div>
+            </div>
         </div>
         <div class="op">
             <t-button variant="outline" :disabled="true">取消上传</t-button>
@@ -265,7 +269,9 @@ const deleteByList = (d: UplodaFiles)=>{
 }
 
 @media screen and (max-width: 900px) {
-    .up-area, .table {
+
+    .up-area,
+    .table {
         display: none;
     }
 
