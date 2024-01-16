@@ -13,7 +13,7 @@ const route = useRoute()
                 <t-breadcrumbItem to="/anno/result" v-if="route.meta.breadcrumbLevel as number > 2"> 标注结果
                 </t-breadcrumbItem>
             </div>
-            <!-- <counter v-if="route.meta.breadcrumbLevel as number > 1" /> -->
+            <counter v-if="route.meta.breadcrumbLevel as number > 1" />
         </t-breadcrumb>
         <RouterView />
     </t-layout>

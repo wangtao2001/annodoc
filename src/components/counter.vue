@@ -9,12 +9,12 @@ const current = statusStore()
 const currentNum = ref(0)
 const allNum = ref(0)
 const toCheckNum = ref(0)
-const getCurrentNums = async() => {
+const getCurrentNums = async () => {
     request(
         getConfig,
         `/api/getResponses/getOneHomeworkCompleted/${current.user.number}`,
         (data) => {
-            currentNum.value = data.finish+1
+            currentNum.value = data.finish + 1
             allNum.value = data.all
         }
     )
@@ -23,22 +23,23 @@ const getToCheckNums = async () => {
     request(
         getConfig,
         `/api/getResponses/getToBeDone/${current.user.number}`,
-        (data)=> toCheckNum.value = data
+        (data) => toCheckNum.value = data
     )
 }
 
-if (current.user.role == UserRole.checker) getToCheckNums()
+getToCheckNums()
 </script>
 
 <template>
-    <!--只对审核查看-->
-    <div class="num">{{ '已完成：' + toCheckNum }}</div>
+    <div class="num" v-if="current.user.role == UserRole.checker || current.user.role == UserRole.teacher">{{ '已完成：' +
+        toCheckNum }}</div>
 </template>
 
 <style lang="less" scoped>
-    .num {
-        color: #0052d9;
-        background-color: var(--counter-bgc);;
-        padding: 10px 20px;
-    }
+.num {
+    color: #0052d9;
+    background-color: var(--counter-bgc);
+    ;
+    padding: 10px 20px;
+}
 </style>
