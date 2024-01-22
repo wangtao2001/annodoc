@@ -157,12 +157,18 @@ const uploadFile = async (file: File) => {
 }
 
 const upload = async () => {
+    let countWait = 0
     for (var files of beforeUploadFiles) {
         if (files.info.status == 0) {
             continue
         }
         files.info.status = 3
         for (var file of files.files) { // 这里是单文件上传，以后可以改成多文件
+            if (countWait >= 20) {
+                setTimeout(() => { console.log('间歇完成, 继续上传') }, 10)
+                countWait = 0
+                console.log('上传间歇10s')
+            }
             const data = await uploadFile(file).catch((err) => {
                 files.info.status = 3
                 // 这里也应该有错误处理

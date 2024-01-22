@@ -3,6 +3,7 @@ import { request, getConfig } from '@/methods/request'
 import { ref } from 'vue'
 import { UserRole } from '@/interface'
 import { statusStore } from '@/store'
+import pubsub from 'pubsub-js'
 
 const current = statusStore()
 
@@ -27,7 +28,10 @@ const getToCheckNums = async () => {
     )
 }
 
-getToCheckNums()
+pubsub.unsubscribe('counterCheckUpdate') // 先取消一次，不然会多次调用（原因位置.....）
+pubsub.subscribe('counterCheckUpdate', () => {
+    getToCheckNums()
+})
 </script>
 
 <template>

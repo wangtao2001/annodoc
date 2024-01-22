@@ -4,8 +4,9 @@ import { useRouter } from 'vue-router'
 import { corpusState, statusStore } from '@/store'
 import { request, getConfig, postConfig } from '@/methods/request'
 import { UserRole } from '@/interface'
+import pubsub from 'pubsub-js'
 const router = useRouter()
-const corpus = corpusState()
+const corpus = corpusState() // 这个功能先不用了
 const state = statusStore()
 const isStudent = state.user.role == UserRole.student
 
@@ -21,26 +22,26 @@ let currentPairId = ""
 const radioValue = ref(-1) // 初始状态谁都不选
 
 const next = async () => {
-    console.log(radioValue.value)
     // 提交信息
     await request(
-        postConfig, `/api/corpus/accept/${isStudent ? 'approveStudent': 'approveChecker'}`,
-        (data) => {
-            console.log(data)
-        },
-        {number: state.user.number, corpusId: corpus.currentCorpusId ,pairId: currentPairId, approve: radioValue.value},
+        postConfig, `/api/corpus/accept/${isStudent ? 'approveStudent' : 'approveChecker'}`,
+        (data) => { },
+        { number: state.user.number, corpusId: corpus.currentCorpusId, pairId: currentPairId, approve: radioValue.value },
         "提交成功"
     )
     // 路由跳转
-    window.open('/anno/corpus', "_self")
+    //window.open('/anno/corpus', "_self") 这里相当于重新请求页面了。。。
+    init()
 }
 
 
 const init = async () => {
+    console.log('init调用')
+    radioValue.value = -1 // 重置状态数据
     await request(
-        getConfig, `/api/corpus/getResponses/${isStudent ? 'getCorpusStudent': 'getCorpusChecker'}?number=${state.user.number}&currentCorpusId=${corpus.currentCorpusId}&grade=${state.user.grade}`,
+        getConfig, `/api/corpus/getResponses/${isStudent ? 'getCorpusStudent' : 'getCorpusChecker'}?number=${state.user.number}&grade=${state.user.grade}`,
         (res) => {
-            data.value.text = res.text.replace(/\\n/g, '<br>') // 换行
+            data.value.text = res.text.replace(/-[\s\d]*-\s*[xX]?\n?/g, '').replace(/国家市场监督管理总局发布\n?/g, '').replace(/国家市场监督管理总局规章\n?/g, '').replace(/\n/g, '<br>') // 换行 // 分页符
             data.value.title = res.title
             data.value.chapter = res.chapter
             data.value.question = res.pair.question
@@ -48,27 +49,29 @@ const init = async () => {
             corpus.currentCorpusId = res.id // corpusId后面会继续使用就存到pinia中了
             currentPairId = res.pair.id //pairId只在当前页使用
         }, undefined, undefined,
-        () => {router.push('/anno/type')}
+        () => { router.push('/anno/type') }
     )
+    // 通知计数器更新
+    pubsub.publish('counterCheckUpdate')
 }
 
 init()
-let hasTip: boolean = false
-if (data.value.question.indexOf("问") == -1) {
-    hasTip = true
-}
+// let hasTip: boolean = false
+// if (data.value.question.indexOf("问") == -1) {
+//     hasTip = true
+// }
 </script>
 
 <template>
     <div class="root">
         <div class="card">
             <t-card bordered class="text">
-                <div class="info">{{ data.title + "  " + data.chapter }}</div>
+                <div class="info">{{ data.title + " " + data.chapter }}</div>
                 <div v-html="data.text"></div>
             </t-card>
             <t-card bordered class="qa">
-                <div class="q"><span v-if="!hasTip">问句：</span>{{ data.question }}</div>
-                <div class="a"><span v-if="!hasTip">回答：</span>{{ data.answer }}</div>
+                <div class="q">{{ data.question }}</div>
+                <div class="a">{{ data.answer }}</div>
                 <t-radio-group class="radio-group" v-model:value="radioValue">
                     <t-radio value=0>不采纳</t-radio>
                     <t-radio value=1>采纳</t-radio>
@@ -113,7 +116,9 @@ if (data.value.question.indexOf("问") == -1) {
 
         .qa {
             width: 50%;
-            .q, .a {
+
+            .q,
+            .a {
                 margin: 10px 0;
             }
 
