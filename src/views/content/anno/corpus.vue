@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { corpusState, statusStore } from '@/store'
 import { request, getConfig, postConfig } from '@/methods/request'
 import { UserRole } from '@/interface'
 import pubsub from 'pubsub-js'
+import { domainToUnicode } from 'url'
 const router = useRouter()
 const corpus = corpusState() // 这个功能先不用了
 const state = statusStore()
@@ -36,12 +37,11 @@ const next = async () => {
 
 
 const init = async () => {
-    console.log('init调用')
     radioValue.value = -1 // 重置状态数据
     await request(
         getConfig, `/api/corpus/getResponses/${isStudent ? 'getCorpusStudent' : 'getCorpusChecker'}?number=${state.user.number}&grade=${state.user.grade}`,
         (res) => {
-            data.value.text = res.text.replace(/-[\s\d]*-\s*[xX]?\n?/g, '').replace(/国家市场监督管理总局发布\n?/g, '').replace(/国家市场监督管理总局规章\n?/g, '').replace(/\n/g, '<br>') // 换行 // 分页符
+            data.value.text = res.text.replace(/-+[\s\d]*-+\s*[xX]?\n?/g, '').replace(/国家市场监督管理总局发布\n?/g, '').replace(/国家市场监督管理总局规章\n?/g, '').replace(/国家药品监督管理局发布\n?/g, '').replace(/\n/g, '<br>').replace(/<img src=\"[a-z\d-]*.png\"\/>\n?。?/g, '') // 换行 // 分页符
             data.value.title = res.title
             data.value.chapter = res.chapter
             data.value.question = res.pair.question
@@ -60,6 +60,45 @@ init()
 // if (data.value.question.indexOf("问") == -1) {
 //     hasTip = true
 // }
+
+const selectText = ref('') // 问题和答案中被选中的文本
+onMounted(() => {
+    const func = (e: Event) => {
+        const s = window.getSelection()!
+        if (s.rangeCount) {
+            const rang = s.getRangeAt(0)
+            if (rang.collapsed) {
+                return
+            }
+            const tag: Element = e.target as Element
+            let c: string
+            if (tag.classList.contains('q')) c = data.value.question
+            else c = data.value.answer
+            selectText.value = c.substring(rang['startOffset'], rang['endOffset'])
+        }
+    }
+    document.querySelector('.q')?.addEventListener('click', func)
+    document.querySelector('.a')?.addEventListener('click', func)
+    document.querySelector('.root')?.addEventListener('click', (e) => { // 其他位置取消选中
+        const tag: Element = e.target as Element
+        if (tag.classList.contains('q') || tag.classList.contains('a')) return
+        selectText.value = ''
+    })
+})
+
+watch(selectText, async (new_, old) => {
+    var div = document.getElementById('content')!
+    if (new_.length != 0) {
+        div.innerHTML = data.value.text // 首先清除原有标记
+        var highlightedText = div.innerHTML.replace(new RegExp(new_, 'g'), '<span class="highLight">' + new_ + '</span>')
+        div.innerHTML = highlightedText
+    }
+    else {
+        div.innerHTML = data.value.text
+    }
+
+})
+
 </script>
 
 <template>
@@ -67,7 +106,7 @@ init()
         <div class="card">
             <t-card bordered class="text">
                 <div class="info">{{ data.title + " " + data.chapter }}</div>
-                <div v-html="data.text"></div>
+                <div id="content" v-html="data.text"></div>
             </t-card>
             <t-card bordered class="qa">
                 <div class="q">{{ data.question }}</div>
@@ -87,6 +126,8 @@ init()
                 </div>
             </div>
         </t-card>
+        <t-back-top class="backTop" size="small" shape="circle" style="position: absolute; right: 30px; bottom: 100px"
+            container="body"></t-back-top>
     </div>
 </template>
 
@@ -155,6 +196,10 @@ button {
 }
 
 @media screen and (max-width: 900px) {
+    .backTop {
+        display: none;
+    }
+
     .card {
         flex-direction: column !important;
 
