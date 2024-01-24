@@ -125,4 +125,27 @@ export const dragControllerDiv = () => {
     const resize = document.querySelector('.resize') as HTMLDivElement
     const left = document.querySelector('.text') as HTMLDivElement
     const right = document.querySelector('.qa') as HTMLDivElement
+
+    resize.onmousedown = (e: MouseEvent) => {
+        var startX = e.clientX
+        const leftWidth = left.offsetWidth // left拖动前的宽度
+        document.onmousemove = (e: MouseEvent) => {
+            var endX = e.clientX
+
+            var leftNewWith = leftWidth + (endX - startX) // left拖动后的宽度
+            const maxT = card.clientWidth - resize.offsetWidth
+            const minT = 300
+            if (leftNewWith < minT) leftNewWith = minT // 宽度范围限制
+            if (leftNewWith > maxT - minT) leftNewWith = maxT - minT
+
+            left.style.width = leftNewWith + 'px'
+            right.style.width = (maxT - leftNewWith - 1) + 'px' // 这里-1就不会溢出了...未解之谜（可能有地方没考虑到1px的边框细节？）
+        }
+
+        document.onmouseup = (e) => {
+            document.onmousemove = null
+            document.onmouseup = null
+        }
+        return false
+    }
 }

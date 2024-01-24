@@ -73,6 +73,8 @@ const init = async () => {
     radioValue.value = '-1' // 重置状态数据（注意！！）
     newQuetionValue.value = ''
     newAnswerValue.value = ''
+    questionModifyFlag.value = false
+    answerModifyFlag.value = false
     await request(
         getConfig, `/api/corpus/getResponses/${isStudent ? 'getCorpusStudent' : 'getCorpusChecker'}?number=${state.user.number}&grade=${state.user.grade}`,
         (res) => {
@@ -85,6 +87,7 @@ const init = async () => {
             data.value.chapter = res.chapter
             data.value.question = res.pair.question
             data.value.answer = res.pair.answer
+            state.taskId = res.taskId
             corpus.currentCorpusId = res.id // corpusId后面会继续使用就存到pinia中了
             currentPairId = res.pair.id //pairId只在当前页使用
             newQuetionValue.value = data.value.question
@@ -187,7 +190,7 @@ onMounted(() => {
     }
 
     // 两侧可拖动的div
-    //dragControllerDiv()
+    dragControllerDiv()
 })
 
 
@@ -207,18 +210,19 @@ init() // 最后调用
                     <t-link @click="() => { errorUpload('other') }" theme="primary">其他问题</t-link>
                 </div>
             </t-card>
-            <div class="resize" title="收缩侧边栏" v-if="flexRow">
+            <div class="resize" title="调整横向距离" v-show="flexRow">
                 <span>⋮</span>
                 <!--https://juejin.cn/post/7029640316999172104-->
             </div>
             <t-card bordered class="qa"
                 :style="flexRow ? 'height: 100%;' : 'margin-right: 0; width: 100%; margin-top: 20px;'">
-                <div class="q" v-if="!questionModifyFlag">{{ data.question }}</div>
-                <div v-else style="width: 70%;">
+                <div class="q" v-show="!questionModifyFlag">{{ data.question }}</div>
+                <div v-show="questionModifyFlag" :style="flexRow ? 'width: 100%;' : 'width: 50%; '">
                     <t-textarea v-model:value="newQuetionValue" />
                 </div>
-                <div class="a" v-if="!questionModifyFlag">{{ data.answer }}</div>
-                <div v-if="questionModifyFlag && data.answer.length != 0" style="width: 70%; margin-top: 10px;">
+                <div class="a" v-show="!questionModifyFlag">{{ data.answer }}</div>
+                <div v-show="questionModifyFlag && data.answer.length != 0"
+                    :style="flexRow ? 'width: 100%; margin-top: 10px;' : 'width: 50%; margin-top: 10px;'">
                     <t-textarea v-model:value="newAnswerValue" />
                 </div>
                 <t-radio-group v-if="!questionModifyFlag" class="radio-group" v-model:value="radioValue">
@@ -256,12 +260,14 @@ init() // 最后调用
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
 
     .card {
         width: 90%;
         height: 100%;
         overflow: hidden;
         margin-bottom: 20px;
+        overflow: hidden;
 
 
         .text {
@@ -300,7 +306,7 @@ init() // 最后调用
 
     .bottom-card {
         width: 90%;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
 
         .option {
             display: flex;
@@ -319,17 +325,17 @@ button {
 
 /*拖拽区div样式*/
 .resize {
-    cursor: col-resize;
+    cursor: ew-resize;
     float: left;
     position: relative;
-    top: 35%;
     width: 10px;
-    height: 50px;
+    height: 100%;
     font-size: 32px;
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none;
 }
 
 /*拖拽区鼠标悬停样式*/
@@ -355,19 +361,21 @@ button {
         flex-direction: column !important;
 
         .text {
+            height: auto !important;
             width: 100% !important;
             margin: 0 !important;
             margin-bottom: 20px !important;
         }
 
         .qa {
+            height: auto !important;
             width: 100% !important;
             margin: 0 !important;
         }
     }
 
     .bottom-card {
-        margin-top: 20px;
+        margin-top: 10px;
     }
 
 }
