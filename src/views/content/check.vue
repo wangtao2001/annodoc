@@ -157,7 +157,7 @@ const zeroDone = () => {
         <!--移动端将表格转换为列表，全部场景-->
         <div class="form list">
             <div class="list-item" v-for="d in allChecker" :key="d.number">
-                <div>{{ d.number + ' / ' + d.name + '\t' }}</div>
+                <div>{{ d.number + ' / ' + d.name + '/' + d.done }}</div>
                 <t-tag v-if="d.role == UserRole.teacher" theme="warning" variant="light">管理员</t-tag>
                 <t-tag v-else theme="success" variant="light">审核员</t-tag>
                 <t-popconfirm @confirm="deleteCheck(d)" theme="danger" content="确认删除吗">

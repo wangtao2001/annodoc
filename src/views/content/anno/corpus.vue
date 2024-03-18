@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+<script setup lang="tsx">
+import { ref, watch, onMounted, Ref, h } from 'vue'
 import { useRouter } from 'vue-router'
 import { corpusState, statusStore } from '@/store'
 import { request, getConfig, postConfig } from '@/methods/request'
@@ -7,9 +7,10 @@ import { UserRole } from '@/interface'
 import pubsub from 'pubsub-js'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { dragControllerDiv } from '@/methods/util'
+import { ViewListIcon } from 'tdesign-icons-vue-next'
 
 const router = useRouter()
-const corpus = corpusState() // 这个功能先不用了
+const corpus = corpusState()
 const state = statusStore()
 const isStudent = state.user.role == UserRole.student
 
@@ -60,16 +61,10 @@ const next = async () => {
 }
 
 const custReg: Array<{ r: object, replace: string }> = [
-    { r: /-+[\s\d]*-+\s*[xX]?\n?/g, replace: '' },
-    { r: /国家市场监督管理总局发布\n?/g, replace: '' },
-    { r: /国家市场监督管理总局规章\n?/g, replace: '' },
-    { r: /国家药品监督管理局发布\n?/g, replace: '' },
-    { r: /\n/g, replace: '<br>' },
-    { r: /<img src=\"[a-z\d-]*.png\"\/>\n?。?/g, replace: '' },
-    { r: /。\s*。/g, replace: '。' },
 ]
 
 const init = async () => {
+    historyData.value = [] // 历史记录
     radioValue.value = '-1' // 重置状态数据（注意！！）
     newQuetionValue.value = ''
     newAnswerValue.value = ''
@@ -184,14 +179,107 @@ onMounted(() => {
             if (radioValue.value == '-1' || radioValue.value == '1') radioValue.value = '0'
             else radioValue.value = '1'
         }
-        if (e.key == 'Enter') {
-            next()
-        }
+        if ((e.key == 'Enter' || e.key == 'q') && (radioValue.value != '-1' || questionModifyFlag.value)) next() // 满足提交条件
     }
 
     // 两侧可拖动的div
     dragControllerDiv()
 })
+
+const errorType: Array<{ 'text': string, 'type': string }> = [
+    { 'text': '片段重复', type: 'repeat' },
+    { 'text': '包含乱码', type: 'messy' },
+    { 'text': '表格转文字', type: 'table' },
+    { 'text': '其他问题', type: 'other' },
+]
+
+interface History {
+    time: string,corpusContent: string, questionContent : string, corpusId: string, pairId: string, approve: string, answerContent: string,
+    title: string, chapter: string, id: string
+}
+const historyVisible = ref(false)
+const historyData: Ref<Array<History>> = ref([])
+const openDrawer = async () => {
+    console.log('打开侧边栏')
+    console.log(historyData.value.length)
+    historyVisible.value = true
+    if (historyData.value.length == 0) {
+    await request( // 请求的历史纪录都是当前任务下的
+        getConfig, `/api/corpus/getResponses/getHistory?number=${state.user.number}&taskId=${state.taskId}&limit=20`,
+        async (data) => {
+            for (var d of data) {
+                var corpusContext = ''
+                var questionContent = ''
+                var answerContent = ''
+                var title = ''
+                var chapter = ''
+                await request( getConfig, 
+                `/api/corpus/getResponses/getCorpusById?id=${d.corpusId}`, 
+                (data) =>{
+                    corpusContext = data.text
+                    title = data.title
+                    chapter = data.chapter
+                    for (var p of data.pairs) {
+                        if (d.pairId == p.id) {
+                            questionContent = p.question
+                            answerContent = p.answer
+                        }
+                    }
+                })
+                historyData.value.push({id: d.id,
+                    time: d.time, 
+                    corpusContent: corpusContext, 
+                    questionContent: questionContent, 
+                    corpusId: d.corpusId, 
+                    answerContent: answerContent,
+                    title: title,
+                    chapter: chapter,
+                    pairId: d.pairId,
+                    approve: d.approve})
+            }
+            historyData.value.sort((a, b) => {
+                return b.time.localeCompare(a.time)
+            }) // 排序
+        }
+    )}
+}
+const historyModifyVisible = ref(false)
+const currentHistory: Ref<History> = ref({
+    time: '',corpusContent: '', questionContent : '', corpusId: '', pairId: '', approve: '', answerContent: '', title: '', chapter: '', id: ''
+}) // 初始化
+const historyModify = (current: History) => { // 打开卡片的时候数据才加载
+    historyModifyVisible.value = true
+    currentHistory!.value = current
+    historyNewApprove.value = current.approve // 默认值
+}
+const historyNewApprove = ref('0') // 修改之后的值绑定到这里
+const historyApproveBtn = () => { // 历史记录修改提交定制按钮
+    return (
+        <>
+            {
+                historyNewApprove.value == currentHistory.value.approve ?
+                <t-button disabled >确认修改</t-button> :
+                <t-button onClick={()=>{historyModifyUpload()}}>确认修改</t-button>
+            }
+        </>
+    )
+}
+const historyModifyUpload = async () => {
+    if (state.user.role == UserRole.student) {
+        MessagePlugin.error('学生身份暂不支持修改历史记录')
+    }
+    // 相同的提交接口
+    await request(
+            postConfig, '/api/corpus/accept/approveChecker',
+            () => {
+                historyModifyVisible.value = false
+                historyVisible.value = false
+                historyData.value.length = 0 // 最简单的重置的方法
+             },
+            { number: state.user.number, corpusId: currentHistory.value.corpusId, pairId: currentHistory.value.pairId, approve: parseInt(historyNewApprove.value),  historyId: currentHistory.value.id},
+            "提交成功"
+        )
+}
 
 
 init() // 最后调用
@@ -205,9 +293,10 @@ init() // 最后调用
                 <div id="content" v-html="data.text"></div>
                 <div style="margin-top: 30px;">
                     <p style=" color: #8f8e8e;">文本片段问题上报：</p>
-                    <t-link @click="() => { errorUpload('repeat') }" theme="primary">片段重复</t-link>
-                    <t-link @click="() => { errorUpload('messy') }" theme="primary">包含乱码</t-link>
-                    <t-link @click="() => { errorUpload('other') }" theme="primary">其他问题</t-link>
+                    <span v-for="error in errorType" :key="error.type">
+                        <t-link style="margin-right: 2px;" @click="() => { errorUpload(error.type) }" theme="primary">{{
+                            error.text }}</t-link>
+                    </span>
                 </div>
             </t-card>
             <div class="resize" title="调整横向距离" v-show="flexRow">
@@ -237,7 +326,47 @@ init() // 最后调用
                     <t-button variant="outline" @click="router.push('/anno/type')">返回</t-button>
                     <t-button class="flex" variant="outline" @click="flexChange">{{ flexRow ? '上下布局' : '左右布局'
                     }}</t-button>
+                    <t-button variant="outline" @click="openDrawer">历史记录</t-button>
+                    <t-drawer size="medium" v-model:visible="historyVisible" >
+                        <template #header>
+                            <ViewListIcon/>
+                            <p style="margin-left: 10px;">标注历史记录</p>
+                        </template>
+                        <template #footer>
+                            <t-button variant="outline" @click="historyVisible = false"> 取消 </t-button>
+                        </template>
+                        <div>
+                            <t-collapse style="margin-bottom: 5px;" v-for="(item, index) in historyData" :key="index">
+                                <t-collapse-panel :header="'最后提交时间：' + item.time">
+                                    <template #headerRightContent>
+                                        <t-space size="small">
+                                        <t-button variant="outline" @click="() => historyModify(item)" size="small">查看</t-button> <!--转到历史页面，还是不要用户当前页面了~~~~-->
+                                        </t-space>
+                                    </template>
+                                    <div class="singe-line">文本：{{ item.corpusContent }}</div>
+                                    <div class="singe-line">问题：{{ item.questionContent }}</div>
+                                </t-collapse-panel>
+                            </t-collapse>
+                            <p style="margin-top: 10px;">{{ historyData.length != 0 ? '仅展示最近提交的前20条'  : '暂无历史记录' }}</p>
+                        </div>
+                    </t-drawer>
                 </div>
+                <t-dialog
+                width="50%"
+                :confirm-btn="historyApproveBtn" 
+                v-model:visible="historyModifyVisible">
+                    <t-space direction="vertical" style="width: 100%;">
+                    <t-textarea readonly :value="currentHistory.corpusContent" :autosize="{ minRows: 1, maxRows: 5 }" />
+                    <t-textarea readonly :value="currentHistory.answerContent ? currentHistory.questionContent + '\n\n' + currentHistory.answerContent: currentHistory.questionContent" :autosize="{ minRows: 1, maxRows: 5 }" />
+                    </t-space>
+                    <t-space style="margin-top: 20px;" >
+                        <p>当前选择：</p>
+                        <t-radio-group v-model:value="historyNewApprove" >
+                            <t-radio value=0 >不采纳</t-radio>
+                            <t-radio value=1>采纳</t-radio>
+                        </t-radio-group>
+                    </t-space>
+                </t-dialog>
                 <div class="next">
                     <t-button variant="outline" :disabled="radioValue == '-1'" @click="radioValue = '-1'"
                         v-if="!questionModifyFlag">取消选择</t-button>
@@ -255,6 +384,13 @@ init() // 最后调用
 </template>
 
 <style scoped lang="less">
+.singe-line {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-all;
+    white-space: nowrap;
+}
+
 .root {
     display: flex;
     flex-direction: column;
