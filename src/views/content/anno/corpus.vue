@@ -197,15 +197,14 @@ interface History {
     time: string,corpusContent: string, questionContent : string, corpusId: string, pairId: string, approve: string, answerContent: string,
     title: string, chapter: string, id: string
 }
+let historyPageIndex = ref(0) // 当前页
+let historyPageLimit = ref(1) // 每页数量
+let historyPageCount = ref(0) // 总数
 const historyVisible = ref(false)
 const historyData: Ref<Array<History>> = ref([])
-const openDrawer = async () => {
-    console.log('打开侧边栏')
-    console.log(historyData.value.length)
-    historyVisible.value = true
-    if (historyData.value.length == 0) {
+const historyGet = async() => {
     await request( // 请求的历史纪录都是当前任务下的
-        getConfig, `/api/corpus/getResponses/getHistory?number=${state.user.number}&taskId=${state.taskId}&limit=20`,
+        getConfig, `/api/corpus/getResponses/getHistory?number=${state.user.number}&taskId=${state.taskId}&limit=${historyPageLimit.value}&pageIndex=${historyPageIndex.value}`,
         async (data) => {
             for (var d of data) {
                 var corpusContext = ''
@@ -241,7 +240,21 @@ const openDrawer = async () => {
                 return b.time.localeCompare(a.time)
             }) // 排序
         }
-    )}
+    )
+}
+
+const openDrawer = async () => {
+    // 先看总数有多少
+    await request( // 请求的历史纪录都是当前任务下的
+        getConfig, `/api/corpus/getResponses/getHistoryCount?number=${state.user.number}&taskId=${state.taskId}`,
+        (data)=>{
+            historyPageCount.value = Number.parseInt(data)
+        }
+    )
+    historyVisible.value = true
+    if (historyData.value.length == 0) {
+        historyGet()
+    }
 }
 const historyModifyVisible = ref(false)
 const currentHistory: Ref<History> = ref({
@@ -275,10 +288,19 @@ const historyModifyUpload = async () => {
                 historyModifyVisible.value = false
                 historyVisible.value = false
                 historyData.value.length = 0 // 最简单的重置的方法
+                historyPageIndex.value = 0 // 当前页
+                historyPageCount.value = 0 // 总数
              },
             { number: state.user.number, corpusId: currentHistory.value.corpusId, pairId: currentHistory.value.pairId, approve: parseInt(historyNewApprove.value),  historyId: currentHistory.value.id},
             "提交成功"
         )
+}
+const addMoreHistory = () => {
+    if (historyPageIndex.value == 99) MessagePlugin.error('不支持加载更多了') 
+    else {
+        historyGet()
+        historyPageIndex.value += 1
+    }
 }
 
 
@@ -333,7 +355,11 @@ init() // 最后调用
                             <p style="margin-left: 10px;">标注历史记录</p>
                         </template>
                         <template #footer>
+                            <t-space>
                             <t-button variant="outline" @click="historyVisible = false"> 取消 </t-button>
+                            <t-button variant="text"  theme="default" disabled >单次加载数量：</t-button>
+                            <t-input-number v-model="historyPageLimit" :min="1" :max="10"/>
+                            </t-space>
                         </template>
                         <div>
                             <t-collapse style="margin-bottom: 5px;" v-for="(item, index) in historyData" :key="index">
@@ -347,7 +373,8 @@ init() // 最后调用
                                     <div class="singe-line">问题：{{ item.questionContent }}</div>
                                 </t-collapse-panel>
                             </t-collapse>
-                            <p style="margin-top: 10px;">{{ historyData.length != 0 ? '仅展示最近提交的前20条'  : '暂无历史记录' }}</p>
+                            <t-link theme="primary" style="margin-top: 10px;" @click="addMoreHistory" v-if="historyPageIndex != Math.ceil(historyPageCount / historyPageLimit) -1">加载更多</t-link>
+                            <p v-else style="margin-top: 10px;">无更多历史记录</p>
                         </div>
                     </t-drawer>
                 </div>
@@ -356,8 +383,8 @@ init() // 最后调用
                 :confirm-btn="historyApproveBtn" 
                 v-model:visible="historyModifyVisible">
                     <t-space direction="vertical" style="width: 100%;">
-                    <t-textarea readonly :value="currentHistory.corpusContent" :autosize="{ minRows: 1, maxRows: 5 }" />
-                    <t-textarea readonly :value="currentHistory.answerContent ? currentHistory.questionContent + '\n\n' + currentHistory.answerContent: currentHistory.questionContent" :autosize="{ minRows: 1, maxRows: 5 }" />
+                    <t-textarea readonly :value="currentHistory.corpusContent" :autosize="{ minRows: 2, maxRows: 10 }" />
+                    <t-textarea readonly :value="currentHistory.answerContent ? currentHistory.questionContent + '\n\n' + currentHistory.answerContent: currentHistory.questionContent" :autosize="{ minRows: 2, maxRows: 10 }" />
                     </t-space>
                     <t-space style="margin-top: 20px;" >
                         <p>当前选择：</p>
