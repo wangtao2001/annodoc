@@ -25,6 +25,7 @@ declare module 'vue' {
     TCollapsePanel: typeof import('tdesign-vue-next')['CollapsePanel']
     TColorPicker: typeof import('tdesign-vue-next')['ColorPicker']
     TDialog: typeof import('tdesign-vue-next')['Dialog']
+    TDivider: typeof import('tdesign-vue-next')['Divider']
     TDrawer: typeof import('tdesign-vue-next')['Drawer']
     TDropdown: typeof import('tdesign-vue-next')['Dropdown']
     TFooter: typeof import('tdesign-vue-next')['Footer']

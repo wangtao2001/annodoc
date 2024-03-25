@@ -92,6 +92,8 @@ const init = async () => {
     )
     // 通知计数器更新
     pubsub.publish('counterCheckUpdate')
+    // 重置历史记录
+    historyData.value.length = 0
 }
 
 const selectText = ref('') // 问题和答案中被选中的文本
@@ -125,13 +127,13 @@ watch(selectText, async (new_, old) => {
         div.innerHTML = data.value.text // 首先清除原有标记
         // 原文文本中可能有一些空格，这里也考虑到正则中
         const r = new RegExp(new_.replace(/ /g, '').split('').join('\\s*'), 'g')
+        // 通过替换子节点实现高亮
         var highlightedText = div.innerHTML.replace(r, '<span class="highLight">' + new_ + '</span>')
         div.innerHTML = highlightedText
     }
     else {
         div.innerHTML = data.value.text
     }
-
 })
 
 const flexRow = ref(true)
@@ -194,15 +196,15 @@ const errorType: Array<{ 'text': string, 'type': string }> = [
 ]
 
 interface History {
-    time: string,corpusContent: string, questionContent : string, corpusId: string, pairId: string, approve: string, answerContent: string,
+    time: string, corpusContent: string, questionContent: string, corpusId: string, pairId: string, approve: string, answerContent: string,
     title: string, chapter: string, id: string
 }
 let historyPageIndex = ref(0) // 当前页
-let historyPageLimit = ref(1) // 每页数量
-let historyPageCount = ref(0) // 总数
+let historyPageLimit = ref(5) // 每页数量
+let historyCount = ref(0) // 总数
 const historyVisible = ref(false)
 const historyData: Ref<Array<History>> = ref([])
-const historyGet = async() => {
+const historyGet = async () => {
     await request( // 请求的历史纪录都是当前任务下的
         getConfig, `/api/corpus/getResponses/getHistory?number=${state.user.number}&taskId=${state.taskId}&limit=${historyPageLimit.value}&pageIndex=${historyPageIndex.value}`,
         async (data) => {
@@ -212,29 +214,31 @@ const historyGet = async() => {
                 var answerContent = ''
                 var title = ''
                 var chapter = ''
-                await request( getConfig, 
-                `/api/corpus/getResponses/getCorpusById?id=${d.corpusId}`, 
-                (data) =>{
-                    corpusContext = data.text
-                    title = data.title
-                    chapter = data.chapter
-                    for (var p of data.pairs) {
-                        if (d.pairId == p.id) {
-                            questionContent = p.question
-                            answerContent = p.answer
+                await request(getConfig,
+                    `/api/corpus/getResponses/getCorpusById?id=${d.corpusId}`,
+                    (data) => {
+                        corpusContext = data.text
+                        title = data.title
+                        chapter = data.chapter
+                        for (var p of data.pairs) {
+                            if (d.pairId == p.id) {
+                                questionContent = p.question
+                                answerContent = p.answer
+                            }
                         }
-                    }
-                })
-                historyData.value.push({id: d.id,
-                    time: d.time, 
-                    corpusContent: corpusContext, 
-                    questionContent: questionContent, 
-                    corpusId: d.corpusId, 
+                    })
+                historyData.value.push({
+                    id: d.id,
+                    time: d.time,
+                    corpusContent: corpusContext,
+                    questionContent: questionContent,
+                    corpusId: d.corpusId,
                     answerContent: answerContent,
                     title: title,
                     chapter: chapter,
                     pairId: d.pairId,
-                    approve: d.approve})
+                    approve: d.approve
+                })
             }
             historyData.value.sort((a, b) => {
                 return b.time.localeCompare(a.time)
@@ -247,8 +251,8 @@ const openDrawer = async () => {
     // 先看总数有多少
     await request( // 请求的历史纪录都是当前任务下的
         getConfig, `/api/corpus/getResponses/getHistoryCount?number=${state.user.number}&taskId=${state.taskId}`,
-        (data)=>{
-            historyPageCount.value = Number.parseInt(data)
+        (data) => {
+            historyCount.value = Number.parseInt(data)
         }
     )
     historyVisible.value = true
@@ -258,7 +262,7 @@ const openDrawer = async () => {
 }
 const historyModifyVisible = ref(false)
 const currentHistory: Ref<History> = ref({
-    time: '',corpusContent: '', questionContent : '', corpusId: '', pairId: '', approve: '', answerContent: '', title: '', chapter: '', id: ''
+    time: '', corpusContent: '', questionContent: '', corpusId: '', pairId: '', approve: '', answerContent: '', title: '', chapter: '', id: ''
 }) // 初始化
 const historyModify = (current: History) => { // 打开卡片的时候数据才加载
     historyModifyVisible.value = true
@@ -271,8 +275,8 @@ const historyApproveBtn = () => { // 历史记录修改提交定制按钮
         <>
             {
                 historyNewApprove.value == currentHistory.value.approve ?
-                <t-button disabled >确认修改</t-button> :
-                <t-button onClick={()=>{historyModifyUpload()}}>确认修改</t-button>
+                    <t-button disabled >确认修改</t-button> :
+                    <t-button onClick={() => { historyModifyUpload() }}>确认修改</t-button>
             }
         </>
     )
@@ -283,23 +287,23 @@ const historyModifyUpload = async () => {
     }
     // 相同的提交接口
     await request(
-            postConfig, '/api/corpus/accept/approveChecker',
-            () => {
-                historyModifyVisible.value = false
-                historyVisible.value = false
-                historyData.value.length = 0 // 最简单的重置的方法
-                historyPageIndex.value = 0 // 当前页
-                historyPageCount.value = 0 // 总数
-             },
-            { number: state.user.number, corpusId: currentHistory.value.corpusId, pairId: currentHistory.value.pairId, approve: parseInt(historyNewApprove.value),  historyId: currentHistory.value.id},
-            "提交成功"
-        )
+        postConfig, '/api/corpus/accept/approveChecker',
+        () => {
+            historyModifyVisible.value = false
+            historyVisible.value = false
+            historyData.value.length = 0 // 最简单的重置的方法
+            historyPageIndex.value = 0 // 当前页
+            historyCount.value = 0 // 总数
+        },
+        { number: state.user.number, corpusId: currentHistory.value.corpusId, pairId: currentHistory.value.pairId, approve: parseInt(historyNewApprove.value), historyId: currentHistory.value.id },
+        "提交成功"
+    )
 }
 const addMoreHistory = () => {
-    if (historyPageIndex.value == 99) MessagePlugin.error('不支持加载更多了') 
+    if (historyPageIndex.value == 99) MessagePlugin.error('不支持加载更多了')
     else {
-        historyGet()
         historyPageIndex.value += 1
+        historyGet()
     }
 }
 
@@ -317,7 +321,7 @@ init() // 最后调用
                     <p style=" color: #8f8e8e;">文本片段问题上报：</p>
                     <span v-for="error in errorType" :key="error.type">
                         <t-link style="margin-right: 2px;" @click="() => { errorUpload(error.type) }" theme="primary">{{
-                            error.text }}</t-link>
+            error.text }}</t-link>
                     </span>
                 </div>
             </t-card>
@@ -347,18 +351,18 @@ init() // 最后调用
                 <div>
                     <t-button variant="outline" @click="router.push('/anno/type')">返回</t-button>
                     <t-button class="flex" variant="outline" @click="flexChange">{{ flexRow ? '上下布局' : '左右布局'
-                    }}</t-button>
+                        }}</t-button>
                     <t-button variant="outline" @click="openDrawer">历史记录</t-button>
-                    <t-drawer size="medium" v-model:visible="historyVisible" >
+                    <t-drawer size="medium" v-model:visible="historyVisible">
                         <template #header>
-                            <ViewListIcon/>
+                            <ViewListIcon />
                             <p style="margin-left: 10px;">标注历史记录</p>
                         </template>
                         <template #footer>
                             <t-space>
-                            <t-button variant="outline" @click="historyVisible = false"> 取消 </t-button>
-                            <t-button variant="text"  theme="default" disabled >单次加载数量：</t-button>
-                            <t-input-number v-model="historyPageLimit" :min="1" :max="10"/>
+                                <t-button variant="outline" @click="historyVisible = false"> 取消 </t-button>
+                                <t-button variant="text" theme="default" disabled>单次加载数量：</t-button>
+                                <t-input-number v-model="historyPageLimit" :min="1" :max="10" />
                             </t-space>
                         </template>
                         <div>
@@ -366,30 +370,32 @@ init() // 最后调用
                                 <t-collapse-panel :header="'最后提交时间：' + item.time">
                                     <template #headerRightContent>
                                         <t-space size="small">
-                                        <t-button variant="outline" @click="() => historyModify(item)" size="small">查看</t-button> <!--转到历史页面，还是不要用户当前页面了~~~~-->
+                                            <t-button variant="outline" @click="() => historyModify(item)"
+                                                size="small">查看</t-button> <!--转到历史页面，还是不要用户当前页面了~~~~-->
                                         </t-space>
                                     </template>
                                     <div class="singe-line">文本：{{ item.corpusContent }}</div>
                                     <div class="singe-line">问题：{{ item.questionContent }}</div>
                                 </t-collapse-panel>
                             </t-collapse>
-                            <t-link theme="primary" style="margin-top: 10px;" @click="addMoreHistory" v-if="historyPageIndex != Math.ceil(historyPageCount / historyPageLimit) -1">加载更多</t-link>
+                            <t-link theme="primary" style="margin-top: 10px;" @click="addMoreHistory"
+                                v-if="historyData.length < historyCount">加载更多</t-link>
                             <p v-else style="margin-top: 10px;">无更多历史记录</p>
                         </div>
                     </t-drawer>
                 </div>
-                <t-dialog
-                width="50%"
-                :confirm-btn="historyApproveBtn" 
-                v-model:visible="historyModifyVisible">
+                <t-dialog width="50%" :confirm-btn="historyApproveBtn" v-model:visible="historyModifyVisible">
                     <t-space direction="vertical" style="width: 100%;">
-                    <t-textarea readonly :value="currentHistory.corpusContent" :autosize="{ minRows: 2, maxRows: 10 }" />
-                    <t-textarea readonly :value="currentHistory.answerContent ? currentHistory.questionContent + '\n\n' + currentHistory.answerContent: currentHistory.questionContent" :autosize="{ minRows: 2, maxRows: 10 }" />
+                        <t-textarea readonly :value="currentHistory.corpusContent"
+                            :autosize="{ minRows: 2, maxRows: 10 }" />
+                        <t-textarea readonly
+                            :value="currentHistory.answerContent ? currentHistory.questionContent + '\n\n' + currentHistory.answerContent : currentHistory.questionContent"
+                            :autosize="{ minRows: 2, maxRows: 10 }" />
                     </t-space>
-                    <t-space style="margin-top: 20px;" >
+                    <t-space style="margin-top: 20px;">
                         <p>当前选择：</p>
-                        <t-radio-group v-model:value="historyNewApprove" >
-                            <t-radio value=0 >不采纳</t-radio>
+                        <t-radio-group v-model:value="historyNewApprove">
+                            <t-radio value=0>不采纳</t-radio>
                             <t-radio value=1>采纳</t-radio>
                         </t-radio-group>
                     </t-space>
@@ -398,10 +404,11 @@ init() // 最后调用
                     <t-button variant="outline" :disabled="radioValue == '-1'" @click="radioValue = '-1'"
                         v-if="!questionModifyFlag">取消选择</t-button>
                     <t-button @click="modify"> {{ !questionModifyFlag ? '问句修改' : '取消修改' }}</t-button>
-                    <t-button :disabled="radioValue == '-1' && !questionModifyFlag" @click="next">{{ !questionModifyFlag ?
-                        '下一条'
-                        : '修改提交'
-                    }}</t-button>
+                    <t-button :disabled="radioValue == '-1' && !questionModifyFlag" @click="next">{{ !questionModifyFlag
+            ?
+            '下一条'
+            : '修改提交'
+                        }}</t-button>
                 </div>
             </div>
         </t-card>
