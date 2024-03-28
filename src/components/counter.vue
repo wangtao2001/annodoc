@@ -3,18 +3,19 @@ import { request, getConfig } from '@/methods/request'
 import { ref } from 'vue'
 import { UserRole } from '@/interface'
 import { statusStore } from '@/store'
+import pubsub from 'pubsub-js'
 
 const current = statusStore()
 
 const currentNum = ref(0)
 const allNum = ref(0)
 const toCheckNum = ref(0)
-const getCurrentNums = async() => {
+const getCurrentNums = async () => {
     request(
         getConfig,
         `/api/getResponses/getOneHomeworkCompleted/${current.user.number}`,
         (data) => {
-            currentNum.value = data.finish+1
+            currentNum.value = data.finish + 1
             allNum.value = data.all
         }
     )
@@ -23,22 +24,26 @@ const getToCheckNums = async () => {
     request(
         getConfig,
         `/api/getResponses/getToBeDone/${current.user.number}`,
-        (data)=> toCheckNum.value = data
+        (data) => toCheckNum.value = data
     )
 }
 
-if (current.user.role == UserRole.student) getCurrentNums()
-else getToCheckNums()
+pubsub.unsubscribe('counterCheckUpdate') // 先取消一次，不然会多次调用（原因位置.....）
+pubsub.subscribe('counterCheckUpdate', () => {
+    getToCheckNums()
+})
 </script>
 
 <template>
-    <div class="num">{{current.user.role == UserRole.student ? '当前：' + currentNum + '/' + allNum : '已完成：' + toCheckNum }}</div>
+    <div class="num" v-if="current.user.role == UserRole.checker || current.user.role == UserRole.teacher">{{ '已完成：' +
+        toCheckNum }}</div>
 </template>
 
 <style lang="less" scoped>
-    .num {
-        color: #0052d9;
-        background-color: var(--counter-bgc);;
-        padding: 10px 20px;
-    }
+.num {
+    color: #0052d9;
+    background-color: var(--counter-bgc);
+    ;
+    padding: 10px 20px;
+}
 </style>

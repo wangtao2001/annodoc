@@ -10,9 +10,10 @@ const route = useRoute()
             <div class="b">
                 <t-breadcrumbItem to="/anno/type" v-if="route.meta.breadcrumbLevel as number > 0"> 任务选择 </t-breadcrumbItem>
                 <t-breadcrumbItem to="/anno/work" v-if="route.meta.breadcrumbLevel as number > 1"> 标注 </t-breadcrumbItem>
-                <t-breadcrumbItem to="/anno/result" v-if="route.meta.breadcrumbLevel as number > 2"> 标注结果 </t-breadcrumbItem>
+                <t-breadcrumbItem to="/anno/result" v-if="route.meta.breadcrumbLevel as number > 2"> 标注结果
+                </t-breadcrumbItem>
             </div>
-            <!-- <counter v-if="route.meta.breadcrumbLevel as number > 1" /> -->
+            <counter v-if="route.meta.breadcrumbLevel as number > 1" />
         </t-breadcrumb>
         <RouterView />
     </t-layout>

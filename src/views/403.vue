@@ -1,7 +1,7 @@
 <template>
     <div class="content">
         <img src="@/assets/403.png" />
-        <div>您可能没有访问此平台的权限</div>
+        <div>您可能没有访问此平台的权限，申请权限可以联系 <a style="color: black;" href="mailto:3323051562@stu.cpu.edu.cn">这里</a></div>
         <t-link @click="logout" theme="warning">退出登录</t-link>
     </div>
 </template>

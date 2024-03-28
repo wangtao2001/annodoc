@@ -2,7 +2,7 @@
     <t-layout class="content">
         <div class="card">
             <div class="title">姓名：{{ currentStudent.name }}</div>
-            <div class="title">学号：{{ current.user.number }}</div>  
+            <div class="title">学号：{{ current.user.number }}</div>
         </div>
         <div class="card">
             <div class="title">完成情况：{{ currentStudent.finish }} / {{ all }}</div>
@@ -28,10 +28,11 @@ const currentStudent: Ref<StudentInfo> = ref({
     name: '',
     grade: current.user.grade,
     score: 0,
-    finish: 0
+    finish: 0,
+    language: ''
 })
 
-const loadInfo = async ()=> {
+const loadInfo = async () => {
     request(
         getConfig,
         `/api/getResponses/getByStudentNumber/${current.user.number}`,
@@ -42,7 +43,7 @@ const loadInfo = async ()=> {
     )
 }
 
-const loadFinsh = async()=> {
+const loadFinsh = async () => {
     request(
         getConfig,
         `/api/getResponses/getOneHomeworkCompleted/${current.user.number}`,
@@ -62,6 +63,7 @@ loadFinsh()
 .content {
     padding: 20px 20px 0 20px;
 }
+
 .card {
     user-select: none;
     width: 400px;

@@ -1,35 +1,47 @@
 <script lang="tsx" setup>
-import {request, getConfig, postConfig} from '@/methods/request'
+import { request, getConfig, postConfig } from '@/methods/request'
 import { reactive, ref, Ref } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { UserRole } from '@/interface'
 
 
 const columns = [
-    { colKey: 'number', title: '学号/工号'},
-    {title: '姓名', cell: (h: any, { row }: { row: any }) => {
-        return (
-            <div class='checker_name'>
-                <p>{row.name}</p>
-                <>{
-                    row.role == UserRole.teacher? 
-                <t-tag theme="warning" variant="light">管理员</t-tag> :
-                <t-tag theme="success" variant="light">审核员</t-tag>
-                }</>
-            </div>
-        )
-    }},
-    {title: '操作', cell: (h: any, { row }: { row: any }) => {
-        return (
-            <t-popconfirm  on-confirm={()=>{deleteCheck(row)}} theme="danger" content="确认删除吗">
-                <t-link theme="danger" > 删除 </t-link>
-            </t-popconfirm>
-        )
-    }}
+    { colKey: 'number', title: '学号/工号' },
+    {
+        title: '姓名', cell: (h: any, { row }: { row: any }) => {
+            return (
+                <div class='checker_name'>
+                    <p>{row.name}</p>
+                    <>{
+                        row.role == UserRole.teacher ?
+                            <t-tag theme="warning" variant="light">管理员</t-tag> :
+                            <t-tag theme="success" variant="light">审核员</t-tag>
+                    }</>
+                </div>
+            )
+        }
+    },
+    { colKey: 'done', title: '完成数量' },
+    {
+        title: '语言偏好', cell: (h: any, { row }: { row: any }) => {
+            return (
+                <div>{row.language == 'EN-US' ? <p>英文</p> : <p>中文</p>}</div>
+            )
+        }
+    },
+    {
+        title: '操作', cell: (h: any, { row }: { row: any }) => {
+            return (
+                <t-popconfirm on-confirm={() => { deleteCheck(row) }} theme="danger" content="确认删除吗">
+                    <t-link theme="danger" > 删除 </t-link>
+                </t-popconfirm>
+            )
+        }
+    }
 ]
 
 const allChecker: Ref<Array<{
-    number: string, name: string, role: UserRole
+    number: string, name: string, role: UserRole, done: number, language: string
 }>> = ref([])
 
 const loadData = async () => {
@@ -42,7 +54,9 @@ const loadData = async () => {
                 allChecker.value.push({
                     number: row.number,
                     name: row.name,
-                    role: UserRole.checker
+                    role: UserRole.checker,
+                    done: row.toBeDone, // 完成数量
+                    language: row.language
                 })
             }
         }
@@ -69,7 +83,7 @@ const deleteCheck = async (data: any) => {
         request(
             getConfig,
             `/api/getResponses/deleteManager/${data.number}`,
-            () => {}
+            () => { }
         )
     }
     request(
@@ -87,9 +101,10 @@ loadData()
 const formVisable = ref(false)
 const newData = reactive({
     number: '',
-    name: ''
+    name: '',
+    language: 'ZH-CN'
 })
-const upNewData =  async ()=>{
+const upNewData = async () => {
     if (newData.number == '' || newData.name == '') {
         MessagePlugin.error('请填写完整信息')
         return
@@ -99,7 +114,7 @@ const upNewData =  async ()=>{
         request(
             postConfig,
             '/api/resultAccepts/insertManager',
-            () => {},
+            () => { },
             newData,
         )
     }
@@ -116,31 +131,37 @@ const upNewData =  async ()=>{
     )
     newData.number = ''
     newData.name = ''
+    newData.language = ''
 }
 
-const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
+const labelAalign = window.innerWidth <= 900 ? 'top' : 'left'
 
 const newRole = ref('checker')
+
+const zeroDone = () => {
+    request(
+        getConfig,
+        '/api/getResponses/zeroChecker',
+        () => {
+            loadData()
+        },
+        undefined, "重置成功"
+    )
+}
 </script>
 
 <template>
     <t-layout>
-        <t-base-table
-        class="table"
-        bordered        
-        :data="allChecker"
-        :columns="columns"
-        table-layout="auto"
-        row-key="number"
-        ></t-base-table>
+        <t-base-table class="table" bordered :data="allChecker" :columns="columns" table-layout="auto"
+            row-key="number"></t-base-table>
         <!--移动端将表格转换为列表，全部场景-->
         <div class="form list">
             <div class="list-item" v-for="d in allChecker" :key="d.number">
-                <div>{{ d.number + ' / ' + d.name }}</div>
+                <div>{{ d.number + ' / ' + d.name + '/' + d.done }}</div>
                 <t-tag v-if="d.role == UserRole.teacher" theme="warning" variant="light">管理员</t-tag>
                 <t-tag v-else theme="success" variant="light">审核员</t-tag>
-                <t-popconfirm  @confirm="deleteCheck(d)" theme="danger" content="确认删除吗">
-                    <t-link theme="danger" > 删除 </t-link>
+                <t-popconfirm @confirm="deleteCheck(d)" theme="danger" content="确认删除吗">
+                    <t-link theme="danger"> 删除 </t-link>
                 </t-popconfirm>
             </div>
         </div>
@@ -159,27 +180,36 @@ const newRole = ref('checker')
                     <t-form-item label="姓名" name="name">
                         <t-input v-model="newData.name" :maxlength="10" show-limit-number clearable />
                     </t-form-item>
+                    <t-form-item label="语言偏好" name="language">
+                        <t-select v-model="newData.language">
+                            <t-option label="中文" value="ZH-CN" />
+                            <t-option label="英文" value="EN-US" />
+                        </t-select>
+                    </t-form-item>
                 </t-form>
                 <div class="option">
                     <t-button variant="outline" @click="formVisable = false">取消</t-button>
                     <t-button @click="upNewData">添加</t-button>
                 </div>
             </div>
-            <t-button v-if="!formVisable" @click="formVisable = true">添加</t-button>
+            <t-button v-if="!formVisable" @click="formVisable = true" style="margin-right: 10px;">添加</t-button>
+            <t-popconfirm @confirm='zeroDone' theme="danger" content="确认重置吗">
+                <t-button v-if="!formVisable">重置完成数量</t-button>
+            </t-popconfirm>
         </div>
-        
+
     </t-layout>
 </template>
 
 <style lang="less" scoped>
 .table {
     margin: 50px 40px 0 40px;
-    width: 350px;
+    width: 500px !important;
     user-select: none;
 }
 
 .form {
-    margin: 20px 40px 0 40px;
+    margin: 20px 40px 20px 40px;
     width: 350px;
 
     .option {
@@ -209,7 +239,7 @@ const newRole = ref('checker')
 
     .list {
         display: block;
-        border: 1px solid var( --common-border);
+        border: 1px solid var(--common-border);
         padding: 20px 20px;
 
         .list-item {

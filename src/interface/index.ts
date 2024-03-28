@@ -82,7 +82,8 @@ export interface StudentInfo {
     name: string,
     grade: string,
     score: number,
-    finish: number
+    finish: number,
+    language: string
 }
 
 // 系统支持的标注类型

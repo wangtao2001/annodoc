@@ -4,7 +4,7 @@ import { UserRole } from '@/interface'
 import pinia from "@/store/pinia"
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-import {request, getConfig} from '@/methods/request'
+import { request, getConfig } from '@/methods/request'
 import axios from 'axios'
 import { MessagePlugin } from 'tdesign-vue-next'
 NProgress.configure({ showSpinner: false })
@@ -31,7 +31,7 @@ const routes: Array<RouteRecordRaw> = [{
             children: [
                 {
                     path: '/anno/work',
-                    component: ()=> import('@/views/content/anno/work.vue'),
+                    component: () => import('@/views/content/anno/work.vue'),
                     name: 'anno_work',
                     meta: {
                         breadcrumbLevel: 2 // 在面包屑导航中的级别，用来动态匹配面包屑
@@ -39,15 +39,23 @@ const routes: Array<RouteRecordRaw> = [{
                 },
                 {
                     path: '/anno/corpus',
-                    component: ()=> import('@/views/content/anno/corpus.vue'),
+                    component: () => import('@/views/content/anno/corpus.vue'),
                     name: 'corpus_work',
                     meta: {
                         breadcrumbLevel: 2
                     }
                 },
                 {
+                    path: '/anno/corpus-v2',
+                    component: () => import('@/views/content/anno/corpus-v2.vue'),
+                    name: 'corpus_work_v2',
+                    meta: {
+                        breadcrumbLevel: 2
+                    }
+                },
+                {
                     path: '/anno/type',
-                    component: ()=> import('@/views/content/anno/type.vue'),
+                    component: () => import('@/views/content/anno/type.vue'),
                     name: 'anno_type',
                     meta: {
                         breadcrumbLevel: 1
@@ -55,14 +63,14 @@ const routes: Array<RouteRecordRaw> = [{
                 },
                 {
                     path: '/anno/result',
-                    component: ()=> import('@/views/content/anno/result.vue'),
+                    component: () => import('@/views/content/anno/result.vue'),
                     name: 'anno_result',
                     meta: {
                         breadcrumbLevel: 3
                     }
                 }
             ]
-        }, 
+        },
         {
             path: '/check',
             component: () => import('@/views/content/check.vue'),
@@ -86,7 +94,7 @@ const routes: Array<RouteRecordRaw> = [{
             children: [
                 {
                     path: '/task/list',
-                    component: ()=> import('@/views/content/task/list.vue'),
+                    component: () => import('@/views/content/task/list.vue'),
                     name: 'task_list',
                     meta: {
                         breadcrumbLevel: 1
@@ -94,7 +102,7 @@ const routes: Array<RouteRecordRaw> = [{
                 },
                 {
                     path: '/task/new',
-                    component: ()=> import('@/views/content/task/new.vue'),
+                    component: () => import('@/views/content/task/new.vue'),
                     name: 'task_new',
                     meta: {
                         breadcrumbLevel: 2
@@ -103,15 +111,15 @@ const routes: Array<RouteRecordRaw> = [{
             ]
         },
     ],
-}, 
+},
 {
     "path": "/404",
     "name": "notfound",
-    component: ()=>  import('@/views/404.vue')
+    component: () => import('@/views/404.vue')
 }, {
     "path": "/403",
     "name": "permission",
-    component: ()=>  import('@/views/403.vue')
+    component: () => import('@/views/403.vue')
 },
 {
     path: "/:pathMath(.*)", // 此处需特别注意置于最底部
@@ -141,8 +149,8 @@ router.beforeEach(async (to, from, next) => {
         if (data.manager) {
             current.userRoles.push(UserRole.teacher)
         }
-        if (data.grade ) {
-            if( data.grade.length != 0) {
+        if (data.grade) {
+            if (data.grade.length != 0) {
                 current.userRoles.push(UserRole.student)
             }
         }
@@ -156,31 +164,31 @@ router.beforeEach(async (to, from, next) => {
         }
     }
     if (!current.user.login && to.name != 'permission') {
-        next({name: 'permission'})
+        next({ name: 'permission' })
     } else
-    // 只有管理员能访问
-    if (to.name === 'task_list' || to.name === "task_new" || to.name === 'check' || to.name == 'student' || to.name == 'option') {
-        if ( current.user.role == UserRole.teacher) {
-            next()
-        } else {
-            next({ name: 'anno' })
-        }
-    } else
-     // 只有学生能访
-    if(to.name === 'home') {
-        if (current.user.role == UserRole.student) {
-            next()
-        } else {
-            next({name: 'anno'})
-        }
-    }
-    else {
-        next()
-    }
+        // 只有管理员能访问
+        if (to.name === 'task_list' || to.name === "task_new" || to.name === 'check' || to.name == 'student' || to.name == 'option') {
+            if (current.user.role == UserRole.teacher) {
+                next()
+            } else {
+                next({ name: 'anno' })
+            }
+        } else
+            // 只有学生能访
+            if (to.name === 'home') {
+                if (current.user.role == UserRole.student) {
+                    next()
+                } else {
+                    next({ name: 'anno' })
+                }
+            }
+            else {
+                next()
+            }
 })
 
 router.afterEach(() => {
     NProgress.done()
-  })
+})
 
 export default router

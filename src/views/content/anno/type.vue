@@ -21,7 +21,7 @@ const annoType: Array<AnnoType> = [
         title: '问句采纳',
         img: recordIcon, // require是webpack的做法
         content: '',
-        link: '/anno/corpus',
+        link: '/anno/corpus-v2',
         disabled: false
     }
 ]

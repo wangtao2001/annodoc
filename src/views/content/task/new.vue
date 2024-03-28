@@ -5,10 +5,10 @@ import { EntityLabelInfo, RelaLabelInfo, TaskInfo } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { v4 as uuidv4 } from 'uuid'
 import { downloadLocal, corpusDemo } from '@/methods/util'
-import  { mainStore } from '@/store'
-import {request, postConfig} from '@/methods/request'
+import { mainStore } from '@/store'
+import { request, postConfig } from '@/methods/request'
 import pubsub from 'pubsub-js'
-import { AddIcon} from 'tdesign-icons-vue-next'
+import { AddIcon } from 'tdesign-icons-vue-next'
 
 const router = useRouter()
 const store = mainStore()
@@ -39,8 +39,8 @@ const uploadCorpusData = () => {
     )
 }
 
-const demoFile = ()=> {
-    const jsonString = JSON.stringify(corpusDemo(  ) , null, '\t')
+const demoFile = () => {
+    const jsonString = JSON.stringify(corpusDemo(), null, '\t')
     downloadLocal(jsonString, "示例.json")
 }
 
@@ -62,21 +62,21 @@ const pre = () => {
 const nextText = ref('下一步')
 
 // 生成设置的配置文件
-const newTask = () :TaskInfo | null=>{
+const newTask = (): TaskInfo | null => {
     if (allLabels.length == 0) {
         MessagePlugin.error('请添加实体')
         return null
     }
     return {
-            id: store.createTaskId,
-            type: basicInfo.type,
-            taskName: basicInfo.name,
-            description: basicInfo.desc,
-            createTime: new Date().toLocaleString(),
-            modifyTime: new Date().toLocaleString(),
-            entitys: allLabels,
-            relations: allRelas,
-            grade: 0
+        id: store.createTaskId,
+        type: basicInfo.type,
+        taskName: basicInfo.name,
+        description: basicInfo.desc,
+        createTime: new Date().toLocaleString(),
+        modifyTime: new Date().toLocaleString(),
+        entitys: allLabels,
+        relations: allRelas,
+        grade: 0
     }
 }
 
@@ -109,13 +109,13 @@ const next = () => {
             isCreateCorpus.value = true
         }
 
-     }
+    }
     if (step.value == maxPage) {
         nextText.value = '本地预览'
     }
 }
 
-const labelAalign = window.innerWidth <= 900 ? 'top': 'left'
+const labelAalign = window.innerWidth <= 900 ? 'top' : 'left'
 // page 0
 // 表单
 const basicInfo = reactive({
@@ -227,7 +227,7 @@ const deletaRela = (id: string) => {
 }
 
 // 上传任务创建数据
-const uploadData = async() => {
+const uploadData = async () => {
     const task = newTask()
     if (task == null) {
         return
@@ -282,7 +282,7 @@ const labelIdToName = (id: string): string => {
                         <!--这个上传功能自己写-->
                         <upload :url="uploadurl" :fileType="fileType" :multiple="true" />
                         <p style="color: #999;">
-                            支持多选, 扩展名 {{ fileType }}, UTF-8编码方式
+                            支持多选, 扩展名 {{ fileType }}, UTF-8编码方式, 由于由于服务器平台限制, 单个文件大小尽量不超过10M
                         </p>
                     </div>
                 </t-form-item>
@@ -308,8 +308,7 @@ const labelIdToName = (id: string): string => {
                     <div class="rela s">
                         <div class="con">
                             <p v-if="allRelas.length == 0">配置的实体标签将显示在这里</p>
-                            <t-popconfirm v-for="r in allRelas" @confirm="deletaRela(r.id)" content="确认删除吗"
-                            theme="danger">
+                            <t-popconfirm v-for="r in allRelas" @confirm="deletaRela(r.id)" content="确认删除吗" theme="danger">
                                 <Rela :name="r.type" :start-name="labelIdToName(r.entity1)"
                                     :end-name="labelIdToName(r.entity2)" :bothway="r.bothway">
                                 </Rela>
@@ -324,10 +323,10 @@ const labelIdToName = (id: string): string => {
             </t-form>
             <div class="op">
                 <t-button @click="next" v-if="step != 1 || (step == 1 && !isCreateCorpus)">{{ nextText }}</t-button>
-                <t-button @click="uploadData" v-if="step == maxPage" >提交</t-button>
+                <t-button @click="uploadData" v-if="step == maxPage">提交</t-button>
                 <!--这2个提交按钮只在第二页展示-->
-                <t-button @click="uploadCorpusData" v-if="step == maxPage-1 && isCreateCorpus" >提交</t-button>
-                <t-button @click="demoFile" v-if="step == maxPage-1 && isCreateCorpus" variant="outline" >下载示例文件</t-button>
+                <t-button @click="uploadCorpusData" v-if="step == maxPage - 1 && isCreateCorpus">提交</t-button>
+                <t-button @click="demoFile" v-if="step == maxPage - 1 && isCreateCorpus" variant="outline">下载示例文件</t-button>
                 <t-button @click="pre" v-if="step > 0" variant="outline">上一步</t-button>
                 <t-button @click="cancel" variant="outline">取消</t-button>
             </div>
@@ -347,8 +346,8 @@ const labelIdToName = (id: string): string => {
                     </t-select>
                 </t-form-item>
                 <t-form-item label="标签配色">
-                    <t-color-picker v-model="addLabelFrom.color" :swatchColors="null"
-                        :colorModes="['monochrome']" :show-primary-color-preview="false" />
+                    <t-color-picker v-model="addLabelFrom.color" :swatchColors="null" :colorModes="['monochrome']"
+                        :show-primary-color-preview="false" />
                 </t-form-item>
             </t-form>
         </div>
