@@ -48,20 +48,21 @@ const next = async () => {
     if (qa.upModify) { // 表示已经上传了新的修改过后的数据 那这条自然就是不采纳了
       status = 0
     }
-    request(
+    await request(
       postConfig,
       '/api/corpus/accept/approveChecker',
       () => {
       },
       { number: state.user.number, corpusId: data.value.id, pairId: qa.id, approve: status },
-    ).then()
+    )
   }
-  MessagePlugin.success('提交成功').then()
-  init().then()
+  MessagePlugin.success('提交成功')
+  init()
 }
 
 
 const init = async () => {
+  console.log('执行init方法')
   historyData.value = [] // 重置历史记录
   // 重置各个选择状态： 直接在填充数据的时候解决了
   // 对各个问题的修改值和状态：直接放到对象中了
@@ -77,6 +78,7 @@ const init = async () => {
       for (let reg of custReg) { // 过滤掉文本中一些不太好的字符串
         text = text.replace(reg.r, reg.replace)
       }
+      text = text.replace(/\n/g, '<br/>') // 替换换行
       // data不需要初始化 重新赋值就可以解决
       data.value.text = text
       data.value.title = res.title
@@ -88,6 +90,7 @@ const init = async () => {
           question: ob.question, answer: ob.answer, id: ob.id, approve: '-1', newQuestion: ob.question, newAnswer: ob.answer, modify: false, upModify: false
         })
       }
+      console.log('data更新', data.value)
       state.taskId = res.taskId
     }, undefined, undefined,
     () => { router.push('/anno/type') }
@@ -161,13 +164,17 @@ const errorUpload = (type: string) => { // 这里应该做一个防抖
 }
 
 onMounted(() => {
+  document.onkeydown = (e) => {
+    console.log(e)
+  }
+
   dragControllerDiv()
 })
 
 const errorType: Array<{ 'text': string, 'type': string }> = [
   { 'text': '片段重复', type: 'repeat' },
   { 'text': '包含乱码', type: 'messy' },
-  { 'text': '表格转文字', type: 'table' },
+  { 'text': '无法识别', type: 'serious' },
   { 'text': '其他问题', type: 'other' },
 ]
 
