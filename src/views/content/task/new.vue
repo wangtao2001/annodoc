@@ -24,6 +24,7 @@ const uploadCorpusData = () => {
         description: basicInfo.desc,
         createTime: new Date().toLocaleString(),
         modifyTime: new Date().toLocaleString(),
+        priority: 0
     }
     request(
         postConfig,
@@ -76,7 +77,8 @@ const newTask = (): TaskInfo | null => {
         modifyTime: new Date().toLocaleString(),
         entitys: allLabels,
         relations: allRelas,
-        grade: 0
+        grade: 0,
+        priority: 0
     }
 }
 

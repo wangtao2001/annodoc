@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import textIcon from '@/assets/1.png'
 import recordIcon from '@/assets/3.png'
+import qaIcon from '@/assets/4.png'
 import { useRouter } from 'vue-router'
 import { AnnoType } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
@@ -14,15 +15,17 @@ const annoType: Array<AnnoType> = [
         img: textIcon,
         content: '',
         link: '/anno/work',
-        disabled: false
+        disabled: true,
+        new: false
     }
     , {
         id: 1,
         title: '问句采纳',
-        img: recordIcon, // require是webpack的做法
+        img: recordIcon,
         content: '',
         link: '/anno/corpus-v2',
-        disabled: false
+        disabled: false,
+        new: true
     }
 ]
 
@@ -42,7 +45,7 @@ const anno = (type: AnnoType)=> {
                     <div class="top">
                         <img :src="type.img" />
                         <div class="title">{{ type.title }}</div>
-                        <t-tag theme="primary" variant="light">NEW</t-tag>
+                        <t-tag v-if="type.new" theme="primary" variant="light">NEW</t-tag>
                     </div>
                     <div class="content">
                         {{ type.content }}

@@ -55,8 +55,8 @@ const loadItem = async (id: string)=> {
                 entitys: entitys,
                 relations: relations,
                 grade: data.grade,
+                priority: data.priority
             })
-            console.log(allTasks.value)
         }
     )
 }
@@ -106,6 +106,7 @@ const columns = [
     { colKey: 'description', title: '描述', width: '60', ellipsis:true  },
     // { colKey: 'createTime', title: "创建时间", width: '80' },
     { colKey: 'modifyTime', title: '修改时间', width: '55' },
+    { colKey: 'priority', title: '优先级', width: '30' },
     { title: '操作', width: '50', cell: (h: any, { row }: { row: TaskInfo }) => {
         return (
             <div>
@@ -192,7 +193,8 @@ const modifyTaskData = reactive({ // 修改任务的数据
     taskName: '',
     description: '',
     modifyTime: '',
-    grade: 0
+    grade: 0,
+    priority: 0
 })
 const modify = (task: TaskInfo) => {
     modifyTaskData.id = task.id
@@ -433,6 +435,9 @@ const getAllGrades = async () => {
                     <t-select class="grade" v-model="modifyTaskData.grade">
                         <t-option v-for="d in allGrades" :key="d.id" :label="d.grade" :value="d.grade" />
                     </t-select>
+                </t-form-item>
+                <t-form-item label="任务优先级" name="priority">
+                    <t-input-number v-model="modifyTaskData.priority" />
                 </t-form-item>
                 <t-form-item label="项目描述" name="desc">
                     <t-textarea v-model="modifyTaskData.description" placeholder="简单描述项目，长度限制为100" :maxcharacter="100"

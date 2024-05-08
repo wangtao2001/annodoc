@@ -74,6 +74,7 @@ export interface TaskInfo {
     entitys: Array<EntityLabelInfo>,
     relations: Array<RelaLabelInfo>,
     grade: number, // 表示哪一级学生
+    priority: number
 }
 
 //学生信息
@@ -93,7 +94,8 @@ export interface AnnoType {
     img: string,
     content: string,
     link: string,
-    disabled: boolean
+    disabled: boolean,
+    new: boolean
 }
 
 //每个任务的标注进度（对应的文本状态）

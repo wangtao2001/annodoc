@@ -52,6 +52,13 @@ const routes: Array<RouteRecordRaw> = [{
                     meta: {
                         breadcrumbLevel: 2
                     }
+                }, {
+                    path: '/anno/generate',
+                    component: () => import('@/views/content/anno/generate.vue'),
+                    name: 'generate_work',
+                    meta: {
+                        breadcrumbLevel: 2
+                    }
                 },
                 {
                     path: '/anno/type',
