@@ -120,6 +120,22 @@ export function corpusDemo() {
     ]
 }
 
+export function corpusDemo2() {
+    return [
+        {
+            "text": "这是第1段文字",
+            "title": "文字标题",
+            "chapter": "章节标题",
+        },
+        {
+            "text": "This is the second paragraph",
+            "title": "Test Title",
+            "chapter": "Section Title",
+            "language": "EN-US"
+        }
+    ]
+}
+
 
 export const dragControllerDiv = () => {
     const card = document.querySelector('.card') as HTMLDivElement

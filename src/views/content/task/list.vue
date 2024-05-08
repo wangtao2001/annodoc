@@ -203,6 +203,7 @@ const modify = (task: TaskInfo) => {
     modifyTaskData.description = task.description
     modifyTaskData.grade = task.grade
     modifyDialog.value = true
+    modifyTaskData.priority = task.priority
     getAllGrades()
 }
 const modifyTaskPut = async ()=> {

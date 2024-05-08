@@ -53,7 +53,7 @@ const routes: Array<RouteRecordRaw> = [{
                         breadcrumbLevel: 2
                     }
                 }, {
-                    path: '/anno/generate',
+                    path: '/anno/generate-qa',
                     component: () => import('@/views/content/anno/generate.vue'),
                     name: 'generate_work',
                     meta: {

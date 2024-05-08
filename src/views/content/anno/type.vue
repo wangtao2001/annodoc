@@ -16,7 +16,7 @@ const annoType: Array<AnnoType> = [
         content: '',
         link: '/anno/work',
         disabled: true,
-        new: false
+        new: true
     }
     , {
         id: 1,
@@ -27,6 +27,15 @@ const annoType: Array<AnnoType> = [
         disabled: false,
         new: true
     }
+    , {
+        id: 2,
+        title: '生成QA',
+        img: qaIcon,
+        content: '',
+        link: '/anno/generate-qa',
+        disabled: false,
+        new: true
+  }
 ]
 
 const anno = (type: AnnoType)=> {
