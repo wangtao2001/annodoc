@@ -43,6 +43,8 @@ const data: Ref<corpus> = ref({
 
 
 const next = async () => {
+  selectAll.value = false
+  selecting.value = false
   for (let qa of data.value.qas) {
     let status: number = parseInt(qa.approve)
     if (qa.upModify) { // 表示已经上传了新的修改过后的数据 那这条自然就是不采纳了
@@ -62,7 +64,7 @@ const next = async () => {
 
 
 const init = async () => {
-  console.log('执行init方法')
+  console.clear()
   historyData.value = [] // 重置历史记录
   // 重置各个选择状态： 直接在填充数据的时候解决了
   // 对各个问题的修改值和状态：直接放到对象中了
@@ -73,7 +75,7 @@ const init = async () => {
   }
   await request(
     getConfig, `/api/corpus/getResponses/getCorpusCheckerAll?number=${state.user.number}`,
-    (res) => {
+     async (res) => {
       let text = res.text
       for (let reg of custReg) { // 过滤掉文本中一些不太好的字符串
         text = text.replace(reg.r, reg.replace)
@@ -86,11 +88,17 @@ const init = async () => {
       data.value.id = res.id
       data.value.qas.length = 0 // 确保不是多次添加
       for (let ob of res.pairs) {
+
+        if (ob.modify) {
+          await request(getConfig, `/api/corpus/getResponses/getModifyPair?corpusId=${res.id}&pairId=${ob.id}`, (r)=>{
+            console.log(`%c问题：${ob.question}\n答案：${ob.answer}%c\n已经被你修改为新的表述：%c\n问题：${r.question}\n答案：${r.answer}`, 'color: red;', 'font-weight:700','color: green;')
+          })
+        }
+
         data.value.qas.push({
           question: ob.question, answer: ob.answer, id: ob.id, approve: '-1', newQuestion: ob.question, newAnswer: ob.answer, modify: false, upModify: false
         })
       }
-      console.log('data更新', data.value)
       state.taskId = res.taskId
     }, undefined, undefined,
     () => { router.push('/anno/type') }
@@ -164,9 +172,6 @@ const errorUpload = (type: string) => { // 这里应该做一个防抖
 }
 
 onMounted(() => {
-  document.onkeydown = (e) => {
-    console.log(e)
-  }
 
   dragControllerDiv()
 })
@@ -321,7 +326,6 @@ watch(data.value.qas, (qas) => {
     }
   }
   selectAll.value = true
-  console.log(selectAll.value)
 })
 
 // 修改相关控制逻辑

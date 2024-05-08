@@ -29,7 +29,7 @@ export async function request(
         res = await config.method(url)
     } else res = await config.method(url, data)
     if (res.status == 200) {
-        if (res.data.code == config.statusCode1 || res.data.code == config.statusCode2) {
+        if (res.data.code == config.statusCode1 || res.data.code == config.statusCode2 || res.data.code == config.statusCode3) {
             if (successMessage !== undefined) {
                 MessagePlugin.success(successMessage)
             }

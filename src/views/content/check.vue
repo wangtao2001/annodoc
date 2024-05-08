@@ -25,20 +25,40 @@ const columns = [
     {
         title: '语言偏好', cell: (h: any, { row }: { row: any }) => {
             return (
-                <div>{row.language == 'EN-US' ? <p>英文</p> : <p>中文</p>}</div>
+                <>{row.language == 'EN-US' ? <p>英文</p> : <p>中文</p>}</>
             )
         }
     },
     {
         title: '操作', cell: (h: any, { row }: { row: any }) => {
             return (
+                <>
+                <t-link theme="primary" onClick={()=>changeLanguage(row)}>切换语言偏好</t-link>
                 <t-popconfirm on-confirm={() => { deleteCheck(row) }} theme="danger" content="确认删除吗">
                     <t-link theme="danger" > 删除 </t-link>
                 </t-popconfirm>
+                </>
             )
         }
     }
 ]
+
+const changeLanguage = async (row: any) => {
+    const oldLang = row.language
+    let newLang = '';
+    if (oldLang=='ZH-CN' || oldLang.length==0 || oldLang == null) {
+        newLang = 'EN-US'
+    }
+    else newLang = 'ZH-CN'
+    await request(
+        getConfig,
+        `/api/getResponses/changeLanguageChecker?number=${row.number}&language=${newLang}`,
+        ()=>{}, undefined, '修改成功'
+    )
+    allChecker.value.forEach(c => {
+        if (c.number ==  row.number) c.language = newLang
+    })
+}
 
 const allChecker: Ref<Array<{
     number: string, name: string, role: UserRole, done: number, language: string
@@ -74,7 +94,10 @@ const loadData = async () => {
             }
         }
     )
-
+    allChecker.value.sort((a, b) => {
+        if (a.language == 'EN-US') return 1
+        else return -1
+    })
 }
 
 const deleteCheck = async (data: any) => {
@@ -160,9 +183,12 @@ const zeroDone = () => {
                 <div>{{ d.number + ' / ' + d.name + '/' + d.done }}</div>
                 <t-tag v-if="d.role == UserRole.teacher" theme="warning" variant="light">管理员</t-tag>
                 <t-tag v-else theme="success" variant="light">审核员</t-tag>
-                <t-popconfirm @confirm="deleteCheck(d)" theme="danger" content="确认删除吗">
-                    <t-link theme="danger"> 删除 </t-link>
-                </t-popconfirm>
+                <div>
+                    <t-link theme="primary" @click="changeLanguage(d)">切换语言偏好</t-link>
+                    <t-popconfirm @confirm="deleteCheck(d)" theme="danger" content="确认删除吗">
+                        <t-link theme="danger"> 删除 </t-link>
+                    </t-popconfirm>
+                </div>
             </div>
         </div>
         <div class="form">
@@ -204,7 +230,7 @@ const zeroDone = () => {
 <style lang="less" scoped>
 .table {
     margin: 50px 40px 0 40px;
-    width: 500px !important;
+    width: 600px !important;
     user-select: none;
 }
 

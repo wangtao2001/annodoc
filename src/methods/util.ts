@@ -107,13 +107,14 @@ export function corpusDemo() {
                     "answer": "这是第3个问题的答案"
                 }]
         }, {
-            "text": "这是第2段文字",
-            "title": "文字标题",
-            "chapter": "章节标题",
+            "text": "This is the second paragraph",
+            "title": "Test Title",
+            "chapter": "Section Title",
+            "language": "EN-US",
             "pairs": [
                 {
-                    "question": "这是第1个问题",
-                    "answer": "这是第1个问题的答案"
+                    "question": "That is the first question.",
+                    "answer": "This is the answer to the first question"
                 }]
         }
     ]
