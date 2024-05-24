@@ -1,14 +1,15 @@
 <script setup lang="tsx">
 import { ref, Ref, onMounted } from 'vue'
-import router from "@/router"
 import { dragControllerDiv } from '@/methods/util'
 import { v4 as uuidv4 } from 'uuid'
 import { getConfig, postConfig, request } from '@/methods/request'
 import {statusStore} from "@/store"
 import {UserRole} from "@/interface";
 import {MessagePlugin} from "tdesign-vue-next";
+import {useRouter} from "vue-router";
 
 const state = statusStore()
+const router = useRouter()
 
 onMounted(() => {
   dragControllerDiv()

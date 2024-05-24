@@ -21,7 +21,7 @@ const route = useRoute()
 
 <style lang="less" scoped>
 .bread {
-    margin: 20px 20px 50px 20px;
+    margin: 20px 20px 20px 20px;
     user-select: none;
     display: flex;
     flex-direction: row;

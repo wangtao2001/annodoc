@@ -2,6 +2,7 @@
 import textIcon from '@/assets/1.png'
 import recordIcon from '@/assets/3.png'
 import qaIcon from '@/assets/4.png'
+import descIcon from '@/assets/2.png'
 import { useRouter } from 'vue-router'
 import { AnnoType } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
@@ -11,7 +12,7 @@ const router = useRouter()
 const annoType: Array<AnnoType> = [
     {
         id: 0,
-        title: '医学文本',
+        title: '实体标注',
         img: textIcon,
         content: '',
         link: '/anno/work',
@@ -36,11 +37,20 @@ const annoType: Array<AnnoType> = [
         disabled: false,
         new: true
   }
+  , {
+      id: 3,
+      title: '文件描述',
+      img: descIcon,
+      content: '',
+      link: '/anno/description',
+      disabled: false,
+      new: true
+  }
 ]
 
 const anno = (type: AnnoType)=> {
     if(type.disabled) {
-        MessagePlugin.error('暂无任务')
+        MessagePlugin.error('暂无待做任务')
     } else router.push(type.link)
 }
 </script>

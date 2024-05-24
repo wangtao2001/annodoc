@@ -9,7 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vue-office/docx": "^1.6.2",
+    "@vue-office/excel": "^1.7.8",
+    "@vue-office/pdf": "^2.0.2",
     "axios": "^1.3.5",
+    "highlight.js": "^11.9.0",
+    "marked": "^12.0.2",
+    "marked-highlight": "^2.1.1",
     "nprogress": "^0.2.0",
     "pinia": "^2.0.30",
     "pubsub-js": "^1.9.4",
@@ -17,6 +23,7 @@
     "tdesign-vue-next": "^1.8.0",
     "uuid": "^9.0.0",
     "vue": "^3.2.45",
+    "vue-demi": "^0.14.6",
     "vue-router": "^4.1.6",
     "xlsx": "^0.18.5"
   },

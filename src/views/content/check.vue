@@ -171,6 +171,16 @@ const zeroDone = () => {
         undefined, "重置成功"
     )
 }
+
+const zeroTextId = () => {
+  request(
+      getConfig,
+      '/api/getResponses/zeroCheckerTextId',
+      ()=>{},
+      undefined, "重置成功"
+  )
+}
+
 </script>
 
 <template>
@@ -220,8 +230,11 @@ const zeroDone = () => {
             </div>
             <t-button v-if="!formVisable" @click="formVisable = true" style="margin-right: 10px;">添加</t-button>
             <t-popconfirm @confirm='zeroDone' theme="danger" content="确认重置吗">
-                <t-button v-if="!formVisable">重置完成数量</t-button>
+                <t-button v-if="!formVisable" style="margin-right: 10px;">重置完成数量</t-button>
             </t-popconfirm>
+          <t-popconfirm @confirm='zeroTextId' theme="danger" content="确认重置吗">
+            <t-button v-if="!formVisable">重置待做任务</t-button>
+          </t-popconfirm>
         </div>
 
     </t-layout>

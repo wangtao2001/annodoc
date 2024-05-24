@@ -10,6 +10,7 @@ declare module 'vue' {
     AnnoCard: typeof import('./src/components/anno-card.vue')['default']
     Counter: typeof import('./src/components/counter.vue')['default']
     Label: typeof import('./src/components/label.vue')['default']
+    Markdown: typeof import('./src/components/markdown.vue')['default']
     Rela: typeof import('./src/components/rela.vue')['default']
     RelaCard: typeof import('./src/components/rela-card.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

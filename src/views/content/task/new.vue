@@ -4,7 +4,7 @@ import { ref, Ref, reactive } from 'vue'
 import { EntityLabelInfo, RelaLabelInfo, TaskInfo } from '@/interface'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { v4 as uuidv4 } from 'uuid'
-import { downloadLocal, corpusDemo, corpusDemo2 } from '@/methods/util'
+import { downloadLocal, corpusDemo, corpusDemo2, descriptionDemo } from '@/methods/util'
 import { mainStore } from '@/store'
 import { request, postConfig } from '@/methods/request'
 import pubsub from 'pubsub-js'
@@ -43,14 +43,13 @@ const uploadQAData = () =>{
   uploadCorpusData() // 看了后端的接口实现没差别这里就复用了
 }
 
-const demoFile = () => {
-    const jsonString = JSON.stringify(corpusDemo(), null, '\t')
-    downloadLocal(jsonString, "示例.json")
+const uploadDescriptionData = () => {
+  uploadCorpusData()
 }
 
-const demoFile2 = () => {
-  const jsonString = JSON.stringify(corpusDemo2(), null, '\t')
-  downloadLocal(jsonString, "示例.json")
+const demoFile = (d: any) => {
+    const jsonString = JSON.stringify(d(), null, '\t')
+    downloadLocal(jsonString, "示例.json")
 }
 
 const step: Ref<number> = ref(0)
@@ -119,6 +118,9 @@ const next = () => {
         } else if (basicInfo.type == '生成QA') {
             uploadurl.value = "/api/qa/file/upload"
             fileType.value = '.json'
+        } else if (basicInfo.type == '文件描述') {
+          uploadurl.value = "/api/description/file/upload"
+          fileType.value = '.json'
         }
 
     }
@@ -276,9 +278,10 @@ const labelIdToName = (id: string): string => {
             <t-form v-if="step == 0" :label-align="labelAalign">
                 <t-form-item label="项目类型" name="type">
                     <t-select v-model="basicInfo.type">
-                        <t-option label="医学文本" value="医学文本" />
+                        <t-option label="实体标注" value="实体标注" />
                         <t-option label="问句采纳" value="问句采纳" />
                         <t-option label="生成QA" value="生成QA" />
+                        <t-option label="文件描述" value="文件描述" />
                     </t-select>
                 </t-form-item>
                 <t-form-item label="项目名称">
@@ -335,13 +338,15 @@ const labelIdToName = (id: string): string => {
                 </t-form-item>
             </t-form>
             <div class="op">
-                <t-button @click="next" v-if="step != 1 || (step == 1 && basicInfo.type=='医学文本')">{{ nextText }}</t-button>
+                <t-button @click="next" v-if="step != 1 || (step == 1 && basicInfo.type=='实体标注')">{{ nextText }}</t-button>
                 <t-button @click="uploadData" v-if="step == maxPage">提交</t-button>
                 <!--这2个提交按钮只在第二页展示-->
                 <t-button @click="uploadCorpusData" v-if="step == maxPage - 1 && basicInfo.type=='问句采纳'">提交</t-button>
                 <t-button @click="uploadQAData" v-if="step == maxPage - 1 && basicInfo.type=='生成QA'">提交</t-button>
-                <t-button @click="demoFile" v-if="step == maxPage - 1 && basicInfo.type== '问句采纳'" variant="outline">下载示例文件</t-button>
-                <t-button @click="demoFile2" v-if="step == maxPage - 1 && basicInfo.type== '生成QA'" variant="outline">下载示例文件</t-button>
+                <t-button @click="uploadDescriptionData" v-if="step == maxPage - 1 && basicInfo.type=='文件描述'">提交</t-button>
+                <t-button @click="demoFile(corpusDemo)" v-if="step == maxPage - 1 && basicInfo.type== '问句采纳'" variant="outline">下载示例文件</t-button>
+                <t-button @click="demoFile(corpusDemo2)" v-if="step == maxPage - 1 && basicInfo.type== '生成QA'" variant="outline">下载示例文件</t-button>
+                <t-button @click="demoFile(descriptionDemo)" v-if="step == maxPage - 1 && basicInfo.type== '文件描述'" variant="outline">下载示例文件</t-button>
                 <t-button @click="pre" v-if="step > 0" variant="outline">上一步</t-button>
                 <t-button @click="cancel" variant="outline">取消</t-button>
             </div>

@@ -136,6 +136,16 @@ export function corpusDemo2() {
     ]
 }
 
+export function descriptionDemo() {
+    return [
+        {
+            "filePath": "file/xxx/xxx.pdf",
+            "text1": "这是提示文本，支持markdown, 文件支持.pdf .docx .xlsx .xls .txt .md .html，推荐使用.pdf",
+            "pageIndex": 10
+        }
+    ]
+}
+
 
 export const dragControllerDiv = () => {
     const card = document.querySelector('.card') as HTMLDivElement
