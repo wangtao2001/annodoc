@@ -9,9 +9,11 @@ import { useRouter } from "vue-router"
 import { UserRole } from "@/interface"
 import { MessagePlugin } from "tdesign-vue-next"
 import {statusStore} from "@/store"
-import {getConfig, postConfig, request} from "@/methods/request";
+import {getConfig, postConfig, request} from "@/methods/request"
+import pubsub from 'pubsub-js'
 const router = useRouter()
 const state = statusStore()
+
 
 const flexRow = ref(true)
 const flexChange = () => {
@@ -42,6 +44,7 @@ const init = async () => {
     MessagePlugin.error('该功能暂不支持学生使用').then()
     router.back()
   }
+  pubsub.publish('counterCheckUpdate')
   await request(
       getConfig, `/api/description/getResponses/getTaskChecker?number=${state.user.number}`,
       (res) => {
@@ -52,6 +55,14 @@ const init = async () => {
         data.value.filePath = 'https://anno.cpu.edu.cn/' + res.filePath
         const list = res.filePath.split('.')
         data.value.suffix = list[list.length-1]
+        // 预先填充表单 ================
+        let tmp = res.filePath.split('/')
+        description.value.filename = tmp[tmp.length-1]
+        tmp = res.text1.split('###')
+        description.value.chaptername = tmp[0]
+        description.value.tablename = tmp[1]
+        description.value.pageIndex = res.pageIndex
+        // ============================
       }, undefined, undefined, () => { router.push('/anno/type')}
   )
 }
@@ -60,9 +71,15 @@ const errorHandler = () => {
   console.log('出现错误')
 }
 
-const inputting = ref(false)
-
-const approve = async () => {
+const approve = async (nan: boolean) => {
+  if (nan) data.value.text2 = 'NaN'
+  else
+  data.value.text2 = description.value.filename + '###'
+  + description.value.chaptername + '###'
+  + description.value.tablename + '###'
+  + description.value.pageIndex + '###'
+  + description.value.pageEnd + '###'
+  + description.value.desc
   await request(
       postConfig,
       '/api/description/accept/acceptChecker',
@@ -71,10 +88,12 @@ const approve = async () => {
       {id: data.value.id, taskId: data.value.taskId, text: data.value.text2, number: state.user.number},
   )
   MessagePlugin.success('提交成功').then()
-  data.value.text2 = ''
-  inputting.value = false
   await init()
 }
+
+const description = ref({
+  filename: '', chaptername: '', tablename: '', pageIndex: 0, pageEnd: 0, desc: ''
+})
 
 init()
 </script>
@@ -82,7 +101,7 @@ init()
 <template>
   <div class="root">
     <div class="card" :style="flexRow ? 'flex-direction: row; height: 100%;' : 'flex-direction: column;'">
-      <div class="file" :style="flexRow ? 'margin-right: 20px; width: 800px; height: 700px;' : 'margin-bottom: 20px; width: 100%; height: 500px;'">
+      <div class="file" :style="flexRow ? 'margin-right: 20px; width: 1000px; height: 700px;' : 'margin-bottom: 20px; width: 100%; height: 500px;'">
         <!--限制：非所有的浏览器都能使用iframe预览pdf, docx类型无法翻页-->
         <iframe
             v-if="data.suffix == 'pdf'"
@@ -107,20 +126,45 @@ init()
         ></markdown>
       </div>
       <div class="text">
-        <t-card class="text1" :style="flexRow ? 'min-height: 200px;' : ''">
+        <!-- <t-card class="text1" :style="flexRow ? 'min-height: 100px;' : ''">
           <markdown :text="data.text1" />
-        </t-card>
+        </t-card> -->
         <t-card class="text2">
-          <t-link v-if="!inputting && data.text2.length == 0" theme="primary" @click="inputting = true">添加描述</t-link>
-          <div v-if="!inputting && data.text2.length != 0">
-            <p>{{data.text2}}</p>
-            <t-link  theme="danger" @click="data.text2 = ''">删除描述</t-link>
-          </div>
-          <t-textarea  :autosize="{ minRows: 5}" v-model:value="data.text2" v-if="inputting" />
-          <div v-if="inputting" style="margin-top: 20px">
-            <t-link @click="inputting = false; data.text2 = ''" >取消描述</t-link>
-            <t-link theme="primary" @click="inputting = false" >保存描述</t-link>
-          </div>
+          <t-form :data="description">
+            <t-form-item label="文件名" name="filename">
+              <t-input v-model="description.filename" disabled></t-input>
+            </t-form-item>
+            <t-form-item label="章节名" name="chaptername">
+              <t-input v-model="description.chaptername"></t-input>
+            </t-form-item>
+            <t-form-item label="表格名" name="tablename">
+              <t-input v-model="description.tablename"></t-input>
+            </t-form-item>
+            <t-form-item label="表格起点页" name="pageIndex">
+              <t-input-number
+                v-model="description.pageIndex"
+                theme="column"
+                :min="0"
+                style="width: 150px"
+              ></t-input-number>
+            </t-form-item>
+            <t-form-item label="表格终点页" name="pageEnd">
+              <t-input-number
+                v-model="description.pageEnd"
+                theme="column"
+                :min="0"
+                style="width: 150px"
+              ></t-input-number>
+            </t-form-item>
+            <t-form-item label="表格描述" name="desc">
+              <t-textarea 
+              placeholder="请输入内容"
+              :autosize="{ minRows: 3, maxRows: 7 }"
+              v-model="description.desc"
+              >
+              </t-textarea>
+            </t-form-item>
+          </t-form>
         </t-card>
       </div>
     </div>
@@ -131,7 +175,8 @@ init()
           <t-button class="flex" variant="outline" @click="flexChange">{{ flexRow ? '上下布局' : '左右布局'}}</t-button>
         </div>
         <div class="next">
-          <t-button :disabled="inputting || data.text2.length == 0" @click="approve" >提交</t-button>
+          <t-button variant="outline" @click="()=>{approve(false)}" >跳过</t-button>
+          <t-button @click="()=>{approve(true)}" :disabled="description.tablename.length == 0" >提交</t-button>
         </div>
       </div>
     </t-card>

@@ -172,6 +172,8 @@ const view = async (task: TaskInfo) => {
         url = `/api/getResponses/getMedicalNumber/${task.id}`
     } else if (task.type == "问句采纳") {
         url = `/api/corpus/getResponses/getMarkedStatus/${task.id}`
+    } else if (task.type == '文件描述') {
+      url = `/api/description/getResponses/getMarkedStatus/${task.id}`
     }
     request(
         getConfig,
@@ -404,8 +406,10 @@ const getAllGrades = async () => {
                     </div>
                     <p>未标注：{{ textSatatus.unmarked }}</p>
                     <t-progress theme="line" color="#e37318" :percentage=" Math.floor(textSatatus.unmarked / textSatatus.all * 100)" />
-                    <p>标注中：{{ textSatatus.marking }}</p>
-                    <t-progress theme="line" :color="{ from: '#0052D9', to: '#00A870' }" :percentage=" Math.floor(textSatatus.marking / textSatatus.all * 100)" />
+                    <div v-if="textSatatus.marking != -1">
+                        <p>标注中：{{ textSatatus.marking }}</p>
+                        <t-progress theme="line" :color="{ from: '#0052D9', to: '#00A870' }" :percentage=" Math.floor(textSatatus.marking / textSatatus.all * 100)" />
+                    </div>
                 </div>
                 <div class="footer">
                     <t-button variant="outline" @click="viewDialog = false">关闭</t-button>

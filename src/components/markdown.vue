@@ -2,20 +2,9 @@
 import axios from 'axios'
 import {ref, watch} from 'vue'
 import { Marked } from 'marked'
-import { markedHighlight } from 'marked-highlight'
-import hljs from 'highlight.js'
-import 'highlight.js/styles/base16/darcula.css'
+import 'github-markdown-css/github-markdown.css'
 
-const marked = new Marked(
-    markedHighlight({
-      async: false,
-      langPrefix: 'hljs language-', // 代码高亮
-      highlight(code, lang, info) {
-        const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-        return hljs.highlight(code, { language }).value;
-      }
-    })
-);
+const marked = new Marked()
 
 const content = ref('')
 const props = defineProps({
@@ -49,5 +38,11 @@ const txt2html = (txt: string): string => {
 </script>
 
 <template>
-    <div v-html="content"></div>
+    <div class="markdown-body" v-html="content"></div>
 </template>
+
+<style scoped>
+.markdown-body {
+  font-size: 14px;
+}
+</style>

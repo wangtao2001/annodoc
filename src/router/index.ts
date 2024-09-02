@@ -82,6 +82,14 @@ const routes: Array<RouteRecordRaw> = [{
                     meta: {
                         breadcrumbLevel: 3
                     }
+                },
+                {
+                    path: '/anno/lbsz',
+                    component: () => import('@/views/content/anno/lbsz.vue'),
+                    name: 'lbsz',
+                    meta: {
+                        breadcrumbLevel: 3
+                    }
                 }
             ]
         },

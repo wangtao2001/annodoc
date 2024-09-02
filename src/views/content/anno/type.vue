@@ -16,8 +16,8 @@ const annoType: Array<AnnoType> = [
         img: textIcon,
         content: '',
         link: '/anno/work',
-        disabled: true,
-        new: true
+        disabled: false,
+        new: false
     }
     , {
         id: 1,
@@ -26,7 +26,7 @@ const annoType: Array<AnnoType> = [
         content: '',
         link: '/anno/corpus-v2',
         disabled: false,
-        new: true
+        new: false
     }
     , {
         id: 2,
@@ -35,16 +35,28 @@ const annoType: Array<AnnoType> = [
         content: '',
         link: '/anno/generate-qa',
         disabled: false,
-        new: true
+        new: false
   }
   , {
       id: 3,
-      title: '文件描述',
+      title: '文件表格描述',
       img: descIcon,
       content: '',
       link: '/anno/description',
       disabled: false,
-      new: true
+      new: false
+  }
+]
+
+const annoType2: Array<AnnoType> = [
+  {
+    id: 0,
+    title: '淋巴水肿',
+    img: descIcon,
+    content: '',
+    disabled: true,
+    new: true,
+    link:"/anno/lbsz"
   }
 ]
 
@@ -60,17 +72,34 @@ const anno = (type: AnnoType)=> {
         <div class="container">
             <div class="label">文本标注:</div>
             <div class="tasks">
-                <div class="card" @click="anno(type)" bordered v-for="type in annoType" :key="type.id">
+              <template  v-for="t in annoType"  :key="t.id">
+              <div class="card" @click="anno(t)" v-if="!t.disabled">
                     <div class="top">
-                        <img :src="type.img" />
-                        <div class="title">{{ type.title }}</div>
-                        <t-tag v-if="type.new" theme="primary" variant="light">NEW</t-tag>
+                        <img :src="t.img" />
+                        <div class="title">{{ t.title }}</div>
+                        <t-tag v-if="t.new" theme="primary" variant="light">NEW</t-tag>
                     </div>
                     <div class="content">
-                        {{ type.content }}
+                        {{ t.content }}
                     </div>
                 </div>
+              </template>
             </div>
+          <div class="label">图像标注:</div>
+          <div class="tasks">
+            <template  v-for="t in annoType2"  :key="t.id">
+              <div class="card" @click="anno(t)" v-if="!t.disabled">
+                <div class="top">
+                  <img :src="t.img" />
+                  <div class="title">{{ t.title }}</div>
+                  <t-tag v-if="t.new" theme="primary" variant="light">NEW</t-tag>
+                </div>
+                <div class="content">
+                  {{ t.content }}
+                </div>
+              </div>
+            </template>
+          </div>
         </div>
     </div>
 </template>
@@ -85,7 +114,7 @@ const anno = (type: AnnoType)=> {
 
     .container {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
 
         .label {
             margin-right: 40px;
